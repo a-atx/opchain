@@ -30,6 +30,7 @@ This plugin ships the mechanism instead of describing it.
 | 29 skills | ✅ | ✅ |
 | Commit gate that actually blocks | ❌ | ✅ |
 | Pipeline state injected at session start | ❌ | ✅ |
+| "What to run next" after a skill finishes | ❌ | ✅ |
 | Real slash commands | ❌ (192 declared, 0 registered) | ✅ |
 
 ## Install
@@ -73,23 +74,64 @@ opchain pipeline state (from .checkpoints/, computed at session start):
 Silent when there is nothing to say. An empty nudge every session is how nudges
 get ignored.
 
+**`Stop` → what to run next** (`hooks/next-suggestion.cjs`). When a skill
+finishes, names the next one — as something you can type:
+
+```
+opchain · next → /oc-deploy   (oc-code-auditor just wrote a checkpoint: hand off to oc-deploy-ops for staging)
+```
+
+This is the one mechanism that works *with* the measured evidence instead of
+against it. Skills fire **66%** of the time when a human names them and **5.4%**
+when nobody does; 0 of 54 invocations were autonomous. So this doesn't try to
+make a skill invoke another skill — it puts the name in front of the person with
+the 66% hit rate, at the moment they're choosing what to do next.
+
+It fires on **transitions, not standing state**: only when a checkpoint actually
+changed during the session. The naive version — "show the top queued action at
+end of turn" — was measured against this repo and rejected: 10 of 13 checkpoints
+carry a queued action, so it fired every single turn with identical text. A
+suggestion you've read 30 times is wallpaper, and wallpaper gets the plugin
+uninstalled, taking the commit gate with it.
+
+It stays silent when: nothing changed since the last turn, it's the first turn of
+a session (that's SessionStart's job), the action references work git already
+shows as merged or tagged, the "action" is really a status note (`"No X work
+pending"`), or the same suggestion already fired for this commit. Mute entirely
+with `OPCHAIN_SUGGEST=0`.
+
+**Channel note, settled by experiment (2026-07-24).** A probe emitted
+`systemMessage` and `additionalContext` in one Stop-hook payload and observed
+where each landed. `additionalContext` reaches the model *and forces a
+continuation turn*; `systemMessage` does not reach the model — which contradicts
+`plugin-dev/skills/hook-development/SKILL.md:292` ("Message shown to Claude") for
+Stop hooks. We use `systemMessage` because it costs no turn and no tokens. If it
+should prove invisible in some client, this hook is an inert no-op rather than a
+misfire — that asymmetry is why it was chosen over `decision: "block"`.
+
 ## Honest limits
 
 - **Claude Code only.** A second agent (Codex authored 78 of 101 commits in one
   audited repo) never sees a `PreToolUse` hook. CI is the only cross-agent
   enforcer, and it is post-hoc: the unverified commit gets written, it just cannot
   merge.
-- **Gate edges only.** A hook can intercept `git commit`. Nothing intercepts "you
-  are about to design a screen, consult ux-engineer" — there is no tool call to
-  hang it on. Composition skills stay user-invoked; the commands make them
-  reachable, not automatic.
+- **Enforcement is gate edges only.** A hook can intercept `git commit`. Nothing
+  intercepts "you are about to design a screen, consult ux-engineer" — there is
+  no tool call to hang it on. Composition skills stay user-invoked. The Stop hook
+  *suggests* them and the commands make them typeable, which moves invocation
+  from the 5.4% lane to the 66% lane — but a suggestion is not a gate, and this
+  README will not pretend otherwise.
+- **The suggestion needs a checkpoint to fire.** It keys off checkpoint writes,
+  so a skill that finishes without writing one is invisible to it. That is the
+  same coverage gap the checkpoint protocol has always had, not a new one.
 - **`--no-verify` still works,** deliberately. A gate with no escape hatch gets
   uninstalled. It logs to stderr.
 
 ## Testing
 
 ```
-node hooks/test-gate.cjs
+node hooks/test-gate.cjs        # 35 cases — commit gate
+node hooks/test-suggestion.cjs  # 13 cases — next-skill suggestion
 ```
 
 The harness distinguishes ALLOW from CRASHED — a hook that throws writes nothing

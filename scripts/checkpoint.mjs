@@ -457,16 +457,36 @@ function recommendedAction(data, staleTokens) {
   const blockers = Array.isArray(data.blockers) ? data.blockers : [];
   const decision = blockers.find((b) => b.needs === "user_decision");
   if (decision) {
+    // The drift filter applies here too. These are ranks 1-2 — the ones pickNext
+    // prefers ABOVE all others — so a stale action here outranks every correctly
+    // filtered suggestion below it. Before 2026-07-24 both branches returned raw
+    // text without consulting staleTokens, which is why `next` told this repo to
+    // "tag v1.8.0 on the merge commit" twelve days after v1.8.0 shipped: the
+    // highest-priority path was the only unfiltered one.
+    const proposed = decision.proposed_resolution || "";
+    const stale = proposed && actionIsStale(proposed, staleTokens);
     return {
       why: `Blocked on your decision: ${decision.description}`,
-      action: decision.proposed_resolution || "Resolve the blocker, then resume.",
+      action: stale ? "Resolve the blocker, then resume." : proposed || "Resolve the blocker, then resume.",
+      allStale: Boolean(stale),
     };
   }
   const firstBlocker = blockers[0];
   if (data.status === "failed" || data.status === "blocked") {
+    const proposed = firstBlocker?.proposed_resolution || "";
+    if (proposed && !actionIsStale(proposed, staleTokens)) {
+      return {
+        why: firstBlocker ? `${data.status}: ${firstBlocker.description}` : `${data.status} — needs recovery`,
+        action: proposed,
+        allStale: false,
+      };
+    }
+    // Fall through to the queued actions, drift-filtered, before giving up.
+    const { action: fresh, allStale } = firstFreshAction(data.next_actions, staleTokens);
     return {
       why: firstBlocker ? `${data.status}: ${firstBlocker.description}` : `${data.status} — needs recovery`,
-      action: firstBlocker?.proposed_resolution || actionText((data.next_actions || [])[0]) || "Diagnose and recover.",
+      action: fresh || "Diagnose and recover.",
+      allStale: Boolean(allStale && !fresh),
     };
   }
   // Normal path: recommend the first NON-stale queued action. With no stale-token
@@ -483,7 +503,10 @@ function recommendedAction(data, staleTokens) {
   const action = allStale
     ? `All ${data.next_actions.length} queued action(s) reference already-merged/-completed work — run \`checkpoint doctor\` and reconcile this checkpoint before continuing.`
     : (fresh || "No queued next action — review the checkpoint.");
-  return { why, action };
+  // allStale is part of the contract now: consumers (the plugin's suggestion
+  // hook) stay SILENT rather than surfacing a recommendation built entirely
+  // from work git says already landed.
+  return { why, action, allStale: Boolean(allStale) };
 }
 
 // ───────────────────────────── commands ─────────────────────────────────────

@@ -39,7 +39,8 @@
     "checkpoint:next": "node scripts/checkpoint.mjs next",
     "checkpoint:doctor": "node scripts/checkpoint.mjs doctor",
     "checkpoint:validate": "node scripts/checkpoint.mjs validate",
-    "prepare": "node scripts/install-git-drivers.mjs"
+    "prepare": "node scripts/install-git-drivers.mjs",
+    "test:hooks": "node plugins/opchain/hooks/test-gate.cjs && node plugins/opchain/hooks/test-suggestion.cjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",
