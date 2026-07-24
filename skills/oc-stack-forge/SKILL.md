@@ -1,7 +1,7 @@
 ---
 name: oc-stack-forge
 displayName: OC · Stack Forge
-version: 1.8.1
+version: 1.8.2
 shortDesc: Stack decisions, Cloudflare patterns, typed pipeline. v1.2 records the chosen stack on the linked PM ticket as an ADR.
 phases: [plan, build]
 triAgent: false

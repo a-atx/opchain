@@ -1,7 +1,7 @@
 ---
 name: oc-monitoring-ops
 displayName: OC · Monitoring Ops
-version: 1.8.1
+version: 1.8.2
 shortDesc: Post-deploy observability — uptime, errors, alerts, incidents. v1.2 opens PM incident tickets when alerts fire.
 phases: [build]
 triAgent: false

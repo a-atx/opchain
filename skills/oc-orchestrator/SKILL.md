@@ -1,7 +1,7 @@
 ---
 name: oc-orchestrator
 displayName: OC · Orchestrator
-version: 1.8.1
+version: 1.8.2
 shortDesc: Pipeline coordinator — registry, status, routing. v1.2 reads `pm_refs` across skills; routes by ticket id.
 phases: [foundation]
 triAgent: false

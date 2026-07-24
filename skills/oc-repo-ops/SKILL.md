@@ -1,7 +1,7 @@
 ---
 name: oc-repo-ops
 displayName: OC · Repo Ops
-version: 1.8.1
+version: 1.8.2
 shortDesc: "Repository hygiene and PR readiness gate. Ensures docs, generated files, git state, catalogs, and cleanup are PR-ready."
 phases: [build]
 triAgent: false

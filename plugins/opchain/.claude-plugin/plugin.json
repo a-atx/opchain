@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "opchain",
-  "version": "1.8.1",
-  "description": "The opchain skill pipeline (concept → spec → design → build → ship) plus the gates that actually enforce it. Unlike the skills-only zip, this ships working hooks: the pre-commit bug-check gate and the checkpoint-hygiene Stop gate.",
+  "version": "1.8.2",
+  "description": "The opchain skill pipeline (concept \u2192 spec \u2192 design \u2192 build \u2192 ship) plus the gates that actually enforce it. Unlike the skills-only zip, this ships working hooks: the pre-commit bug-check gate and the checkpoint-hygiene Stop gate.",
   "author": {
     "name": "opchain",
     "url": "https://opchain.dev"
@@ -10,5 +10,11 @@
   "homepage": "https://opchain.dev",
   "repository": "https://github.com/asfbay-bit/opchain-skills",
   "license": "MIT",
-  "keywords": ["pipeline", "gates", "checkpoints", "code-review", "release"]
+  "keywords": [
+    "pipeline",
+    "gates",
+    "checkpoints",
+    "code-review",
+    "release"
+  ]
 }

@@ -1,7 +1,7 @@
 ---
 name: oc-git-ops
 displayName: OC · Git Ops
-version: 1.8.1
+version: 1.8.2
 shortDesc: Branch, commit, PR, sync workflows. v1.2 is PM-aware — `/oc-git-sync TICKET-1234` reads ticket; transitions on merge.
 phases: [build]
 triAgent: false
