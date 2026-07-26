@@ -1,4 +1,7 @@
 ---
+// NOTE: not imported by any page as of v1.8.2. Kept for a planned
+// architecture-diagram refactor; wording is kept in sync with the live
+// diagrams so it cannot drift further while unrendered.
 /**
  * Pipeline diagram — structured SVG of how the opchain skills chain,
  * from oc-reverse-spec through the post-deploy monitoring + migration loop.
@@ -77,7 +80,7 @@ const edges: Edge[] = [
   { from: "oc-git-ops",       to: "oc-deploy-ops",     shape: "arrow", fromSide: "r", toSide: "l" },
   { from: "oc-deploy-ops",    to: "oc-monitoring-ops", shape: "arrow", fromSide: "r", toSide: "l" },
 
-  // oc-app-architect auto-invokes plan-phase skills (upward)
+  // oc-app-architect chains to plan-phase skills (upward)
   { from: "oc-app-architect", to: "oc-stack-forge",   shape: "arrow",  fromSide: "t", toSide: "b", curve: "elbow" },
   { from: "oc-app-architect", to: "oc-ux-engineer",   shape: "arrow",  fromSide: "t", toSide: "b", curve: "elbow" },
   { from: "oc-ux-engineer",   to: "oc-dash-forge",    shape: "arrow",  fromSide: "r", toSide: "l" },
@@ -146,7 +149,7 @@ const phaseLabels = [
     <desc>
       Every skill inherits the oc-checkpoint-protocol JSON schema, and the
       orchestrator skill reads across all of them for cross-project status and
-      routing. oc-reverse-spec feeds oc-app-architect, which auto-invokes
+      routing. oc-reverse-spec feeds oc-app-architect, which chains to
       oc-stack-forge, oc-ux-engineer and oc-dash-forge during plan, with oc-scale-ops and
       oc-migration-ops as advisory plan-phase skills. oc-app-architect hands off
       through oc-git-ops to oc-deploy-ops, which in turn hands off to oc-monitoring-ops
@@ -205,7 +208,7 @@ const phaseLabels = [
 
   <ul class="legend" aria-label="Legend">
     <li><span class="swatch swatch-spine"></span> main spine</li>
-    <li><span class="swatch swatch-plan"></span> auto-invoked by oc-app-architect</li>
+    <li><span class="swatch swatch-plan"></span> invoked from oc-app-architect</li>
     <li><span class="swatch swatch-gate"></span> quality gate (code + security)</li>
     <li><span class="swatch swatch-side"></span> side chain</li>
     <li><span class="swatch swatch-foundation"></span> foundation (checkpoint + orchestrator)</li>
