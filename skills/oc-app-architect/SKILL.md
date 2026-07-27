@@ -1,7 +1,7 @@
 ---
 name: oc-app-architect
 displayName: OC · App Architect
-version: 1.8.1
+version: 1.8.2
 shortDesc: Idea → spec → design → build → launch in one skill. v1.2 reads PM tickets and writes sprints back via PM-MCP.
 phases: [plan, build]
 triAgent: true
@@ -18,8 +18,7 @@ commands:
 description: >
   Unified app development: idea → spec → design → build with Generator/Evaluator
   QA loop → launch. Use for /oc-app, /oc-discover, /oc-spec, /oc-design, /oc-build, /oc-launch,
-  "build me an app", "I have an app idea", or any software project. Auto-invokes
-  oc-stack-forge and oc-ux-engineer. Trigger liberally.
+  "build me an app", "I have an app idea", or any software project. Chains to (when you invoke it): oc-stack-forge and oc-ux-engineer.
 ---
 
 # App Architect

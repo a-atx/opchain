@@ -1,7 +1,7 @@
 ---
 name: oc-ux-engineer
 displayName: OC · UX Engineer
-version: 1.8.1
+version: 1.8.2
 shortDesc: Design Planner → Generator → Evaluator. v1.2 posts eval scores to the PM ticket; a11y as sub-tickets.
 phases: [plan]
 triAgent: true
@@ -20,7 +20,7 @@ commands:
 description: >
   UI/UX design harness with Design Planner/Generator/Evaluator loop. Use for /oc-uxe,
   "review the UX", "design iteration", "component library", "accessibility audit",
-  "is the UI consistent", or any design quality question. Trigger liberally.
+  "is the UI consistent", or any design quality question.
 ---
 
 # UX Engineer
