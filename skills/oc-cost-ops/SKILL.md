@@ -1,7 +1,7 @@
 ---
 name: oc-cost-ops
 displayName: OC · Cost Ops
-version: 1.8.1
+version: 1.8.2
 shortDesc: LLM cost attribution per skill phase, budget gates in checkpoints, and model-tier routing recommendations.
 phases: [build]
 triAgent: false
@@ -21,7 +21,7 @@ description: >
   attribution", "token cost", "budget gate", "model tier routing", "cost
   regression", "cheaper model", "spend per feature". Pairs with oc-prompt-ops
   (cost-regression gate alongside the score gate) and oc-telemetry-ops (feeds
-  the public /dashboard cost stats). Trigger liberally on cost/spend work.
+  the public /dashboard cost stats).
 governance:
   breaking_change_policy: skills/CHANGELOG.md
   last_reviewed: 2026-06-25

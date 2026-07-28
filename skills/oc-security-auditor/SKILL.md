@@ -1,7 +1,7 @@
 ---
 name: oc-security-auditor
 displayName: OC · Security Auditor
-version: 1.8.1
+version: 1.8.2
 shortDesc: Threat modeling, OWASP hardening, attack-surface review. v1.2 files CRITICAL findings as PM incident tickets.
 phases: [build]
 triAgent: false
@@ -26,7 +26,7 @@ description: >
   "harden this", "what are the security risks", "SOC2 readiness", "pen test prep",
   "how would someone attack this", "security architecture review", "CSP policy",
   "TLS config", "WAF rules". Trigger when user asks about security at an architecture,
-  infrastructure, or compliance level — not just code bugs. Trigger liberally.
+  infrastructure, or compliance level — not just code bugs.
 ---
 
 # Security Auditor
