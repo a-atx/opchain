@@ -319,6 +319,63 @@ const futureReleaseGroups = [
         </div>
       </article>
 
+      <!-- v1.8.2 — the plugin patch under the v1.8 line. Deep-linkable from #v1-8-2. -->
+      <article class="rel-card" id="v1-8-2" data-card>
+        <button class="rc-row" type="button" aria-expanded="false" aria-controls="v1-8-2-body" data-disclosure-toggle>
+          <span class="rc-toggle" aria-hidden="true">▶</span>
+          <span class="rc-meta">
+            <span class="rc-head"><span class="ver-pill ver-pill--past">v1.8.2 patch</span><span class="rc-title">Enforcement that ships</span><span class="rc-date">Jul 24, 2026</span></span>
+            <span class="rc-summary">opchain now installs as a Claude Code plugin carrying executable hooks — a commit gate that actually blocks, session state you don't have to ask for, and a nudge toward the next skill when one finishes.</span>
+          </span>
+        </button>
+        <div class="card-body" id="v1-8-2-body" data-disclosure-body inert>
+          <div class="card-body-inner">
+            <div class="tag-row"><span class="tag">plugin install</span><span class="tag">commit gate</span><span class="tag">honesty pass</span><span class="tag">29 skills</span></div>
+            <p>
+              The catalog used to describe gates it could not enforce. Everything it
+              shipped was markdown, so an instruction like &ldquo;always run bug-check
+              before committing&rdquo; was a request, not a rule &mdash; and across 87
+              measured sessions, cross-skill auto-invocation fired
+              <strong>zero times</strong>. This patch ships the mechanism instead of
+              the description.
+            </p>
+            <h3>New: install as a plugin</h3>
+            <div class="planned-box">
+              <code>/plugin marketplace add asfbay-bit/opchain-skills</code><br />
+              <code>/plugin install opchain</code>
+            </div>
+            <p>
+              The skills-only zip still works and is unchanged. The plugin adds what
+              markdown can't carry:
+            </p>
+            <ul>
+              <li><strong>A commit gate that blocks.</strong> <code>git commit</code> is refused unless oc-bug-check recorded a pass bound to the exact code being committed &mdash; so a stale or hand-written verdict doesn't count.</li>
+              <li><strong>Session state, unprompted.</strong> Stale checkpoints, open findings and the next action are computed at session start instead of waiting to be asked for.</li>
+              <li><strong>A pointer to the next skill.</strong> When a skill finishes, the one to run next is named as something you can type. It fires on real transitions, not on standing state, and stays quiet otherwise.</li>
+            </ul>
+            <h3>Honesty pass</h3>
+            <p>
+              Every <code>Auto-invokes X</code> and <code>Trigger liberally</code> claim
+              is gone from all 29 skills and the shared orchestrator protocol. They
+              described a chaining mechanism that had never once fired on its own.
+              oc-git-ops also stops claiming a hook that existed in exactly one
+              repository while shipping to everyone.
+            </p>
+            <h3>Fixed</h3>
+            <ul>
+              <li><strong>oc-bug-check</strong> gained Swift support and an <code>UNSUPPORTED</code> verdict distinct from pass &mdash; an unrecognised stack used to report green on code it never read. Secret scanning no longer skips non-JavaScript files.</li>
+              <li><strong>Checkpoint staleness</strong> now covers <code>complete</code> checkpoints, not just in-progress ones; a finished checkpoint asserting a long-shipped release drew no warning for a month.</li>
+              <li><strong>Next-action drift</strong> &mdash; the two highest-priority paths skipped the already-shipped filter entirely, which is how the tool recommended tagging a release that had shipped twelve days earlier.</li>
+            </ul>
+            <div class="compat-box">
+              <strong>Back-compatible with v1.8.1.</strong> All 29 skills lockstep-bump
+              to <code>1.8.2</code>. No checkpoint migration, no routes or commands
+              removed; the plugin is an additive install channel.
+            </div>
+          </div>
+        </div>
+      </article>
+
       <!-- v1.8.1 — checkpoint-truth patch under the v1.8 line. Deep-linkable from #v1-8-1. -->
       <article class="rel-card" id="v1-8-1" data-card>
         <button class="rc-row" type="button" aria-expanded="false" aria-controls="v1-8-1-body" data-disclosure-toggle>

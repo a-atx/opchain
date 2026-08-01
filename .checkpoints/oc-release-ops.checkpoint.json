@@ -3,12 +3,12 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-07-10T17:52:21Z",
+  "updated_at": "2026-08-01T05:14:17Z",
   "skill": "oc-release-ops",
   "phase": "ship-pr-open",
-  "step": "release-pr-ready",
+  "step": "surfaces-pr-open",
   "status": "in_progress",
-  "progress_summary": "v1.8.0 'Documentation & repo hygiene' release cut on branch claude/release-v1-8 (worktree off origin/main). Shipped in this cut: every-PR mesh wiring in skills/orchestrator.md (+ sync-bundles across 29 skills), SKILL.md description updates (oc-git-ops, oc-bug-check, oc-release-ops), lockstep bump 1.7.0 -> 1.8.0 (27 skills; docs-forge/repo-ops already 1.8.0), changelog swap (v1.8 Coming Next -> Just Released hero, v1.9 vote moved to Coming Next), homepage release bar + stat + Header chip + Skill Library callout -> v1.8, styleguide badge v1.8.0, server.json 1.8.0, skills/CHANGELOG.md [1.8.0] entry, two blog posts published (release post + engineering deep-dive) with OG cards, release-surface guard tests updated to v1.8. Gates: vitest 448/448 PASS, astro check 0 errors, site build 76 pages, gen-catalog 29 skills, sync-bundles:check clean, release-surfaces test PASS. Remaining: PR -> CI -> merge, tag v1.8.0 (publish-mcp-registry workflow), manual staging + prod deploy (deploys are manual by doctrine), close deploy-lag issue.",
+  "progress_summary": "v1.8.2 (Enforcement that ships): the skills catalog landed on main via #410 (94de0c1, 2026-07-27), which deliberately deferred the release surfaces. Those surfaces sat unmerged on claude/opchain-checkpoints-telemetry-5103ec and are now landing via a PR from claude/opchain-plugin-install-0bc345 (squash of that branch @ c14936d): the Claude Code plugin (plugins/opchain — commit-gate/session-state/next-suggestion hooks, 8 slash commands, skills symlink), .claude-plugin/marketplace.json, skills/CHANGELOG.md [1.8.2] entry, site /changelog entry + /install plugin front door, server.json 1.8.2, mirror-public.yml shipping plugins/ + .claude-plugin/ (cp -RL), deploy.mjs staging-from-main guard, and a CI test:hooks step. Gates at PR time: vitest 450/450, test:hooks both suites green (13/13 suggestion), checkpoint:validate 12 valid.",
   "context_primer": {
     "key_decisions": [
       "Semver v1.8.0 minor, theme 'Documentation & repo hygiene' from the changelog Coming Next card.",
@@ -26,20 +26,31 @@
     ]
   },
   "next_actions": [
-    "Merge the release PR on green CI, then tag v1.8.0 on the merge commit.",
-    "From main: npm run deploy:staging, eyeball staging.opchain.dev (/blog, /changelog, /skills), then npm run deploy.",
+    "Merge the surfaces PR on green CI; verify the mirror-public run pushed plugins/ + .claude-plugin/ to asfbay-bit/opchain-skills, then smoke-test /plugin marketplace add asfbay-bit/opchain-skills + /plugin install opchain.",
+    "Tag v1.8.2 on the merge commit — publish-mcp-registry syncs the MCP registry from server.json 1.8.2.",
+    "From main: npm run deploy:staging, eyeball /changelog + /install + /architecture, then npm run deploy; close the deploy-lag issue if open.",
     "Flush pm_deferred_actions via /oc-release announce --retry-pm once Linear MCP is authenticated."
   ],
   "pm_refs": [],
   "skill_state": {
     "current_release": {
-      "semver": "1.8.0",
-      "theme": "Documentation & repo hygiene",
+      "semver": "1.8.2",
+      "theme": "Enforcement that ships",
       "phase": "ship-pr-open",
       "release_ticket_id": null,
-      "started_at": "2026-07-10T17:52:21Z"
+      "started_at": "2026-07-24T00:00:00Z"
     },
     "history": [
+      {
+        "semver": "1.8.1",
+        "theme": "Checkpoint truth without the CLI",
+        "shipped_at": "2026-07-12"
+      },
+      {
+        "semver": "1.8.0",
+        "theme": "The quality-gate rail",
+        "shipped_at": "2026-07-04"
+      },
       {
         "semver": "1.7.0",
         "theme": "Seams & Signals",
@@ -57,7 +68,7 @@
         "action": "create_issue",
         "retriable": true,
         "marker": "<!-- opchain:oc-release-ops:release-ticket:v1.8.0 -->",
-        "title": "Release v1.8.0 \u2014 Documentation & repo hygiene",
+        "title": "Release v1.8.0 — Documentation & repo hygiene",
         "reason": "Linear MCP unauthenticated in the shipping session",
         "recorded_at": "2026-07-10T17:52:21Z"
       }
