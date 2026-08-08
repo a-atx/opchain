@@ -3,13 +3,17 @@
 Run the whole opchain pipeline from **Codex** — or any MCP-aware agent (Claude
 Desktop, Cursor, Windsurf, …) — over the [Model Context Protocol][mcp].
 
-Claude Code auto-discovers opchain's `SKILL.md` files and triggers them on their
-`description`. Other agents don't, so this server hands them the same thing
-Claude Code gets natively: the skill catalog, intent routing, the shared
-orchestrator protocol, and cross-session checkpoints.
+Claude Code discovers opchain's `SKILL.md` files and can invoke them when you
+name one (or via the plugin's registered slash commands) — description-only
+matching rarely fires on its own. Other agents don't discover them at all, so
+this server hands them the same thing: the skill catalog, intent routing, the
+shared orchestrator protocol, and cross-session checkpoints.
 
-> Already on **Claude Code**? You don't need this — drop `skills/` into
-> `.claude/skills/`. The MCP server is for everything else.
+> Already on **Claude Code**? Install the plugin instead —
+> `/plugin marketplace add asfbay-bit/opchain-skills` then
+> `/plugin install opchain`. It ships the skills plus the hooks (commit gate,
+> session state, next-skill pointer) that neither this server nor the raw
+> `.claude/skills/` drop-in can provide. The MCP server is for everything else.
 
 ## Two ways to run it
 

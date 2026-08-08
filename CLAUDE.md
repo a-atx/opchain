@@ -11,7 +11,7 @@ Deploys are **manual**, run from a developer laptop with `wrangler login` alread
 - **Staging Worker:** `opchain-staging`, served at `staging.opchain.dev`. See `wrangler.jsonc env.staging`.
 - **Both** use `custom_domain: true` — Cloudflare manages DNS automatically on `wrangler deploy`. Do not pre-create CNAMEs manually (Cloudflare refuses to take over externally-managed records: `error 100117`).
 - **Version stamp:** `build.mjs` injects `__OPCHAIN_VERSION__` via esbuild `define`, sourced from `OPCHAIN_VERSION` env var or `git rev-parse --short HEAD`. Surfaced in `GET /api/health` (`version` JSON field + `X-Opchain-Version` response header on that route).
-- **Staging must come from `main`.** `npm run deploy:staging` should always run with `main` checked out and `git pull`'d, so `staging.opchain.dev` is a faithful preview of what production is about to become. Deploying staging from a feature branch leaves it on a SHA that isn't reachable from `main` and silently breaks the "I just looked at staging, it's safe to ship" gate. (The 2026-05-13 deploy gap was compounded by exactly this — staging was on `7303ab6`, a branch SHA not on main, while prod was 6 days stale.)
+- **Staging must come from `main`.** `npm run deploy:staging` should always run with `main` checked out and `git pull`'d, so `staging.opchain.dev` is a faithful preview of what production is about to become. Deploying staging from a feature branch leaves it on a SHA that isn't reachable from `main` and silently breaks the "I just looked at staging, it's safe to ship" gate. (The 2026-05-13 deploy gap was compounded by exactly this — staging was on `7303ab6`, a branch SHA not on main, while prod was 6 days stale.) Since v1.8.2 this is enforced by `scripts/deploy.mjs`, which refuses a staging deploy when HEAD isn't reachable from `origin/main`; the loud escape hatch is `OPCHAIN_ALLOW_OFF_MAIN_STAGING=1`.
 - **Deploy-lag guardrail:** `.github/workflows/deploy-lag.yml` runs daily and opens a single tracking issue when the live `version` from `/api/health` falls behind `main` HEAD. Close the issue after you deploy; the next run reopens it if drift persists. It also **fails loudly** (rather than silently skipping) if `opchain.dev` serves a Cloudflare "Just a moment…" challenge instead of JSON — that interstitial blocks the canary *and* the `/mcp` endpoint Codex uses. See `docs/runbooks/cloudflare-challenge.md` for the WAF/Bots fix.
 
 ### Deploy flow
@@ -102,6 +102,11 @@ opchain/
 │   │                       # data (site/src/data/roadmap-static.ts).
 ├── design/, design-previews/, previews/, mockups/  # Design exploration HTML/mockups
 │   │                       # (see each dir's README for current-vs-archived status).
+├── plugins/                # Claude Code plugin source. plugins/opchain/ = hooks (commit
+│   │                       # gate, session state, next-skill pointer) + slash commands +
+│   │                       # a skills symlink into skills/. Ships via the public mirror.
+├── .claude-plugin/         # marketplace.json — makes this repo (and its public mirror)
+│   │                       # a Claude Code plugin marketplace.
 ├── mirror/                 # Source for the public skills mirror — see "Public skill
 │   │                       # mirror" below.
 ├── .checkpoints/           # Session-state checkpoints — see "Session resume" below.
@@ -125,6 +130,7 @@ npm run build            # 10-step prebuild (see package.json's "prebuild" scrip
 npm run deploy           # wrangler deploy (production)
 npm run deploy:staging   # wrangler deploy --env staging (staging.opchain.dev)
 npm test                 # vitest unit + integration-ish suite
+npm run test:hooks       # plugin hook suites (commit gate + next-suggestion), plain node
 npm run gen-catalog      # validates skills/<id>/SKILL.md frontmatter at build time
 npm run sync-docs        # skills/ → public/docs/ (runs in prebuild)
 npm run make-zip         # skills/ → public/opchain-skills.zip (runs in prebuild)
@@ -283,8 +289,8 @@ Env-var override naming: `site.ops.api-feedback.kill` → `FLAG_SITE_OPS_API_FEE
 
 Skill source (`skills/`) is mirrored to a public GitHub repo at `asfbay-bit/opchain-skills` for community visibility, issues, and external PRs. The site and build tooling stay private here.
 
-- **Workflow:** `.github/workflows/mirror-public.yml`. Triggers on every push to `main` that touches `skills/`, `mirror/`, `LICENSE`, or the workflow itself. Manual `workflow_dispatch` is also supported.
-- **What gets mirrored:** `skills/` + `LICENSE` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs.
+- **Workflow:** `.github/workflows/mirror-public.yml`. Triggers on every push to `main` that touches `skills/`, `mirror/`, `plugins/`, `.claude-plugin/`, `LICENSE`, or the workflow itself. Manual `workflow_dispatch` is also supported.
+- **What gets mirrored:** `skills/` + `LICENSE` + `plugins/` (with `cp -RL`, so the `plugins/opchain/skills` symlink becomes a real directory in the snapshot) + `.claude-plugin/` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs. The plugin + marketplace files are what make `/plugin marketplace add asfbay-bit/opchain-skills` → `/plugin install opchain` work; without them the public repo is skills-only.
 - **Mode:** force-push snapshot. The public repo's history is reset on every sync to a single commit (`Mirror from asfbay-bit/opchain@<sha>`). External PRs against the public repo can't merge directly; maintainers cherry-pick them here, and they propagate back on the next sync. Documented in `mirror/CONTRIBUTING.md`.
 - **Required secret:** `MIRROR_TOKEN` — a fine-grained GitHub PAT with `contents:write` on `asfbay-bit/opchain-skills`. Set via repo Settings → Secrets and variables → Actions. The workflow fails loud if it's missing.
 - **Editing the public face:** all public-facing copy (README, contributing guide, issue forms) lives under `mirror/` so it's easy to find. The `LICENSE` at repo root is shared between private and public.
