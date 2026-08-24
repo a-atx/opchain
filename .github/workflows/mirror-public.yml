@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=()
-          for f in skills LICENSE mirror/README.md mirror/CONTRIBUTING.md mirror/.github/ISSUE_TEMPLATE \
+          for f in skills LICENSE NOTICE mirror/README.md mirror/CONTRIBUTING.md mirror/.github/ISSUE_TEMPLATE \
                    plugins/opchain/.claude-plugin/plugin.json plugins/opchain/hooks/hooks.json \
                    plugins/opchain/hooks/pre-commit-gate.cjs .claude-plugin/marketplace.json; do
             if [[ ! -e "$f" ]]; then
@@ -54,6 +54,7 @@ jobs:
           mkdir -p "$STAGE/.github"
           cp -R skills "$STAGE/skills"
           cp LICENSE "$STAGE/LICENSE"
+          cp NOTICE "$STAGE/NOTICE"
           cp mirror/README.md "$STAGE/README.md"
           cp mirror/CONTRIBUTING.md "$STAGE/CONTRIBUTING.md"
           cp -R mirror/.github/ISSUE_TEMPLATE "$STAGE/.github/ISSUE_TEMPLATE"
