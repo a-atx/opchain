@@ -6,7 +6,7 @@
   "created_at": "2026-05-01T16:58:00Z",
   "updated_at": "2026-08-22T09:18:58.144Z",
   "phase": "oss-split-planning",
-  "step": "runbook-drafted-D1-apache-decided-awaiting-D2-D4",
+  "step": "relicense-pr-416-open",
   "status": "in_progress",
   "progress_summary": "2026-08-22: repo-split runbook drafted (docs/plans/2026-08-22-oss-split-licensing-compliance.md §2) — invert the mirror with git filter-repo (~80 product commits, tags v1.8.0–v1.8.2 kept, leak scan clean), force-push over asfbay-bit/opchain-skills, protect + DCO, site consumes a tag-pinned submodule behind a skills symlink. Nothing executed; blocked on D1–D3.",
   "progress_table": [
@@ -89,17 +89,9 @@
       "Merges directly with single `merge` command after CI is mostly green; LHCI failures are treated as informational by default."
     ]
   },
-  "blockers": [
-    {
-      "id": "oss-split-decisions",
-      "description": "D1 license DECIDED 2026-08-22 = Apache-2.0. Still open: D2 copyright holder + GitHub owner (chain-of-title check), D3 monorepo visibility, D4 DCO vs CLA — see docs/plans/2026-08-22-oss-split-licensing-compliance.md §0",
-      "blocking": true,
-      "needs": "user_decision",
-      "proposed_resolution": "'Aidan Elsesser and the opchain contributors' under asfbay-bit; keep the monorepo public with forward scrub; DCO"
-    }
-  ],
+  "blockers": [],
   "next_actions": [
-    "Repo split runbook is drafted in docs/plans/2026-08-22-oss-split-licensing-compliance.md §2. D1 decided = Apache-2.0 (2026-08-22); the relicense commit (§5 step 1) is ready to execute once D2's holder string is known. D3/D4 still open. Seam PRs S1–S5 (§2.3) can start now against the 188-test baseline.",
+    "PR #416 (docs + Apache-2.0 relicense) is open — review + merge. After merge: seam PRs S1–S5 (plan §2.3), governance pack (§5 step 3), then the extraction (§2.4). Reserve the 'opchain' npm + PyPI names and the @opchain npm scope.",
     "Before extraction: brew install git-filter-repo gitleaks; commit split/product-paths.txt from docs/plans/2026-08-22-oss-split-licensing-compliance.md §2.2; land S6 (license + governance pack) so the rewritten history carries it.",
     "Mirror retirement is step 7 of docs/plans/2026-08-22-oss-split-licensing-compliance.md §5 — keep mirror-public.yml + MIRROR_TOKEN until the consume PR is verified, then revoke the PAT (UI) and drop stale CLOUDFLARE_* secrets."
   ],
@@ -352,11 +344,25 @@
       ],
       "history_leak_scan": "clean (PostHog public key + AWS example key only)",
       "decisions": {
-        "D1": "Apache-2.0 (decided 2026-08-22)",
-        "D2": "pending",
-        "D3": "pending",
-        "D4": "pending"
+        "D1": "Apache-2.0 (2026-08-22)",
+        "D2": "'Aidan Elsesser and the opchain contributors' · asfbay-bit (2026-08-24)",
+        "D3": "monorepo stays public; forward-only scrub (2026-08-24)",
+        "D4": "DCO, no CLA (2026-08-24)"
+      },
+      "relicense": {
+        "executed": "2026-08-24",
+        "pr": 416,
+        "url": "https://github.com/asfbay-bit/opchain/pull/416"
       }
-    }
+    },
+    "prs": [
+      {
+        "number": 416,
+        "url": "https://github.com/asfbay-bit/opchain/pull/416",
+        "title": "chore(license): relicense to Apache-2.0 + OSS split decision plan",
+        "branch": "claude/opchain-repo-licensing-compliance-c39ebb",
+        "opened_at": "2026-08-24"
+      }
+    ]
   }
 }

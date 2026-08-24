@@ -74,7 +74,7 @@
   },
   "blockers": [],
   "next_actions": [
-    "OSS split / licensing / compliance: decision plan at docs/plans/2026-08-22-oss-split-licensing-compliance.md. D1 decided = Apache-2.0 (2026-08-22); needs D2–D4 from the owner (§0); then relicense commit → seam PRs S1–S5 → extraction → consume PR per §2 and §5.",
+    "OSS split: all four decisions recorded; relicense to Apache-2.0 executed in PR #416 (https://github.com/asfbay-bit/opchain/pull/416). After merge: seam PRs S1–S5 → governance pack → extraction, per docs/plans/2026-08-22-oss-split-licensing-compliance.md §2/§5.",
     "URGENT USER: prod is serving 90b90c2 (branch codex/checkpoint-audit-staging, forked pre-blog) — the blog is NOT live in production. Fix: cd .claude/worktrees/silly-tu-56b768 && npm run deploy (staging already validated ed2902b). Deploy-lag canary will nag until done.",
     "2026-07-03 post DROPPED (owner call 07-04): moved to site/drafts/ drawer, permanently unpublished; calendar slot marked slipped.",
     "Flips are automated from 07-04: scheduled agent (M/W/F mornings, America/Chicago) flips only a draft dated exactly that day, PRs, merges on green, notifies that a deploy is owed. Next flips: 07-06 monolith playbook, 07-08 golden-fixture anatomy.",
@@ -123,10 +123,10 @@
       ],
       "baseline": "3 validators + 10 suites / 188 tests green at c440c7b",
       "decisions": {
-        "D1": "Apache-2.0 (decided 2026-08-22)",
-        "D2": "pending",
-        "D3": "pending",
-        "D4": "pending"
+        "D1": "Apache-2.0 (2026-08-22)",
+        "D2": "'Aidan Elsesser and the opchain contributors' · asfbay-bit (2026-08-24)",
+        "D3": "public + forward scrub (2026-08-24)",
+        "D4": "DCO (2026-08-24)"
       }
     }
   }
