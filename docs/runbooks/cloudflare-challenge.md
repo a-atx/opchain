@@ -37,8 +37,12 @@ protection.** Security → WAF → **Custom rules → Create rule**:
 
 - Expression:
   ```
-  (http.host eq "opchain.dev" and (starts_with(http.request.uri.path, "/api/") or http.request.uri.path eq "/mcp"))
+  (http.host eq "opchain.dev" and (starts_with(http.request.uri.path, "/api/") or http.request.uri.path eq "/mcp" or starts_with(http.request.uri.path, "/.well-known/") or http.request.uri.path in {"/LICENSE" "/NOTICE" "/llms.txt" "/skills.json"}))
   ```
+  (`/.well-known/*` keeps did.json and the ai-catalog fetchable; `/LICENSE`, `/NOTICE`,
+  `/llms.txt` and `/skills.json` are the machine-facing compliance/discovery surfaces —
+  OSPO scanners and agents hit them with non-browser clients, and `scripts/smoke.sh`
+  now checks `/LICENSE` on every deploy.)
 - Action: **Skip** → tick **Super Bot Fight Mode** and **Managed Challenge** (and "All remaining
   custom rules").
 - Add the same rule for `staging.opchain.dev`.

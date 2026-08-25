@@ -95,6 +95,11 @@ function goodZip(_req, res) {
   res.end("PK\x03\x04");
 }
 
+function goodLicense(_req, res) {
+  res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
+  res.end("                                 Apache License\n                           Version 2.0, January 2004\n");
+}
+
 function goodSkillRedirect(_req, res) {
   // Old (pre-oc-) skill URL 301s to the prefixed path; relative Location is
   // resolved by curl's %{redirect_url} against the request origin.
@@ -117,6 +122,7 @@ describe("scripts/smoke.sh", () => {
       "/": goodHomepage,
       "/api/health": goodHealth,
       "/opchain-skills.zip": goodZip,
+      "/LICENSE": goodLicense,
       "/skills/code-auditor": goodSkillRedirect,
     });
     const result = await runSmoke(active.url);
@@ -138,6 +144,7 @@ describe("scripts/smoke.sh", () => {
       },
       "/api/health": goodHealth,
       "/opchain-skills.zip": goodZip,
+      "/LICENSE": goodLicense,
       "/skills/code-auditor": goodSkillRedirect,
     });
     const result = await runSmoke(active.url);
@@ -153,6 +160,7 @@ describe("scripts/smoke.sh", () => {
         res.end('{"ok":true}');
       },
       "/opchain-skills.zip": goodZip,
+      "/LICENSE": goodLicense,
       "/skills/code-auditor": goodSkillRedirect,
     });
     const result = await runSmoke(active.url);
@@ -168,6 +176,7 @@ describe("scripts/smoke.sh", () => {
       },
       "/api/health": goodHealth,
       "/opchain-skills.zip": goodZip,
+      "/LICENSE": goodLicense,
       "/skills/code-auditor": goodSkillRedirect,
     });
     const result = await runSmoke(active.url);

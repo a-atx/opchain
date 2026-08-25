@@ -35,6 +35,8 @@ const ARD_SPEC_VERSION = "1.0";
 // in src/lib/mcp/server.js.
 const MCP_PROTOCOL_VERSION = "2025-06-18";
 const PUBLISHER = "opchain";
+// SPDX id of the project license; the full text is served at /LICENSE.
+const LICENSE = "Apache-2.0";
 
 const SUITE_DESCRIPTION =
   "opchain is a set of interconnected Claude Code / MCP skills that form a software-development " +
@@ -94,6 +96,9 @@ export function buildAiCatalog({ catalog, origin, version = "dev" } = {}) {
         capabilities: skills.map((s) => s.id),
         representativeQueries: REPRESENTATIVE_QUERIES,
         version,
+        // Not an ARD 1.0-defined member — the spec has no license slot — but a
+        // harmless extra field so every discovery surface states its terms.
+        license: LICENSE,
       },
     ],
   };
@@ -110,6 +115,7 @@ export function buildMcpCard({ catalog, origin, version = "dev", tools = [] } = 
   return {
     name: "opchain",
     version,
+    license: LICENSE,
     description: SUITE_DESCRIPTION,
     protocol: "mcp",
     protocolVersion: MCP_PROTOCOL_VERSION,
@@ -153,6 +159,7 @@ export function buildLlmsTxt({ catalog, origin } = {}) {
     `- [Install guide](${b}/install): plugin, drop-in install + MCP setup`,
     "- Claude Code plugin: `/plugin marketplace add asfbay-bit/opchain-skills` then `/plugin install opchain` (adds the commit gate + hooks the zip does not carry)",
     `- [Skill bundle (zip)](${b}/opchain-skills.zip): every skill in one download`,
+    `- [License](${b}/LICENSE): Apache-2.0 — every download above ships the same terms`,
     "",
   );
   return lines.join("\n");
@@ -173,6 +180,8 @@ export function buildSkillsJson({ catalog, origin, version = "dev" } = {}) {
     // this is what installed copies compare against their local SKILL.md
     // frontmatter to detect an available update.
     catalogVersion: skills[0]?.version ?? null,
+    license: LICENSE,
+    licenseUrl: `${b}/LICENSE`,
     description: SUITE_DESCRIPTION,
     mcp: { endpoint: `${b}${DISCOVERY_PATHS.mcp}`, card: `${b}${DISCOVERY_PATHS.mcpCard}` },
     install: {

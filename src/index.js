@@ -801,6 +801,19 @@ async function route(request, env, ctx, url, origin, requestId) {
       return applySecurityHeaders(dlRes, { env, ctx });
     }
 
+    // /LICENSE and /NOTICE are extensionless assets: wrangler uploads them
+    // with no Content-Type, and every response carries nosniff, so a browser
+    // would be left to its unknown-type sniffing heuristic. Pin text/plain
+    // (mirrors the .zip special-case above).
+    if (request.method === "GET" && (url.pathname === "/LICENSE" || url.pathname === "/NOTICE")) {
+      const res = await fetchAsset(env, request, url.origin);
+      if (!res.ok) return applySecurityHeaders(res, { env, ctx });
+      const txt = new Response(res.body, res);
+      txt.headers.set("Content-Type", "text/plain; charset=utf-8");
+      txt.headers.set("Cache-Control", "public, max-age=3600");
+      return applySecurityHeaders(txt, { env, ctx });
+    }
+
     const res = await fetchAsset(env, request, url.origin);
     return applySecurityHeaders(res, { env, ctx });
 }
