@@ -3,12 +3,12 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-07-10T17:52:21Z",
+  "updated_at": "2026-08-25T22:53:09.066Z",
   "skill": "oc-docs-forge",
   "phase": "pr-docs",
   "status": "complete",
-  "step": "release-pr-packet",
-  "progress_summary": "Generated the v1.8.0 release PR documentation packet (the first PR through the mesh is the one that ships it). Docs surfaces updated in the diff: skills/CHANGELOG.md 1.8.0 entry, changelog.astro swap, two published blog posts, orchestrator.md wiring synced to all 29 bundles.",
+  "step": "feat/license-in-artifacts",
+  "progress_summary": "2026-08-25 PR docs packet for feat/license-in-artifacts: Documentation section states explicitly that user-facing doc changes travel in the diff (footer /LICENSE link, llms.txt License line, runbook skip-expression update) and why no README/CLAUDE.md edits are needed. Packet inserted into the PR body.",
   "context_primer": {
     "key_decisions": [
       "Release PR body carries the ## Documentation section inline; no PR comment needed."
@@ -28,6 +28,10 @@
     ],
     "docs_not_changed_reason": null,
     "follow_up_docs": [],
-    "verified_for_sha": "claude/release-v1-8 (pre-commit; base e5ea561)"
-  }
+    "verified_for_sha": "claude/release-v1-8 (pre-commit; base e5ea561)",
+    "pr_body_fragment": "## Documentation\n\nUser-facing doc changes travel inside the diff itself: the footer license link, the /llms.txt License line, and the WAF-runbook skip-expression update. No README/CLAUDE.md edits needed — /LICENSE is a static asset under the existing GET /* row of the routes table."
+  },
+  "next_actions": [
+    "Governance-pack PR (SECURITY.md, CoC, CONTRIBUTING+DCO, CODEOWNERS, PR template, TRADEMARKS.md) is the next docs deliverable — plan §5 step 3."
+  ]
 }
