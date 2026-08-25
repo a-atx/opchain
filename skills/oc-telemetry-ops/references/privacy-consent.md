@@ -1,6 +1,6 @@
 # Privacy & Consent
 
-opchain's brand is open-source, MIT, **local-first, no backend**. Telemetry that
+opchain's brand is open-source, Apache-2.0, **local-first, no backend**. Telemetry that
 betrayed that would cost more credibility than the `/dashboard` could ever buy.
 So the design is conservative by construction: off by default, local-only,
 aggregate-only on export, and content-free at the schema level.
