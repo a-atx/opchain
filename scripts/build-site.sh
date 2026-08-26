@@ -52,6 +52,10 @@ mkdir -p "${PUBLIC}"
 
 cp -R "${DIST}/." "${PUBLIC}/"
 
+# Serve the license text at /LICENSE and /NOTICE — the footer links it, and
+# OSPO scanners audit the download origin, not GitHub.
+cp "${ROOT}/LICENSE" "${ROOT}/NOTICE" "${PUBLIC}/"
+
 for entry in "${PRESERVE[@]}"; do
   if [ -e "${TMP}/${entry}" ]; then
     mv "${TMP}/${entry}" "${PUBLIC}/${entry}"
