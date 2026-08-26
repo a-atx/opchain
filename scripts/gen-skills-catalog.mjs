@@ -18,7 +18,7 @@ import { matter } from "./lib/frontmatter.mjs";
 import { FLAGS, isKnown as isKnownFlag } from "../src/lib/flags/registry.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS_DIR = join(ROOT, "skills");
+const SKILLS_DIR = process.env.OPCHAIN_SKILLS_DIR ?? join(ROOT, "skills");
 
 const VALID_PHASES = new Set(["foundation", "plan", "build", "ai-native"]);
 const REQUIRED_FIELDS = [

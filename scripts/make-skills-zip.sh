@@ -11,7 +11,7 @@
 # itself (tests/license-artifacts.test.js gates this).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SKILLS="$ROOT/skills"
+SKILLS="${OPCHAIN_SKILLS_DIR:-$ROOT/skills}"
 PUBLIC="${OPCHAIN_PUBLIC_DIR:-$ROOT/public}"
 # Normalize to an absolute path — COMBINED/out are used from subshells that
 # cd into $SKILLS / $STAGE, where a relative override would silently point

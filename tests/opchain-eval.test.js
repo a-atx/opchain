@@ -14,7 +14,7 @@ import { isKnown } from "../src/lib/flags/registry.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const EVAL_DIR = join(ROOT, "prompts", "opchain-eval");
-const SKILLS_DIR = join(ROOT, "skills");
+const SKILLS_DIR = process.env.OPCHAIN_SKILLS_DIR ?? join(ROOT, "skills");
 
 function readJsonl(file) {
   return readFileSync(join(EVAL_DIR, file), "utf8")
