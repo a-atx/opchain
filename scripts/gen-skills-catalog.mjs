@@ -14,7 +14,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import matter from "gray-matter";
+import { matter } from "./lib/frontmatter.mjs";
 import { FLAGS, isKnown as isKnownFlag } from "../src/lib/flags/registry.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");

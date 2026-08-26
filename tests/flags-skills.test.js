@@ -21,7 +21,7 @@ function findNodeModules() {
   // checkout without installed deps creates node_modules/.vite, and that
   // cache-only shell would then shadow the real install one level up.
   const require = createRequire(import.meta.url);
-  return dirname(dirname(require.resolve("gray-matter/package.json")));
+  return dirname(dirname(require.resolve("js-yaml/package.json")));
 }
 
 function runValidator(skillsDir) {
@@ -35,7 +35,7 @@ function runValidator(skillsDir) {
     // Symlink node_modules rather than copy it. The recursive copy was hundreds
     // of MB / thousands of files per run and intermittently failed or timed out
     // under parallel test load; module resolution follows the symlink, so the
-    // spawned validator still resolves gray-matter and the registry import.
+    // spawned validator still resolves js-yaml and the registry import.
     symlinkSync(findNodeModules(), join(work, "node_modules"), "dir");
     cpSync(join(ROOT, "package.json"), join(work, "package.json"));
     cpSync(skillsDir, join(work, "skills"), { recursive: true });
