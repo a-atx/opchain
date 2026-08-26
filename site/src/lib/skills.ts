@@ -96,6 +96,13 @@ const updatedCache = new Map<string, string | null>();
  */
 export function getSkillUpdatedAt(id: string): string | null {
   if (updatedCache.has(id)) return updatedCache.get(id) ?? null;
+  // A vendored tree (OPCHAIN_SKILLS_DIR — seam S4) has no per-skill git
+  // history here; `git log -- skills/<id>` would date the pin, not the skill.
+  // Hide the badge rather than mislead.
+  if (process.env.OPCHAIN_SKILLS_DIR) {
+    updatedCache.set(id, null);
+    return null;
+  }
   let iso: string | null = null;
   if (SAFE_ID.test(id)) {
     try {
