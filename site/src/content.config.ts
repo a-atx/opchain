@@ -45,6 +45,7 @@ const skills = defineCollection({
     displayName: z.string(),
     version: z.string().regex(/^\d+\.\d+\.\d+$/, "version must be semver (e.g. 1.0.0)"),
     shortDesc: z.string().min(1).max(120),
+    license: z.string().optional(),
     phases: z.array(z.enum(PHASES)).nonempty(),
     triAgent: z.boolean(),
     // `tryable` was used by the now-removed Try-It chat. Kept on the schema

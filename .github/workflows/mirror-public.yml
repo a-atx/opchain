@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=()
-          for f in skills LICENSE NOTICE mirror/README.md mirror/CONTRIBUTING.md mirror/.github/ISSUE_TEMPLATE \
+          for f in skills LICENSE NOTICE mirror/README.md mirror/CONTRIBUTING.md mirror/SECURITY.md mirror/.github/ISSUE_TEMPLATE \
                    plugins/opchain/.claude-plugin/plugin.json plugins/opchain/hooks/hooks.json \
                    plugins/opchain/hooks/pre-commit-gate.cjs .claude-plugin/marketplace.json; do
             if [[ ! -e "$f" ]]; then
@@ -57,6 +57,7 @@ jobs:
           cp NOTICE "$STAGE/NOTICE"
           cp mirror/README.md "$STAGE/README.md"
           cp mirror/CONTRIBUTING.md "$STAGE/CONTRIBUTING.md"
+          cp mirror/SECURITY.md "$STAGE/SECURITY.md"
           cp -R mirror/.github/ISSUE_TEMPLATE "$STAGE/.github/ISSUE_TEMPLATE"
           # Plugin + marketplace. Without these the public repo is skills-only:
           # `/plugin marketplace add` finds nothing and the gates — the entire

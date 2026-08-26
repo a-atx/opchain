@@ -30,6 +30,7 @@ const REQUIRED_FIELDS = [
   "triAgent",
   "commands",
   "description",
+  "license",
 ];
 
 // Claude Code truncates skill `description` frontmatter around ~1024 chars, which
