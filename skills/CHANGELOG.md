@@ -10,6 +10,16 @@ contract another skill depends on → called out as **BREAKING**. The on-disk
 checkpoint `protocol_version` is tracked separately (see
 `oc-checkpoint-protocol/SKILL.md`).
 
+## [Unreleased]
+
+### Licensing
+
+- The opchain skill catalog, plugin, and MCP tooling are licensed under
+  **Apache-2.0** (decision recorded 2026-08-22; applied 2026-08-24).
+  Releases up to and including **1.8.2** were published under MIT; every
+  release after this notice is Apache-2.0. Copyright 2026 Aidan Elsesser
+  and the opchain contributors — see `LICENSE` and `NOTICE` at the repo root.
+
 ## [1.8.2] — 2026-07-24 — "Enforcement that ships"
 
 The catalog stops describing gates it cannot enforce and starts shipping one that

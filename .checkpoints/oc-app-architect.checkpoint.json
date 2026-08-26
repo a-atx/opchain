@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-07-03T20:05:28Z",
+  "updated_at": "2026-08-22T09:18:58.190Z",
   "phase": "build",
-  "step": "pr-372-merged-jul-6-8-prewrites-staged",
+  "step": "oss-split-plan-D1-apache-decided",
   "status": "in_progress",
-  "progress_summary": "PRIOR FEATURE CLOSED: v1.6 shipped 2026-06-25 (PR #351) and v1.7 'Seams & Signals' shipped 2026-06-26 (PRs #356-359, site flip #359/#360) — launch phase of the v1.6 checkpoint is complete. CURRENT QUICK-FEATURE: blog content program (branch claude/vigilant-rhodes-6ebe72). Backfilled the 2026-06-25→07-01 publishing gap with 7 posts grounded in real repo history (v1.6 + v1.7 release narratives, cost-report pair incl. the public 13× correction #361→#364, telemetry stance, wire-1.1 protocol playbook, '27 skills' sequel), published 07-02 agent-discovery post, staged 07-03 deploy-pipeline post as draft:true, wrote docs/blog-content-calendar.md (M/W/F slate 07-03→08-01, 13 slots + spares + runbook), and reconciled docs/blog-overhaul-plan.md (Wave 3 shipped). Evaluator pass green: astro build 67 pages, astro check 0 errors, vitest 448/448, OG gen 19 blog cards, draft excluded from paths/RSS/OG, zero dead internal links, all frontmatter within schema caps, hero = 13x postmortem (featured).",
+  "progress_summary": "2026-08-22: OSS split / licensing / compliance decision plan drafted (docs/plans/2026-08-22-oss-split-licensing-compliance.md) — options A/B/C compared, A (invert the mirror) recommended; product manifest, five seam PRs, licensing pack (Apache-2.0 recommended, DCO not CLA), four compliance checklists, sequencing with rollback. Blog/site build state unchanged below.",
   "progress_table": [
     {
       "id": "discovery",
@@ -74,6 +74,7 @@
   },
   "blockers": [],
   "next_actions": [
+    "OSS split: all four decisions recorded; relicense to Apache-2.0 executed in PR #416 (https://github.com/asfbay-bit/opchain/pull/416). After merge: seam PRs S1–S5 → governance pack → extraction, per docs/plans/2026-08-22-oss-split-licensing-compliance.md §2/§5.",
     "URGENT USER: prod is serving 90b90c2 (branch codex/checkpoint-audit-staging, forked pre-blog) — the blog is NOT live in production. Fix: cd .claude/worktrees/silly-tu-56b768 && npm run deploy (staging already validated ed2902b). Deploy-lag canary will nag until done.",
     "2026-07-03 post DROPPED (owner call 07-04): moved to site/drafts/ drawer, permanently unpublished; calendar slot marked slipped.",
     "Flips are automated from 07-04: scheduled agent (M/W/F mornings, America/Chicago) flips only a draft dated exactly that day, PRs, merges on green, notifies that a deploy is owed. Next flips: 07-06 monolith playbook, 07-08 golden-fixture anatomy.",
@@ -108,6 +109,25 @@
       "shipped_at": "2026-06-26",
       "status": "live",
       "next_theme": "v1.8 TBD via /oc-release plan (calendar slot 2026-07-29)"
+    },
+    "oss_split": {
+      "plan": "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
+      "audit": "docs/audits/2026-08-22-oss-readiness-audit.md",
+      "options": "A invert mirror (recommended) / B monorepo hygiene only / C full two-repo split",
+      "seams": [
+        "gen-skills-catalog↔flags registry",
+        "build-time catalog/docs/zips",
+        "mcp/local-server↔src/lib/mcp",
+        "skills reference monorepo-only CLI",
+        "stack-forge packs feed site"
+      ],
+      "baseline": "3 validators + 10 suites / 188 tests green at c440c7b",
+      "decisions": {
+        "D1": "Apache-2.0 (2026-08-22)",
+        "D2": "'Aidan Elsesser and the opchain contributors' · asfbay-bit (2026-08-24)",
+        "D3": "public + forward scrub (2026-08-24)",
+        "D4": "DCO (2026-08-24)"
+      }
     }
   }
 }
