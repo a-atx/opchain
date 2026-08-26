@@ -7,23 +7,34 @@ body:
     attributes:
       label: Which skill?
       options:
+        - oc-agent-forge
         - oc-api-dev
         - oc-app-architect
         - oc-bug-check
         - oc-checkpoint-protocol
+        - oc-claude-api
         - oc-code-auditor
+        - oc-cost-ops
         - oc-dash-forge
         - oc-deploy-ops
+        - oc-docs-forge
+        - oc-fleet-ops
         - oc-git-ops
         - oc-integrations-engineer
         - oc-migration-ops
+        - oc-modularize-ops
         - oc-monitoring-ops
         - oc-orchestrator
+        - oc-prompt-ops
+        - oc-rag-forge
         - oc-release-ops
+        - oc-repo-ops
         - oc-reverse-spec
         - oc-scale-ops
         - oc-security-auditor
+        - oc-signal-forge
         - oc-stack-forge
+        - oc-telemetry-ops
         - oc-ux-engineer
         - Not sure / multiple
     validations:
