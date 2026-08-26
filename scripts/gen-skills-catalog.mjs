@@ -15,7 +15,6 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { matter } from "./lib/frontmatter.mjs";
-import { FLAGS, isKnown as isKnownFlag } from "../src/lib/flags/registry.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS_DIR = process.env.OPCHAIN_SKILLS_DIR ?? join(ROOT, "skills");
@@ -90,8 +89,11 @@ function validateSkill(id) {
     throw new Error(`skills/${id}/SKILL.md: \`commands\` must be an array (use [] for none)`);
   }
   validateSkillFlags(id, data);
-  validateSkillCommands(id, data);
-  // Portability wiring runs last so frontmatter / flag / command errors surface
+  // Registry-drift checks (unknown flag names, unregistered command verbs,
+  // missing skills.registry.<id>.enabled) live in scripts/check-skill-flags.mjs:
+  // they need src/lib/flags/registry.js, which the extracted product repo
+  // deliberately does not carry. This validator must stay product-pure.
+  // Portability wiring runs last so frontmatter / flag errors surface
   // first (keeps error messages stable for callers that assert on them).
   validateProtocolWiring(id, content);
   validateReferencedFiles(id, content);
@@ -152,12 +154,6 @@ function validateSkillFlags(id, data) {
       if (typeof name !== "string") {
         throw new Error(`skills/${id}/SKILL.md: \`flags.required[]\` entries must be strings`);
       }
-      if (!isKnownFlag(name)) {
-        throw new Error(
-          `skills/${id}/SKILL.md: flags.required references unknown flag \`${name}\` ` +
-          `(register it in src/lib/flags/registry.js first)`,
-        );
-      }
     }
   }
   if (flags.exposes !== undefined) {
@@ -171,41 +167,12 @@ function validateSkillFlags(id, data) {
       if (typeof entry.name !== "string") {
         throw new Error(`skills/${id}/SKILL.md: \`flags.exposes[].name\` is required`);
       }
-      if (!isKnownFlag(entry.name)) {
+      if (!["boolean", "string", "number"].includes(typeof entry.default)) {
         throw new Error(
-          `skills/${id}/SKILL.md: flags.exposes references unknown flag \`${entry.name}\` ` +
-          `(register it in src/lib/flags/registry.js first)`,
+          `skills/${id}/SKILL.md: flags.exposes[${entry.name}].default must be a ` +
+          `boolean, string or number (got ${typeof entry.default})`,
         );
       }
-      const def = FLAGS[entry.name];
-      if (typeof entry.default !== def.type) {
-        throw new Error(
-          `skills/${id}/SKILL.md: flags.exposes[${entry.name}].default is ` +
-          `${typeof entry.default}, expected ${def.type}`,
-        );
-      }
-    }
-  }
-}
-
-function validateSkillCommands(id, data) {
-  // Commands surface as `/<verb>` or `/<verb> <subcommand>`. The flag tracks
-  // the verb only — subcommands inherit the parent's gate. Examples:
-  //   "/api"          → skills.command.api.enabled
-  //   "/api design"   → skills.command.api.enabled (same flag)
-  //   "/migrate plan" → skills.command.migrate.enabled
-  const seen = new Set();
-  for (const cmd of data.commands) {
-    if (typeof cmd !== "string") continue;
-    const verb = cmd.replace(/^\//, "").split(/\s+/, 1)[0];
-    if (!verb || seen.has(verb)) continue;
-    seen.add(verb);
-    const flagName = `skills.command.${verb}.enabled`;
-    if (!isKnownFlag(flagName)) {
-      throw new Error(
-        `skills/${id}/SKILL.md: command verb \`/${verb}\` has no flag in the registry ` +
-        `(add ${flagName} to src/lib/flags/registry.js)`,
-      );
     }
   }
 }
