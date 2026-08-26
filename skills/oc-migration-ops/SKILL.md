@@ -152,7 +152,7 @@ the most important phase — a bad assessment produces a bad plan.
 Check for existing documentation in this order:
 
 1. **CLAUDE.md / project config** — if a CLAUDE.md exists in the project root, read it
-   first. For aidops-core apps, also read `wrangler.toml` for bindings (D1, KV, secrets),
+   first. For Cloudflare Workers apps, also read `wrangler.toml` for bindings (D1, KV, secrets),
    routes, and compatibility dates.
 2. **Reverse-spec checkpoint** — if it exists, the current state is already documented.
    Read `context_primer.key_decisions` and `generated_files` for architecture, schema,

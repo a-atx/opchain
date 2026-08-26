@@ -52,7 +52,7 @@ $ node scripts/checkpoint.mjs doctor
 ```
 
 ```
-⚠ [oc-git-ops] project_dir "/Users/aidan/repos/opchain" doesn't exist here (authored on another machine?)
+⚠ [oc-git-ops] project_dir "~/repos/opchain" doesn't exist here (authored on another machine?)
 ⚠ [oc-git-ops] next_action references #225, which already appears as completed/merged — may be stale
 ⚠ [oc-stack-forge] in_progress but last updated 24d ago — stale? resume or reset
 ```

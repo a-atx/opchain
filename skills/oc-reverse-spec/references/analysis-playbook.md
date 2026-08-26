@@ -237,7 +237,7 @@ Identify which pattern(s) are in use:
 
 ## 7. Infrastructure Analysis
 
-### Cloudflare-Specific (aidops pattern)
+### Cloudflare-Specific
 
 | Artifact | Location | What It Reveals |
 |---|---|---|

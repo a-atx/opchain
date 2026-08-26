@@ -23,7 +23,7 @@ description: >
 
 Orchestrate the full deployment lifecycle: pre-deploy quality gate → staging deploy →
 smoke test → production promotion → health check → rollback if needed. Built for
-Cloudflare Workers + D1 + Pages, with the aidops-core monorepo as the primary target.
+Cloudflare Workers + D1 + Pages, with the acme-core monorepo as the primary target.
 
 ## /oc-deploy — Command Reference
 
@@ -110,23 +110,23 @@ Create or update `.oc-deploy-ops.json`:
 
 ```json
 {
-  "project_name": "gtrack",
+  "project_name": "acme-app",
   "platform": "cloudflare-workers",
   "monorepo": true,
-  "monorepo_root": "/home/claude/aidops-core",
-  "app_path": "apps/gtrack",
+  "monorepo_root": "~/repos/acme-core",
+  "app_path": "apps/acme-app",
 
   "environments": {
     "staging": {
       "wrangler_env": "staging",
-      "d1_database": "gtrack-staging",
-      "url": "https://gtrack-staging.aidops.workers.dev",
+      "d1_database": "acme-app-staging",
+      "url": "https://acme-app-staging.example.workers.dev",
       "auto_deploy_branch": "staging"
     },
     "production": {
       "wrangler_env": null,
-      "d1_database": "gtrack-prod",
-      "url": "https://gtrack.aidops.workers.dev",
+      "d1_database": "acme-app-prod",
+      "url": "https://acme-app.example.workers.dev",
       "auto_deploy_branch": "main"
     }
   },
@@ -236,12 +236,12 @@ fi
 # 5. Smoke tests (immediate)
 ```
 
-### Monorepo Deploy (aidops-core)
+### Monorepo Deploy (acme-core)
 
-For the aidops monorepo with the deploy API:
+For the acme-core monorepo with the deploy API:
 
 ```bash
-curl -X POST "https://oc-deploy.aidops.workers.dev/deploy" \
+curl -X POST "https://deploy.example.com/deploy" \
   -H "Authorization: Bearer <deploy-token>" \
   -H "Content-Type: application/json" \
   -d '{"app": "<app-name>", "env": "staging"}'
@@ -407,7 +407,7 @@ notify() {
       -d "chat_id=$TELEGRAM_CHAT_ID" -d "text=$msg" -d "parse_mode=Markdown"
 }
 
-notify "✅ *gtrack* deployed to production — $(git rev-parse --short HEAD)"
+notify "✅ *acme-app* deployed to production — $(git rev-parse --short HEAD)"
 ```
 
 ---

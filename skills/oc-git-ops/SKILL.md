@@ -134,7 +134,7 @@ Types:
 ```
 
 Examples:
-- `feat/pintrack-substance-module`
+- `feat/storefront-checkout-module`
 - `fix/auth-session-expiry`
 - `chore/update-wrangler-config`
 - `deploy/add-staging-workflow`
@@ -444,10 +444,10 @@ node scripts/checkpoint.mjs update oc-git-ops \
 ```json
 {
   "key_decisions": [
-    "Repo: github.com/user/aidops-core",
+    "Repo: github.com/acme/acme-core",
     "Auth: SSH key",
     "Convention: conventional commits, feat/fix/chore prefixes",
-    "Last push: feat/pintrack-module → origin, 6 commits"
+    "Last push: feat/storefront-module → origin, 6 commits"
   ],
   "generated_files": [
     "pr-description.md"

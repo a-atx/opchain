@@ -155,12 +155,12 @@ the project's scale, sensitivity, and infrastructure.
 
 | Tier | Name | Who | What's Covered | Example |
 |---|---|---|---|---|
-| **T0** | Bare Minimum | Solo dev, personal app | Health endpoint + basic logging + crash alerts | aidops apps on free tier |
-| **T1** | Foundations | Small team, internal tool | T0 + error tracking + uptime monitoring + structured logs | PenThreshold |
+| **T0** | Bare Minimum | Solo dev, personal app | Health endpoint + basic logging + crash alerts | fieldkit on free tier |
+| **T1** | Foundations | Small team, internal tool | T0 + error tracking + uptime monitoring + structured logs | Meridian |
 | **T2** | Production | Multi-user product, SLA exists | T1 + SLOs + alerting pipeline + runbooks + dashboards | SaaS MVP |
 | **T3** | Operational | Revenue-bearing, on-call required | T2 + incident response + post-mortems + distributed tracing | Scaled product |
 
-**Default for aidops-scale apps: T0 or T1.** Don't overengineer monitoring for a
+**Default for small-scale apps: T0 or T1.** Don't overengineer monitoring for a
 2-user app. The setup wizard auto-detects the appropriate tier.
 
 ---
@@ -593,7 +593,7 @@ project-dir/
 
 ## Tool Recommendations by Stack
 
-### Cloudflare Workers (aidops default)
+### Cloudflare Workers (opchain default)
 
 | Domain | Free Tier | Paid | Notes |
 |---|---|---|---|
@@ -737,7 +737,7 @@ regardless; the flush is reconciliation only.
 1. **Monitor symptoms, not implementations.** Alert on error rate, not on which
    specific database query failed. Symptoms catch failures you didn't predict.
 2. **Every alert needs a runbook.** An alert without instructions is just noise.
-3. **Error budgets over perfection.** 99% uptime is fine for aidops-scale apps.
+3. **Error budgets over perfection.** 99% uptime is fine for small-scale apps.
    That's 7 hours of acceptable downtime per month. Use that budget for shipping.
 4. **Structured logs are non-negotiable.** `console.log("error")` tells you nothing
    in production. JSON with request ID, user context, and timestamps tells you

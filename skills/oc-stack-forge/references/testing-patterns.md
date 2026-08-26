@@ -24,7 +24,7 @@ solo/small-team projects — pragmatic coverage, not enterprise ceremony.
 | Integration | ~25% | Vitest + MSW | pytest + testcontainers | API call flows, DB interactions |
 | E2E | ~15% | Playwright | Playwright | User flows, visual regression |
 
-**For aidops-scale apps:** Start with contract tests + unit tests. Add E2E only for
+**For solo-scale apps:** Start with contract tests + unit tests. Add E2E only for
 critical user flows (auth, data entry, payment). You don't need 90% coverage on a
 2-user app — you need confidence in the happy path and the error path.
 
@@ -208,7 +208,7 @@ it("renders users from API", async () => {
     </QueryClientProvider>
   );
   await waitFor(() => {
-    expect(screen.getByText("Aidan")).toBeInTheDocument();
+    expect(screen.getByText("Alex")).toBeInTheDocument();
   });
 });
 ```
@@ -226,7 +226,7 @@ import { http, HttpResponse } from "msw";
 export const handlers = [
   http.get("/api/users", () =>
     HttpResponse.json([
-      { id: 1, name: "Aidan", email: "aidan@example.com" },
+      { id: 1, name: "Alex", email: "alex@example.com" },
     ])
   ),
   http.post("/api/users", async ({ request }) => {
@@ -321,5 +321,5 @@ jobs:
       - run: npx playwright test
 ```
 
-**For aidops-scale apps:** Start with just contract-tests + unit-tests. Add E2E only when
+**For solo-scale apps:** Start with just contract-tests + unit-tests. Add E2E only when
 you have auth or multi-step flows that are hard to test at lower levels.
