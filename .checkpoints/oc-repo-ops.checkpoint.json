@@ -3,12 +3,12 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-25T22:53:09.066Z",
+  "updated_at": "2026-08-26T17:23:40.308Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "feat/license-in-artifacts",
-  "progress_summary": "2026-08-25 pre-PR verify for feat/license-in-artifacts: PASS. Diff = 10 intended files (+196/-5); OG-PNG regen churn from the gate build was caught and reverted before push; no generated/gitignored artifacts tracked; docs packet present; bug-check PASS at commit.",
+  "step": "feat/site-truth-sweep",
+  "progress_summary": "2026-08-26 pre-PR verify for feat/site-truth-sweep: PASS — 22 intended files, no generated artifacts, docs packet present, bug-check fresh.",
   "context_primer": {
     "key_decisions": [
       "Docs Forge packet verified present before this gate ran (mesh order honored on its own release PR)."
@@ -26,8 +26,8 @@
     "generated_artifacts_verified": true,
     "verified_for_sha": "claude/release-v1-8 (pre-commit; base e5ea561)",
     "last_verify": {
-      "at": "2026-08-25T22:53:09.066Z",
-      "branch": "feat/license-in-artifacts",
+      "at": "2026-08-26T17:23:40.308Z",
+      "branch": "feat/site-truth-sweep",
       "verdict": "PASS",
       "blocking_findings": []
     }

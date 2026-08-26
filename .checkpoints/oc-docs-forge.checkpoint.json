@@ -3,12 +3,12 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-25T22:53:09.066Z",
+  "updated_at": "2026-08-26T17:23:40.308Z",
   "skill": "oc-docs-forge",
   "phase": "pr-docs",
   "status": "complete",
-  "step": "feat/license-in-artifacts",
-  "progress_summary": "2026-08-25 PR docs packet for feat/license-in-artifacts: Documentation section states explicitly that user-facing doc changes travel in the diff (footer /LICENSE link, llms.txt License line, runbook skip-expression update) and why no README/CLAUDE.md edits are needed. Packet inserted into the PR body.",
+  "step": "feat/site-truth-sweep",
+  "progress_summary": "2026-08-26 PR docs packet for feat/site-truth-sweep: Documentation section states the surface-pass plan doc ships in the PR and copy changes are the diff itself.",
   "context_primer": {
     "key_decisions": [
       "Release PR body carries the ## Documentation section inline; no PR comment needed."
