@@ -86,3 +86,9 @@ Full walkthrough (including a local stdio server): https://opchain.dev/install
 ## More info
 
 https://opchain.dev
+
+## License
+
+Apache-2.0 — see the `LICENSE` and `NOTICE` files at the repository root.
+Copyright 2026 Aidan Elsesser and the opchain contributors. Catalog releases
+up to and including 1.8.2 were published under MIT.

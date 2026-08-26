@@ -163,3 +163,9 @@ decisions:
 - `oc-deploy-ops` reads `oc-code-auditor` — CRITICAL findings block deploy
 - Build evaluator reads `oc-ux-engineer` — grades frontend against approved spec
 - `oc-git-ops` reads `oc-app-architect` — names branches by sprint
+
+## license
+
+Apache-2.0 — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE). Copyright 2026
+Aidan Elsesser and the opchain contributors. Releases up to and including
+v1.8.2 were published under MIT; later releases are Apache-2.0.
