@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-06-22T16:35:00Z",
-  "phase": "post-merge-wave",
-  "step": "last-merge-#316-v1.5-shipped",
-  "status": "complete",
-  "progress_summary": "v1.5.0 'Build the AI app' shipped + live (2026-06-22). The v1.5 build/release wave merged 7 PRs to main, all squash, all CI-green (Worker + Site + Playwright e2e + LHCI): #299 (reconcile + canary), #300 (Sprint 1 scaffolds), #303 (Sprint 2 claude-api/rag-forge + vector packs), #306 (Sprint 3 agent-forge/prompt-ops + AI-safety + eval set), #309 (Sprint 4 GTM surfaces), #311 (Sprint 5 lockstep 1.5.0 + changelog cut), #316 (deferred tail: pipeline-builder AI branch + OG cards). Notable git-ops handling: #311 hit a post-promotion e2e break (changelog #v1-6 deep-link id collision) fixed in a follow-up commit; #299 needed a main-merge to resolve a checkpoint conflict. Prod deployed by user after the Cloudflare WAF challenge was cleared. HISTORY: 2026-05-31 PR-review wave: cleared 11 open PRs in one session. Feature: #239 (email-pipeline Step 5 nested-form fix, follow-up to #233) and #243 (link orphaned /coverage into nav, ⌘K palette, stack-forge skill page). Security: #227 (DOMPurify 3.4.5 XSS-bypass fix in the markdown group) and #209 (js-yaml v3→v4 with prototype-pollution patch — verified all callsites use only `yaml.load`, safe across the major). Dependency hygiene: #241 vitest 4.1.6, #211 tailwind 4.3, #210 astro group, #175 zod 4.4.3, #176 @axe-core/playwright 4.11.3, #242 @playwright/test 1.60, #173 wrangler 4.95 (Dependabot recreated to latest after lockfile conflict). All squash-merged with full CI green (Worker, Site, LHCI). #208 (chore(generated): restore stale coverage-flags + api-dev-adapters baselines) closed as obsolete — main now carries 26 coverage-flags and 13 api-dev-adapters via the v1.4 chain, vs. #208's 5/5 from the pre-v1.4 era. Held for user review: #232 (feat(compare): switch to Option C — groups + zebra + winner dots + mobile sticky labels), branch up-to-date with main, CI green, awaiting user signoff before merge. Production is now ~12 PRs behind staging.opchain.dev; deploy gap surfaced as the next blocker (deploy-ops hand-off). Required pre-flight: `wrangler secret put RESEND_API_KEY` on both staging and prod envs before the email-pipeline flag flips on.",
+  "updated_at": "2026-08-22T09:18:58.144Z",
+  "phase": "oss-split-planning",
+  "step": "relicense-pr-416-open",
+  "status": "in_progress",
+  "progress_summary": "2026-08-22: repo-split runbook drafted (docs/plans/2026-08-22-oss-split-licensing-compliance.md §2) — invert the mirror with git filter-repo (~80 product commits, tags v1.8.0–v1.8.2 kept, leak scan clean), force-push over asfbay-bit/opchain-skills, protect + DCO, site consumes a tag-pinned submodule behind a skills symlink. Nothing executed; blocked on D1–D3.",
   "progress_table": [
     {
       "id": "pr-183",
@@ -91,11 +91,9 @@
   },
   "blockers": [],
   "next_actions": [
-    "Hand off to deploy-ops: production is ~12 PRs behind main (today's wave + earlier #225/#231/#233 etc). Run `export LINEAR_API_KEY=lin_api_…; npm run deploy:staging` → curl /api/health → `npm run deploy`. Two security patches in the wave (DOMPurify XSS, js-yaml prototype pollution) make this time-sensitive.",
-    "Pre-flight before email-pipeline flag flips on: `wrangler secret put RESEND_API_KEY` on staging + production. Verify the opchain.dev sending domain in Resend dashboard first.",
-    "Held for user review: PR #232 (feat(compare): switch to Option C) — branch is up-to-date with main, all 4 checks green, ready when user approves. Either squash-merge or close.",
-    "Linear hygiene (non-git): ADEV-347/348 duplicate `v1.5 Sprint 3 — agent-forge + prompt-ops bodies` tickets — pick canonical, cancel the other. Both currently labelled `roadmap-visible` so both surface on the public roadmap.",
-    "Schedule code-auditor pre-deploy sweep before v1.5 Sprint 2/3 land (agent-forge + claude-api + rag-forge introduce prompt-injection / tool-use surfaces that warrant new audit rules)."
+    "PR #416 (docs + Apache-2.0 relicense) is open — review + merge. After merge: seam PRs S1–S5 (plan §2.3), governance pack (§5 step 3), then the extraction (§2.4). Reserve the 'opchain' npm + PyPI names and the @opchain npm scope.",
+    "Before extraction: brew install git-filter-repo gitleaks; commit split/product-paths.txt from docs/plans/2026-08-22-oss-split-licensing-compliance.md §2.2; land S6 (license + governance pack) so the rewritten history carries it.",
+    "Mirror retirement is step 7 of docs/plans/2026-08-22-oss-split-licensing-compliance.md §5 — keep mirror-public.yml + MIRROR_TOKEN until the consume PR is verified, then revoke the PAT (UI) and drop stale CLOUDFLARE_* secrets."
   ],
   "skill_state": {
     "current_branch": "main (no active feature branch)",
@@ -333,6 +331,38 @@
       "merge_method": "squash",
       "merge_sha": "d5c875b",
       "merged_at": "2026-06-19T15:12:09.658Z"
-    }
+    },
+    "oss_split": {
+      "plan": "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
+      "recommended": "A — invert the mirror; opchain-skills = source of truth; site consumes tag-pinned submodule + skills symlink",
+      "extraction_tool": "git filter-repo (not installed; brew 2.47.0)",
+      "product_commits": "~76–82 of 543",
+      "tags_carried": [
+        "v1.8.0",
+        "v1.8.1",
+        "v1.8.2"
+      ],
+      "history_leak_scan": "clean (PostHog public key + AWS example key only)",
+      "decisions": {
+        "D1": "Apache-2.0 (2026-08-22)",
+        "D2": "'Aidan Elsesser and the opchain contributors' · asfbay-bit (2026-08-24)",
+        "D3": "monorepo stays public; forward-only scrub (2026-08-24)",
+        "D4": "DCO, no CLA (2026-08-24)"
+      },
+      "relicense": {
+        "executed": "2026-08-24",
+        "pr": 416,
+        "url": "https://github.com/asfbay-bit/opchain/pull/416"
+      }
+    },
+    "prs": [
+      {
+        "number": 416,
+        "url": "https://github.com/asfbay-bit/opchain/pull/416",
+        "title": "chore(license): relicense to Apache-2.0 + OSS split decision plan",
+        "branch": "claude/opchain-repo-licensing-compliance-c39ebb",
+        "opened_at": "2026-08-24"
+      }
+    ]
   }
 }
