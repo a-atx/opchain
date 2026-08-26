@@ -219,7 +219,7 @@ const futureReleaseGroups = [
           aria-selected="true"
           tabindex="0"
         >
-          Just Released <span class="tab-count">13 shipped</span>
+          Just Released <span class="tab-count">17 shipped</span>
         </button>
         <button
           class="tab-btn tab-btn--next"
@@ -269,7 +269,7 @@ const futureReleaseGroups = [
         >
           <span class="hero-chevron" aria-hidden="true">▶</span>
           <span class="hero-badge">latest release</span>
-          <span class="hero-ver">v1.8.0 · shipped Jul 10, 2026</span>
+          <span class="hero-ver">v1.8.0 → v1.8.2 · Jul 10 – Jul 24, 2026</span>
           <span class="hero-title">Documentation &amp; repo hygiene</span>
           <span class="hero-desc">
             Every PR should leave behind usable documentation, not just merged
@@ -320,6 +320,30 @@ const futureReleaseGroups = [
       </article>
 
       <!-- v1.8.2 — the plugin patch under the v1.8 line. Deep-linkable from #v1-8-2. -->
+      <article class="rel-card" id="apache-2" data-card>
+        <button class="rc-row" type="button" aria-expanded="false" aria-controls="apache-2-body" data-disclosure-toggle>
+          <span class="rc-toggle" aria-hidden="true">▶</span>
+          <span class="rc-meta">
+            <span class="rc-head"><span class="ver-pill ver-pill--past">licensing</span><span class="rc-title">Apache-2.0, everywhere it ships</span><span class="rc-date">Aug 25, 2026</span></span>
+            <span class="rc-summary">The catalog relicensed from MIT to Apache-2.0 — and the license now travels inside every artifact: both zip bundles, the docs tree, /LICENSE on this site, and the machine-readable catalogs.</span>
+          </span>
+        </button>
+        <div class="card-body" id="apache-2-body" data-disclosure-body inert>
+          <div class="card-body-inner">
+            <div class="tag-row"><span class="tag">Apache-2.0</span><span class="tag">LICENSE + NOTICE</span><span class="tag">every artifact</span></div>
+            <p>
+              Every <code>SKILL.md</code> now declares <code>license: Apache-2.0</code>
+              (releases up to v1.8.2 were published under the old license). The change
+              is bigger than the LICENSE file: the combined and per-skill zips carry
+              <code>LICENSE</code> + <code>NOTICE</code> inside the artifact,
+              <a href="/LICENSE">/LICENSE</a> is served from this site, and
+              <code>/skills.json</code>, <code>/llms.txt</code> and the MCP server card
+              declare the license — so a compliance scanner can establish the terms
+              from whatever it actually downloaded.
+            </p>
+          </div>
+        </div>
+      </article>
       <article class="rel-card" id="v1-8-2" data-card>
         <button class="rc-row" type="button" aria-expanded="false" aria-controls="v1-8-2-body" data-disclosure-toggle>
           <span class="rc-toggle" aria-hidden="true">▶</span>

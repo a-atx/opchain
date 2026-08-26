@@ -1,4 +1,5 @@
 ---
+import { REPO_SITE } from "../lib/repo";
 import Base from "../layouts/Base.astro";
 import Logo from "../components/Logo.astro";
 import Eyebrow from "../components/ui/Eyebrow.astro";
@@ -116,7 +117,7 @@ const softwareLd = {
         <span class="stat-num">live</span>
         <span class="stat-label">system status</span>
       </a>
-      <a class="stat" href="https://github.com/asfbay-bit/opchain" rel="noopener">
+      <a class="stat" href={REPO_SITE} rel="noopener">
         <span class="stat-num">Apache-2.0</span>
         <span class="stat-label">open source</span>
       </a>

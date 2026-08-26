@@ -47,8 +47,12 @@ const pages: PaletteItem[] = [
   { group: "pages", title: "Glossary",         href: "/glossary",         blurb: "Plain-English definitions." },
   { group: "pages", title: "How it's built",   href: "/uses",             blurb: "opchain.dev built with opchain." },
   { group: "pages", title: "Security",         href: "/security",         blurb: "Threat model, dependency posture." },
-  { group: "pages", title: "Install",          href: "/install",          blurb: "npm path, npx variant, manual bundle." },
+  { group: "pages", title: "Install",          href: "/install",          blurb: "Plugin, skills bundle, per-skill zips." },
   { group: "pages", title: "Privacy",          href: "/privacy",          blurb: "PostHog scope, cookies, consent." },
+  { group: "pages", title: "Blog",             href: "/blog",             blurb: "Engineering write-ups and release notes." },
+  { group: "pages", title: "AI Recipes",       href: "/ai-recipes",       blurb: "Skill chains for AI-native builds." },
+  { group: "pages", title: "For agencies",     href: "/for-agencies",     blurb: "Client-work pitch for the pipeline." },
+  { group: "pages", title: "Dashboard",        href: "/dashboard",        blurb: "Cost + usage report (sample data)." },
 ];
 
 const skillItems: PaletteItem[] = skills.map((s) => ({
@@ -60,7 +64,7 @@ const skillItems: PaletteItem[] = skills.map((s) => ({
 }));
 
 const actions: PaletteItem[] = [
-  { group: "actions", title: "Copy install command", blurb: "Drops the one-liner onto the clipboard.",       action: "copy-install" },
+  { group: "actions", title: "Copy install command", blurb: "Copies the plugin marketplace one-liner.",       action: "copy-install" },
   { group: "actions", title: "Toggle theme",         blurb: "Switch between dark and light.",                action: "toggle-theme" },
   { group: "actions", title: "Send feedback",        blurb: "Opens the feedback widget.",                    action: "feedback" },
 ];
@@ -407,7 +411,7 @@ const items = [...pages, ...skillItems, ...actions];
     function activate(row: HTMLAnchorElement) {
       const action = row.dataset.action;
       if (action === "copy-install") {
-        navigator.clipboard?.writeText("npx opchain install").catch(() => {});
+        navigator.clipboard?.writeText("/plugin marketplace add asfbay-bit/opchain-skills").catch(() => {});
         // Fire a custom event so the page (or a future toast widget) can react.
         document.dispatchEvent(new CustomEvent("opchain:install-copied"));
         close();
