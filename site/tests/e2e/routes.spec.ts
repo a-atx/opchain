@@ -50,6 +50,19 @@ const ROUTES: RouteSpec[] = [
   },
   { path: "/privacy",    h1: /privacy/i,    disabledRules: [COLOR_CONTRAST_DISABLE] },
   { path: "/styleguide", h1: /styleguide/i, disabledRules: [COLOR_CONTRAST_DISABLE] },
+  { path: "/pipeline-builder", h1: /design your opchain stack/i, disabledRules: [COLOR_CONTRAST_DISABLE] },
+  {
+    path: "/security",
+    h1: /security disclosure/i,
+    disabledRules: [
+      COLOR_CONTRAST_DISABLE,
+      {
+        id: "link-in-text-block",
+        reason:
+          "the analytics config row inlines a /privacy link inside prose; needs the same underline-on-rest CSS sweep as /changelog — track separately from this PR",
+      },
+    ],
+  },
   // v1.3 carry-over from v1.2: /changelog joined the route smoke suite.
   {
     path: "/changelog",

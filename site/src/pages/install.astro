@@ -117,7 +117,7 @@ codex`;
           when one finishes.
         </p>
         <div class="code-row">
-          <pre class="codeblock"><code>{pluginCmd}</code></pre>
+          <pre class="codeblock" tabindex="0" role="region" aria-label="Plugin install commands"><code>{pluginCmd}</code></pre>
           <button class="copy" type="button" data-copy={pluginCmd} data-flow="plugin" aria-label="Copy command">
             <Icon name="copy" size={12} />
             <span class="copy-label">copy</span>
@@ -133,7 +133,7 @@ codex`;
           the contract and you follow it.
         </p>
         <div class="code-row">
-          <pre class="codeblock"><code>{cliCmd}</code></pre>
+          <pre class="codeblock" tabindex="0" role="region" aria-label="CLI install commands"><code>{cliCmd}</code></pre>
           <button class="copy" type="button" data-copy={cliCmd} data-flow="cli" aria-label="Copy command">
             <Icon name="copy" size={12} />
             <span class="copy-label">copy</span>
@@ -182,7 +182,7 @@ codex`;
         <h2><Icon name="github" /> Team (check into git)</h2>
         <p>Commit the skills directory so every teammate uses the same prompt pipeline.</p>
         <div class="code-row">
-          <pre class="codeblock"><code>{teamCmd}</code></pre>
+          <pre class="codeblock" tabindex="0" role="region" aria-label="Team git commands"><code>{teamCmd}</code></pre>
           <button class="copy" type="button" data-copy={teamCmd} data-flow="team" aria-label="Copy command">
             <Icon name="copy" size={12} />
             <span class="copy-label">copy</span>
@@ -213,7 +213,7 @@ codex`;
             Code skills rely on:
           </p>
           <div class="code-row">
-            <pre class="codeblock"><code>{codexSkillsCmd}</code></pre>
+            <pre class="codeblock" tabindex="0" role="region" aria-label="Codex skills install commands"><code>{codexSkillsCmd}</code></pre>
             <button class="copy" type="button" data-copy={codexSkillsCmd} data-flow="codex-skills" aria-label="Copy Codex skills install">
               <Icon name="copy" size={12} />
               <span class="copy-label">copy</span>
@@ -224,7 +224,7 @@ codex`;
             install; works for any MCP client:
           </p>
           <div class="code-row">
-            <pre class="codeblock"><code>{codexMcpCmd}</code></pre>
+            <pre class="codeblock" tabindex="0" role="region" aria-label="Codex MCP server config"><code>{codexMcpCmd}</code></pre>
             <button class="copy" type="button" data-copy={codexMcpCmd} data-flow="codex-mcp" aria-label="Copy Codex MCP config">
               <Icon name="copy" size={12} />
               <span class="copy-label">copy</span>
@@ -262,7 +262,7 @@ codex`;
         and replaces it with the latest bundle.
       </p>
       <div class="code-row">
-        <pre class="codeblock"><code>{upgradeCmd}</code></pre>
+        <pre class="codeblock" tabindex="0" role="region" aria-label="Upgrade command"><code>{upgradeCmd}</code></pre>
         <button class="copy" type="button" data-copy={upgradeCmd} data-flow="upgrade-cli" aria-label="Copy upgrade command">
           <Icon name="copy" size={12} />
           <span class="copy-label">copy</span>
@@ -299,7 +299,7 @@ codex`;
         review:
       </p>
       <div class="code-row">
-        <pre class="codeblock"><code>{`git checkout -b chore/upgrade-opchain
+        <pre class="codeblock" tabindex="0" role="region" aria-label="Team upgrade commands"><code>{`git checkout -b chore/upgrade-opchain
 rm -rf .claude/skills/
 curl -L https://opchain.dev/opchain-skills.zip -o opchain-skills.zip
 unzip opchain-skills.zip -d .claude/skills/
@@ -325,7 +325,7 @@ git commit -m "chore: upgrade opchain skills"`} data-flow="upgrade-team" aria-la
 
       <h3><Icon name="target" /> Check which version you're on</h3>
       <div class="code-row">
-        <pre class="codeblock"><code>{versionCmd}</code></pre>
+        <pre class="codeblock" tabindex="0" role="region" aria-label="Version check command"><code>{versionCmd}</code></pre>
         <button class="copy" type="button" data-copy={versionCmd} data-flow="upgrade-version" aria-label="Copy version-check command">
           <Icon name="copy" size={12} />
           <span class="copy-label">copy</span>
