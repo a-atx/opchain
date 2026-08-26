@@ -123,4 +123,4 @@ into the upstream repo.
 
 ## license
 
-MIT — see [LICENSE](./LICENSE).
+Apache-2.0 — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE). Releases up to and including v1.8.2 were published under MIT.
