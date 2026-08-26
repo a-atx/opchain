@@ -1,7 +1,8 @@
 ---
 name: oc-agent-forge
 displayName: OC · Agent Forge
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Scaffold Claude Agent SDK apps — subagent topology, tool budgets, harness loops, agent eval. Tri-agent.
 phases: [build, ai-native]
 triAgent: true
@@ -16,7 +17,7 @@ description: >
   evaluation. Use for /oc-agent, "Claude Agent SDK", "build an agent",
   "subagent", "tool budget", "agent loop", "harness", "multi-agent",
   "agent eval", "orchestrator-worker". Model routing comes from oc-claude-api;
-  agent-forge owns topology + harness shape. Trigger liberally on agent work.
+  agent-forge owns topology + harness shape.
 governance:
   breaking_change_policy: skills/CHANGELOG.md
   last_reviewed: 2026-06-21

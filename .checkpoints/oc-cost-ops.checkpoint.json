@@ -3,43 +3,28 @@
   "skill": "oc-cost-ops",
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
-  "created_at": "2026-06-28T21:01:52Z",
-  "updated_at": "2026-06-28T21:28:27Z",
+  "created_at": "2026-07-10T00:00:00Z",
+  "updated_at": "2026-07-19T14:09:49Z",
   "phase": "analysis",
-  "step": "retro-token-audit",
+  "step": "retro-attribution",
   "status": "complete",
-  "progress_summary": "Retro token+cost audit of 6 Claude Code session(s) (317 assistant entries, 2026-05-26T01:15:35.389000+00:00 \u2192 2026-06-28T21:28:24.683000+00:00). Grand est. cost $73.8408 on current Anthropic list pricing. Full breakdowns (model/chat/PR/release) live in reports/token-usage/.",
-  "next_actions": [
-    "Re-run reports/token-usage/generate.py weekly; entry_id keys make it append-safe.",
-    "Set budget_usd in this checkpoint to gate future spend via /oc-cost gate."
-  ],
+  "progress_summary": "Retrospective token+cost audit of all Claude Code work on opchain (2026-07-19 run, second fire of the day). Scanned 1,752 transcripts, matched 541 by in-file cwd (48 top-level + 493 nested subagent runs); the head -1 filter trap reproduced exactly (493 vs 541). Deduped 11,210 assistant lines to 4,719 unique message.ids (2.38x streaming inflation avoided, per-field max), excluded 143 zero-token synthetic rows. Merged append-safe on entry_id against the earlier 2026-07-19 ledger (4,750 rows / $1,074.87): 4,536 overlap re-priced, 214 preserved historical rows back to 2026-05-26, 40 new. 651.5M tokens for $1,078.74 across 49 sessions. Fable 5 58.7% / Opus 4.8 40.1%; sonnet-4-6 and opus-4-7 are preserved-history only (opus-4-7 still unpriced live, carried at its original epoch). Cache reads are 92.7% of tokens but a small slice of cost. PR #376 remains the single biggest driver at 24.6%; unattributed 17.3%. 16 PRs diverge >20% between the two attribution modes.",
   "cost": {
     "currency": "USD",
-    "total_usd": 73.840844,
+    "total_usd": 1078.74,
     "by_phase": {
-      "interactive": 73.840844
+      "interactive": 1078.74
     },
     "by_model": {
-      "claude-opus-4-8": 60.855914,
-      "claude-sonnet-4-6": 7.443796,
-      "claude-opus-4-7": 5.541134,
-      "<synthetic>": 0.0
+      "claude-fable-5": 633.29,
+      "claude-opus-4-8": 432.47,
+      "claude-sonnet-4-6": 7.44,
+      "claude-opus-4-7": 5.54
     },
     "tokens": {
-      "input": 106572,
-      "output": 622538
+      "input": 7330293,
+      "output": 6035292
     },
-    "updated_at": "2026-06-28T21:28:27Z"
-  },
-  "skill_state": {
-    "token_buckets": {
-      "input_fresh": 106572,
-      "output": 622538,
-      "cache_read": 43091629,
-      "cache_write": 4116125,
-      "total": 47936864
-    },
-    "report_dir": "reports/token-usage",
-    "pricing_version": "anthropic-list-2026-06-28"
+    "updated_at": "2026-07-19T14:09:49Z"
   }
 }

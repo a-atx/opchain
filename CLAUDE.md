@@ -11,7 +11,7 @@ Deploys are **manual**, run from a developer laptop with `wrangler login` alread
 - **Staging Worker:** `opchain-staging`, served at `staging.opchain.dev`. See `wrangler.jsonc env.staging`.
 - **Both** use `custom_domain: true` — Cloudflare manages DNS automatically on `wrangler deploy`. Do not pre-create CNAMEs manually (Cloudflare refuses to take over externally-managed records: `error 100117`).
 - **Version stamp:** `build.mjs` injects `__OPCHAIN_VERSION__` via esbuild `define`, sourced from `OPCHAIN_VERSION` env var or `git rev-parse --short HEAD`. Surfaced in `GET /api/health` (`version` JSON field + `X-Opchain-Version` response header on that route).
-- **Staging must come from `main`.** `npm run deploy:staging` should always run with `main` checked out and `git pull`'d, so `staging.opchain.dev` is a faithful preview of what production is about to become. Deploying staging from a feature branch leaves it on a SHA that isn't reachable from `main` and silently breaks the "I just looked at staging, it's safe to ship" gate. (The 2026-05-13 deploy gap was compounded by exactly this — staging was on `7303ab6`, a branch SHA not on main, while prod was 6 days stale.)
+- **Staging must come from `main`.** `npm run deploy:staging` should always run with `main` checked out and `git pull`'d, so `staging.opchain.dev` is a faithful preview of what production is about to become. Deploying staging from a feature branch leaves it on a SHA that isn't reachable from `main` and silently breaks the "I just looked at staging, it's safe to ship" gate. (The 2026-05-13 deploy gap was compounded by exactly this — staging was on `7303ab6`, a branch SHA not on main, while prod was 6 days stale.) Since v1.8.2 this is enforced by `scripts/deploy.mjs`, which refuses a staging deploy when HEAD isn't reachable from `origin/main`; the loud escape hatch is `OPCHAIN_ALLOW_OFF_MAIN_STAGING=1`.
 - **Deploy-lag guardrail:** `.github/workflows/deploy-lag.yml` runs daily and opens a single tracking issue when the live `version` from `/api/health` falls behind `main` HEAD. Close the issue after you deploy; the next run reopens it if drift persists. It also **fails loudly** (rather than silently skipping) if `opchain.dev` serves a Cloudflare "Just a moment…" challenge instead of JSON — that interstitial blocks the canary *and* the `/mcp` endpoint Codex uses. See `docs/runbooks/cloudflare-challenge.md` for the WAF/Bots fix.
 
 ### Deploy flow
@@ -38,7 +38,7 @@ feature branch ─► PR ─► CI green (tests only) ─► merge to main
 - `npm run deploy:staging` → `node scripts/deploy.mjs --staging` → `wrangler deploy --env staging`
 - `npm run deploy` → `node scripts/deploy.mjs` → `wrangler deploy` (production)
 - The wrapper loads `.dev.vars` into the build env and inlines the `PUBLIC_POSTHOG_*` analytics vars. It **no longer requires `LINEAR_API_KEY`**: the `/changelog` roadmap is hand-maintained in `site/src/data/roadmap-static.ts`, so the old build-time Linear pull (`scripts/gen-roadmap.mjs`) is no longer on the deploy path and Linear being unreachable can't block a deploy. `gen-roadmap` and `OPCHAIN_REQUIRE_LINEAR` were removed from the deploy/prebuild flow on 2026-06-19; the script is kept for a future re-wire to a live roadmap.
-- After each deploy, sanity-check by hand: `curl -sS https://staging.opchain.dev/api/health` and confirm `version` matches your local commit SHA.
+- After each deploy, sanity-check by hand: `curl -sS https://staging.opchain.dev/api/health` and confirm `version` matches your local commit SHA. The route (and every `/api/*` response) is `Cache-Control: no-store`, so this check can't read a stale edge-cached version; the deploy-lag canary and `scripts/smoke.sh` additionally append a cache-busting query string in case a zone-level cache rule ever overrides origin headers (that bit us on 2026-07-10: `cf-cache-status: HIT` served a pre-deploy `version` on staging).
 
 ### CI
 
@@ -70,7 +70,9 @@ opchain/
 │   ├── (astro dist copied in)
 │   ├── opchain-skills.zip  # Generated from skills/ by scripts/make-skills-zip.sh
 │   └── docs/               # Synced from skills/ by scripts/sync-docs.sh
-├── skills/                 # Skill source definitions (the product)
+├── skills/                 # Skill source definitions (the product) — 29 skills,
+│   │                       # one subdir per id (each with SKILL.md). Full list +
+│   │                       # phases: skills/README.md. A few examples:
 │   ├── oc-app-architect/
 │   ├── oc-checkpoint-protocol/
 │   ├── oc-code-auditor/
@@ -82,14 +84,36 @@ opchain/
 │   ├── oc-stack-forge/
 │   ├── oc-ux-engineer/
 │   ├── orchestrator.md     # Shared orchestration rules
-│   └── README.md           # Installation instructions
-├── site/                   # Astro 5 app. Scaffolded Sprint 0; content collection in Sprint 1; cutover Sprint 6.
-├── scripts/
+│   ├── CHANGELOG.md        # Lockstep skill-catalog release log
+│   └── README.md           # Installation instructions + full skill/phase table
+├── scripts/                # ~20 scripts; a few examples (full list: `ls scripts/`)
 │   ├── sync-docs.sh                # skills/ → public/docs/ sync
 │   ├── make-skills-zip.sh          # skills/ → public/opchain-skills.zip
 │   └── gen-skills-catalog.mjs      # validates skills/<id>/SKILL.md frontmatter at build time
+├── mcp/                    # Local stdio MCP server (mcp/local-server.mjs) — the
+│   │                       # offline/air-gapped alternative to the hosted POST /mcp
+│   │                       # route below. See mcp/README.md.
 ├── tests/                  # Vitest unit + handler tests
-├── .github/workflows/      # ci.yml + lighthouse.yml (no deploy workflows — manual)
+├── docs/                   # Internal planning docs: runbooks, release plans, audits,
+│   │                       # blog calendar. NOT public/docs/ (above) — that's the
+│   │                       # published skill-doc build output.
+├── specs/, roadmap/, sprints/, checklists/  # Historical planning docs from earlier
+│   │                       # releases; roadmap/ is unrelated to the live /changelog
+│   │                       # data (site/src/data/roadmap-static.ts).
+├── design/, design-previews/, previews/, mockups/  # Design exploration HTML/mockups
+│   │                       # (see each dir's README for current-vs-archived status).
+├── plugins/                # Claude Code plugin source. plugins/opchain/ = hooks (commit
+│   │                       # gate, session state, next-skill pointer) + slash commands +
+│   │                       # a skills symlink into skills/. Ships via the public mirror.
+├── .claude-plugin/         # marketplace.json — makes this repo (and its public mirror)
+│   │                       # a Claude Code plugin marketplace.
+├── mirror/                 # Source for the public skills mirror — see "Public skill
+│   │                       # mirror" below.
+├── .checkpoints/           # Session-state checkpoints — see "Session resume" below.
+├── .github/workflows/      # 7 workflows, no deploy workflows (manual): ci.yml, lighthouse.yml,
+│   │                       # canary.yml (10-min prod+staging /api/health probe, emails on failure),
+│   │                       # lighthouse-prod.yml (daily LHCI vs the live site), deploy-lag.yml,
+│   │                       # mirror-public.yml, publish-mcp-registry.yml
 ├── wrangler.jsonc           # Worker config (prod + env.staging)
 ├── build.mjs               # esbuild: src/index.js → dist/index.js, injects __OPCHAIN_VERSION__
 ├── vitest.config.js        # test runner config (defines __OPCHAIN_VERSION__ = "test")
@@ -102,21 +126,26 @@ opchain/
 ```bash
 # Worker (current production) ————————————————————————————————————
 npm run dev              # prebuild then wrangler dev on localhost:8787
-npm run build            # prebuild (gen-catalog + sync-docs + make-zip) → esbuild → dist/
+npm run build            # 10-step prebuild (see package.json's "prebuild" script for the full chain) → esbuild → dist/
 npm run deploy           # wrangler deploy (production)
 npm run deploy:staging   # wrangler deploy --env staging (staging.opchain.dev)
 npm test                 # vitest unit + integration-ish suite
+npm run test:hooks       # plugin hook suites (commit gate + next-suggestion), plain node
 npm run gen-catalog      # validates skills/<id>/SKILL.md frontmatter at build time
 npm run sync-docs        # skills/ → public/docs/ (runs in prebuild)
 npm run make-zip         # skills/ → public/opchain-skills.zip (runs in prebuild)
+npm run smoke:staging    # scripts/smoke.sh against staging.opchain.dev
+npm run smoke:prod       # scripts/smoke.sh against opchain.dev
 
-# New Astro site (Sprint 0 scaffold; real pages land Sprints 1-3) —
+# Astro site (site/) —
 npm run site:install     # one-time: cd site && npm install
 npm run site:dev         # astro dev on localhost:4321
 npm run site:build       # astro build → site/dist
 
 # Checkpoints (session state docs at .checkpoints/<skill>.checkpoint.json) —
 npm run checkpoint:status    # print "where did I leave off?" markdown summary
+npm run checkpoint:next      # print the next recommended action per checkpoint
+npm run checkpoint:doctor    # diagnose checkpoint schema/consistency issues
 npm run checkpoint:validate  # validate every checkpoint against the schema
 npm run checkpoint -- update <skill> --field=value   # update a field, restamp updated_at
 ```
@@ -141,6 +170,8 @@ the JSON honest.
 | GET | `/api/flags/public` | Public-flag map for the browser; sets `oc_id` cookie |
 | POST | `/api/feedback` | Create Linear issue (bug/feature/improvement) |
 | POST | `/api/notify` | Lead capture (KV-backed) |
+| GET | `/api/votes` | Batched roadmap vote counts (`?ids=A,B,C`) |
+| POST | `/api/votes/:id` | Cast a roadmap vote (per-IP/day server-side dedup) |
 | POST | `/mcp` | opchain MCP server (JSON-RPC; Codex / any MCP client) |
 | GET | `/.well-known/ai-catalog.json` | ARD discovery manifest (advertises the MCP server) |
 | GET | `/.well-known/mcp.json` | MCP server card the ARD entry resolves to |
@@ -149,8 +180,9 @@ the JSON honest.
 | GET | `/*` | Static assets from `public/` |
 
 The email-gated Try-It chat (`POST /api/try/start` + `POST /api/try/chat`)
-was removed in `claude/remove-try-it`. Old client requests now get a 410
-Gone response; legacy `/tryit` and `/tryit.html` paths 301 to `/demo`.
+and the Resend-backed `POST /api/email-pipeline` step were both removed.
+Old client requests to any of these now get a 410 Gone response; legacy
+`/tryit` and `/tryit.html` paths 301 to `/demo`.
 
 ## Agentic discovery
 
@@ -174,7 +206,10 @@ staging). Builders live in `src/lib/discovery.js`; routes in `src/index.js`.
 - **`/llms.txt`** — Markdown index linking each skill's raw `/docs/<id>/SKILL.md`
   plus the key human + machine entry points.
 - **`/skills.json`** — full JSON skill catalog (served at the root, not under
-  `/api/`, so it isn't blocked by `robots.txt Disallow: /api/`).
+  `/api/`, so it isn't blocked by `robots.txt Disallow: /api/`). Its top-level
+  `catalogVersion` is the lockstep skill semver (unlike `version`, the build SHA);
+  the `/install` page's SessionStart update-check hook compares it against the
+  `version:` frontmatter of installed skills.
 - **JSON-LD** — `Base.astro` emits a site-wide `Organization` + `WebSite` graph
   plus a page node (`SoftwareApplication` on `/`, a per-skill node on `/skills/<id>`).
 
@@ -254,8 +289,8 @@ Env-var override naming: `site.ops.api-feedback.kill` → `FLAG_SITE_OPS_API_FEE
 
 Skill source (`skills/`) is mirrored to a public GitHub repo at `asfbay-bit/opchain-skills` for community visibility, issues, and external PRs. The site and build tooling stay private here.
 
-- **Workflow:** `.github/workflows/mirror-public.yml`. Triggers on every push to `main` that touches `skills/`, `mirror/`, `LICENSE`, or the workflow itself. Manual `workflow_dispatch` is also supported.
-- **What gets mirrored:** `skills/` + `LICENSE` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs.
+- **Workflow:** `.github/workflows/mirror-public.yml`. Triggers on every push to `main` that touches `skills/`, `mirror/`, `plugins/`, `.claude-plugin/`, `LICENSE`, or the workflow itself. Manual `workflow_dispatch` is also supported.
+- **What gets mirrored:** `skills/` + `LICENSE` + `plugins/` (with `cp -RL`, so the `plugins/opchain/skills` symlink becomes a real directory in the snapshot) + `.claude-plugin/` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs. The plugin + marketplace files are what make `/plugin marketplace add asfbay-bit/opchain-skills` → `/plugin install opchain` work; without them the public repo is skills-only.
 - **Mode:** force-push snapshot. The public repo's history is reset on every sync to a single commit (`Mirror from asfbay-bit/opchain@<sha>`). External PRs against the public repo can't merge directly; maintainers cherry-pick them here, and they propagate back on the next sync. Documented in `mirror/CONTRIBUTING.md`.
 - **Required secret:** `MIRROR_TOKEN` — a fine-grained GitHub PAT with `contents:write` on `asfbay-bit/opchain-skills`. Set via repo Settings → Secrets and variables → Actions. The workflow fails loud if it's missing.
 - **Editing the public face:** all public-facing copy (README, contributing guide, issue forms) lives under `mirror/` so it's easy to find. The `LICENSE` at repo root is shared between private and public.

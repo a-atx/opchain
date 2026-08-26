@@ -1,7 +1,8 @@
 ---
 name: oc-fleet-ops
 displayName: OC · Fleet Ops
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: "Provision and operate containers across self-managed infra — k8s/Nomad/Compose/VMs. Terraform when it fits, not always."
 phases: [build]
 triAgent: false
@@ -34,6 +35,8 @@ governance:
 ---
 
 # Fleet Ops
+
+**On first invocation, read `references/orchestrator.md` and follow its welcome protocol.**
 
 Deploy and operate **one-or-more containers across arbitrary, self-managed environments**
 — the territory `oc-deploy-ops` routes elsewhere today. Where deploy-ops is opinionated

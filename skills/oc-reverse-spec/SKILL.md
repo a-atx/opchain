@@ -1,7 +1,8 @@
 ---
 name: oc-reverse-spec
 displayName: OC · Reverse Spec
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Turn existing code into pipeline-ready specs. v1.2 mirrors discovered scope to the PM tool as parent + children.
 phases: [plan]
 triAgent: false
@@ -16,7 +17,7 @@ commands:
 description: >
   Reverse-engineer existing code into spec docs. Use for /oc-rev-spec, /oc-reverse-spec,
   "document this codebase", "generate specs from code", "backfill specs", or when
-  pointing at existing code that needs documentation. Trigger liberally.
+  pointing at existing code that needs documentation.
 ---
 
 # Reverse Spec
@@ -302,7 +303,7 @@ On migration, map the fields:
 
 When `/oc-reverse-spec`, `/oc-rev-scan`, `/oc-rev-full`, or any /rev-* command is invoked:
 
-1. Check for checkpoint: `bash scripts/checkpoint.sh exists <project-dir> oc-reverse-spec`
+1. Check for checkpoint: `node scripts/checkpoint.mjs show oc-reverse-spec`
 2. If exists (JSON):
    - Read checkpoint
    - Display: analysis progress, generated docs, next action

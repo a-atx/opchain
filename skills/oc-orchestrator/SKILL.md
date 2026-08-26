@@ -1,7 +1,8 @@
 ---
 name: oc-orchestrator
 displayName: OC · Orchestrator
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Pipeline coordinator — registry, status, routing. v1.2 reads `pm_refs` across skills; routes by ticket id.
 phases: [foundation]
 triAgent: false
@@ -24,10 +25,12 @@ description: >
   "what's the status", "where did I leave off", "which project", "what should I work on",
   "show me everything", or any question about pipeline state across projects. Also trigger
   when the user seems lost, references multiple projects, or asks a vague dev question
-  that needs routing. Trigger liberally.
+  that needs routing.
 ---
 
 # Orchestrator
+
+**On first invocation, read `references/orchestrator.md` and follow its welcome protocol.**
 
 Pipeline coordinator for the opchain dev ecosystem. This skill does NOT build, audit,
 deploy, or design — it reads every other skill's checkpoints, maintains a project
@@ -114,16 +117,27 @@ If the project doesn't have `npm run checkpoint:status` wired up
 ls .checkpoints/*.checkpoint.json 2>/dev/null && cat .checkpoints/*.checkpoint.json
 ```
 
+Treat that direct read as the authoritative status source. The missing convenience
+command is not evidence that checkpoint state is unreliable, and it must not be
+reported as product progress or as a blocker. If the files exist, validate their
+claims against the named specs, git state, tests, and release artifacts as normal.
+
 If `.checkpoints/` doesn't exist at all, this is a cold start. The
-`oc-checkpoint-protocol` is not directly invocable — instead run its scaffolder:
+`oc-checkpoint-protocol` is not directly invocable. If this is the opchain.dev repo
+and its CLI exists, run its scaffolder:
 
 ```bash
 node scripts/checkpoint.mjs init
 ```
 
-That creates `.checkpoints/` + a starter README. Follow the oc-checkpoint-protocol
-SKILL.md § "Scaffold Phase" to add the `package.json` scripts, the `.gitattributes`
-merge driver, and the optional post-merge auto-stamp workflow before routing work.
+In any other repo, create `.checkpoints/` and the receiving skill's checkpoint
+directly with the file tools already available; do not assume `scripts/checkpoint.mjs`
+was copied into the project. Follow the oc-checkpoint-protocol
+SKILL.md § "Scaffold Phase" to add the `package.json` scripts and the `.gitattributes`
+merge driver only when the user asks to adopt the CLI. Do **not** scaffold a per-merge
+auto-stamp workflow — the protocol prohibits it (opchain shipped one and removed it
+2026-06-22 after it deadlocked on branch protection and left ~24 open bot PRs).
+Routing and checkpoint writes do not wait for that tooling work.
 
 **Do not** start routing or dispatching work until you've read the
 checkpoint state. The whole point of the protocol is that the next
@@ -444,6 +458,8 @@ pipeline wins:
 oc-reverse-spec → oc-app-architect → oc-git-ops → oc-deploy-ops
                     ↕
           oc-code-auditor (required before deploy)
+          oc-bug-check (pre-commit gate, auto-invoked by oc-git-ops)
+          oc-docs-forge → oc-repo-ops (pre-PR gate, auto-invoked by oc-git-ops)
           oc-integrations-engineer (when needed)
           oc-scale-ops (advisory)
 ```
@@ -516,6 +532,8 @@ table currently in orchestrator.md.
 | "connect to [service]", "webhook", "OAuth" | oc-integrations-engineer | /oc-integrate plan |
 | "deploy this", "ship it" | oc-deploy-ops | /oc-deploy staging |
 | "commit", "push to git", "create a PR" | oc-git-ops | /oc-git-sync |
+| "generate the PR docs", "update README", "docs drift" | oc-docs-forge | /oc-docs pr |
+| "is this PR ready", "repo hygiene", "catalog drift" | oc-repo-ops | /oc-repo audit |
 | "can this handle more users", "performance" | oc-scale-ops | /oc-scale audit |
 | "dashboard", "analytics UI", "BI design" | oc-dash-forge | /oc-data-forge |
 | "continue where I left off" | [scan checkpoints] | [resume most recent] |

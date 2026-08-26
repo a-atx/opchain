@@ -72,7 +72,7 @@ Multiple skills can checkpoint the same project simultaneously without collision
 ```jsonc
 {
   // === HEADER (required) ===
-  "protocol_version": "1.0",             // On-disk schema version (not the skill release version)
+  "protocol_version": "1.1",             // On-disk schema version — stamp new writes "1.1"; validator also accepts "1.0"
   "skill": "oc-app-architect",              // Skill that owns this checkpoint
   "project": "gtrack",                   // Human-readable project name
   "project_dir": "/home/claude/gtrack",  // Absolute path
@@ -237,31 +237,73 @@ If the checkpoint is >24h old, do a quick consistency check:
 
 ### When to Write
 
-Update the checkpoint after:
+Checkpoint writes are mandatory lifecycle work, not optional bookkeeping. Update
+the checkpoint after:
 
 | Event | Action |
 |---|---|
-| Phase/step completed | Update `progress_table`, `step`, `progress_summary` |
-| Key decision made | Append to `context_primer.key_decisions` |
-| File generated | Append to `context_primer.generated_files` |
-| Blocker discovered | Add to `blockers` |
-| Blocker resolved | Remove from `blockers` (or mark resolved) |
-| User confirms something | Append to `key_decisions` |
-| Session ending (user says bye, context getting long) | Full checkpoint write |
+| Session resume | Restamp `updated_at`, record `resumed_from` when known, and revalidate or replace `next_actions[0]` before continuing. |
+| Session pause / user says stop / context is getting long | Write a compact `progress_summary`, current `step`, blockers, and the exact next action to run first. |
+| Phase or gate completion | Update `progress_table`, `phase`, `step`, summary, and next action before moving on. |
+| Key decision / user decision made | Append to `context_primer.key_decisions`, clear any matching blocker, and restamp. |
+| File generated | Append to `context_primer.generated_files`. |
+| Blocker discovered | Add to `blockers` and set `status` to `blocked` if it stops progress. |
+| Blocker resolved | Remove or mark the blocker resolved and set `status` back to `in_progress`. |
+| Cross-skill handoff | Current skill writes the handoff reason, named artifacts, and receiving skill before the receiver acts. |
+| Branch / PR opened | Record branch, PR number, scope, touched artifacts, and pending verification. |
+| PR merged | Mark PR-wait actions complete and replace them with deploy/release/follow-up actions. |
+| Deploy to staging/prod | Record environment, commit SHA, health result, user-visible route checked, and next rollout step. |
+| Release cut/ship | Reconcile release-relevant skill checkpoints to the shipped release state. |
+| Merge conflict or rebase resolution | Restamp if conflict resolution changed generated files, summaries, or next actions. |
+| `checkpoint doctor` drift found | Write a reconciliation checkpoint or add an explicit blocker; do not leave drift only in console output. |
+
+If a future session would be misled without the write, the current skill must
+write before handing control back.
 
 ### How to Write
 
-Always **read → merge → write**. Never blindly overwrite — another skill might have
-written a checkpoint for the same project in a sibling file, and the current skill's
-own file might have been manually edited.
+**You do not need any special tooling to write a checkpoint — your own file tools
+are the writer.** The `scripts/checkpoint.mjs` CLI described under *Tooling* is an
+optional convenience that exists **only inside the opchain.dev repo**; on a user's
+own project it is absent, and you write checkpoints directly instead. Do not treat a
+missing CLI or a missing `npm run checkpoint:*` script as a reason to skip the write.
+Do not tell the user that status is unreliable merely because generated CLI output is
+unavailable: read the checkpoint JSON directly, then corroborate its claims against
+the referenced specs, git state, tests, and release artifacts. Record CLI adoption as
+tooling debt only when the user actually wants that convenience added.
 
-```bash
-# Pseudocode
-existing = read_json("{project}/.checkpoints/{skill}.checkpoint.json") or {}
-updated = merge(existing, new_state)
-updated["updated_at"] = now()
-write_json(updated)
+The operation is always **read → merge → write**, four concrete steps you perform
+with the tools you already have:
+
+1. **Ensure the directory exists.** Create `{project-dir}/.checkpoints/` if it isn't
+   there yet — `mkdir -p {project-dir}/.checkpoints` with the Bash tool, or just rely
+   on your Write tool creating parent directories. (`{project-dir}` is the root of the
+   project you're working in — the directory that holds its `.git`, `package.json`,
+   or `src/` — **not** the skill's install directory.)
+2. **Read what's there.** Read `{project-dir}/.checkpoints/{skill-name}.checkpoint.json`
+   if it exists; treat a missing file as `{}`.
+3. **Merge, don't clobber.** Merge your new state into the existing object and set
+   `updated_at` to the current time (ISO-8601). Never blindly overwrite — another
+   skill may have written a sibling checkpoint, and this file may have been hand-edited.
+4. **Write the JSON back** to the same path with the Write tool. Include at least the
+   required header + progress fields from the schema above (`protocol_version`,
+   `skill`, `project`, `project_dir`, `created_at`, `updated_at`, `phase`, `step`,
+   `status`, `progress_summary`, and — while `in_progress` — `next_actions`), and
+   stamp `protocol_version` as `"1.1"`.
+
+```text
+# The shape of the operation — do it with your own Read/Write tools, no CLI required:
+existing = read_json("{project-dir}/.checkpoints/{skill}.checkpoint.json") or {}
+updated  = merge(existing, new_state)
+updated["updated_at"] = now()          # ISO-8601
+write_json("{project-dir}/.checkpoints/{skill}.checkpoint.json", updated)
 ```
+
+> **A hand-written checkpoint is a first-class checkpoint.** If the CLI happens to be
+> present (you're in the opchain repo), it automates the merge and validates the
+> result — use it. Everywhere else, the four steps above ARE the protocol. The one
+> unacceptable outcome is ending a session with state that a future session needed
+> but that was never written to disk.
 
 ### Checkpoint Size
 
@@ -310,6 +352,7 @@ that as the single source of truth; this table is just the common cases.
 | oc-app-architect | oc-reverse-spec checkpoint | Know what analysis exists for the codebase |
 | oc-deploy-ops | oc-app-architect checkpoint | Know which sprints have passed QA |
 | oc-git-ops | any skill checkpoint | Know what files to commit |
+| oc-git-ops | oc-docs-forge + oc-repo-ops checkpoints | Pre-PR gate: docs packet + readiness verdict before opening a PR |
 | oc-code-auditor | oc-reverse-spec checkpoint | Know what analysis has been done |
 
 **Rules:**
@@ -321,11 +364,18 @@ that as the single source of truth; this table is just the common cases.
 
 ---
 
-## Tooling
+## Tooling (optional — opchain.dev repo only)
 
-All commands live in `package.json` and shell out to `scripts/checkpoint.mjs`
-(zero deps, pure Node). The canonical writer is that one file at the repo root —
-skills do **not** bundle their own writers.
+> **This entire section is an optional fast-path, not a requirement.** The commands
+> below exist only inside the opchain.dev repo, where `scripts/checkpoint.mjs` and the
+> `checkpoint:*` `package.json` scripts are present. **On a user's own project none of
+> this exists — and that is expected.** You still create, read, and update checkpoints
+> directly with your file tools (see *How to Write* above). If any command in this
+> section is not found, skip it and write the file yourself; a missing
+> `scripts/checkpoint.mjs` is never a reason not to checkpoint.
+
+When they are available, these commands automate the read → merge → write and
+validate the result. `scripts/checkpoint.mjs` is zero-deps pure Node.
 
 **Read / resume:**
 
@@ -333,7 +383,7 @@ skills do **not** bundle their own writers.
 node scripts/checkpoint.mjs status            # "where did I leave off?" — full summary
 node scripts/checkpoint.mjs status --brief    # just the top skill + its next action + blockers
 node scripts/checkpoint.mjs status --since=2026-06-01T00:00:00Z   # momentum digest
-node scripts/checkpoint.mjs next              # the SINGLE highest-priority action (priority engine)
+node scripts/checkpoint.mjs next              # the SINGLE highest-priority non-stale action
 ```
 
 `status` leads with a `⛔ N decisions waiting on you` banner when any blocker
@@ -347,6 +397,7 @@ don't need the oc-orchestrator's registry to answer "what now?".
 ```bash
 node scripts/checkpoint.mjs doctor            # cross-check vs git history + filesystem
 node scripts/checkpoint.mjs doctor --online   # also compare deployed /api/health vs local HEAD
+node scripts/checkpoint.mjs doctor --fail-on-warnings
 ```
 
 `doctor` flags: a `project_dir` that doesn't exist on this machine, stale
@@ -354,10 +405,18 @@ in_progress checkpoints, `generated_files` that reference missing paths, and
 `next_actions` that point at PRs/tickets already merged (the "telling future-self
 to redo shipped work" failure that caused three manual reconciliations in this repo).
 
+`next` uses the same drift evidence before recommending work. If a queued action
+references already-merged PR work or a completed ticket, `next` skips to the
+first fresh action or recommends checkpoint reconciliation instead of telling the
+next agent to redo shipped work.
+
 **Write:**
 
 ```bash
 npm run checkpoint:validate                   # schema gate — CI runs this (add --strict to fail on warnings)
+node scripts/checkpoint.mjs list              # list all checkpoint files
+node scripts/checkpoint.mjs show [skill]      # display full JSON for one/all checkpoints
+node scripts/checkpoint.mjs reset <skill>     # archive current file into .checkpoints/history/
 node scripts/checkpoint.mjs update <skill> --field=value [...]   # apply updates, auto-stamp updated_at
 node scripts/checkpoint.mjs done <skill>      # pop next_actions[0] → recently_done, restamp
 node scripts/checkpoint.mjs init              # scaffold .checkpoints/ on a fresh project
@@ -385,26 +444,27 @@ The validator runs after every `update`/`done` so you can't silently corrupt a f
 
 ## Scaffold Phase
 
-This protocol is **not invoked directly** (it has no commands of its own). A fresh
-project gets scaffolded one of two ways:
+This protocol is **not invoked directly** (it has no commands of its own). Scaffolding
+a fresh project is deliberately trivial and needs **no tooling**:
 
-- **Another skill** notices there's no `.checkpoints/` directory and runs
-  `node scripts/checkpoint.mjs init` before writing its first checkpoint.
+- **Any skill** that is about to write its first checkpoint and notices there's no
+  `.checkpoints/` directory simply creates it (`mkdir -p {project-dir}/.checkpoints`,
+  or lets the Write tool create it) and writes the file, per *How to Write*. That is
+  the whole scaffold — a directory and a JSON file.
 - **The oc-orchestrator cold-start** (`/oc-ops` on a project with no `.checkpoints/`)
-  runs the same `init` as step zero.
+  does the same thing as step zero.
 
-`init` creates `.checkpoints/` and a starter `README.md` idempotently. To stand up
-the full protocol on a brand-new repo, drop these (the opchain.dev repo is the
-reference implementation — copying from there is faster than re-typing):
+That is all a user's project ever needs. Everything below is **opchain-repo-only
+convenience** and is *not* required to use the protocol on your own project:
 
-1. `scripts/checkpoint.mjs` — the validator/status/next/doctor/update CLI.
-2. `.checkpoints/README.md` — schema reference + tooling docs (`init` writes a stub).
-3. `package.json` scripts — `checkpoint`, `checkpoint:status`, `checkpoint:validate`
-   (and optionally `checkpoint:next`, `checkpoint:doctor`).
-4. CI step — call `npm run checkpoint:validate` from your CI pipeline.
-5. `.gitattributes` — register the `merge=opchain-checkpoint` driver (see the
-   merge-driver caveat under *Tooling*) plus `scripts/merge-checkpoint.mjs`.
-6. **Do _not_ wire a per-merge auto-stamp workflow.** Earlier guidance here
+1. `scripts/checkpoint.mjs` — an optional validator/status/next/doctor/update CLI that
+   automates the read→merge→write. If you want it on another repo you can copy it from
+   the opchain.dev reference implementation, but nothing here depends on it.
+2. `.checkpoints/README.md` — human-readable schema reference (nice to have; the schema
+   in this document is the authority).
+3. `package.json` scripts / CI validation / `.gitattributes` merge driver — repo
+   ergonomics for a team that tracks many checkpoints. Optional.
+4. **Do _not_ wire a per-merge auto-stamp workflow.** Earlier guidance here
    recommended a `.github/workflows/checkpoint-after-merge.yml` that opened a stamp
    PR on every merge to `main`. opchain.dev shipped it and **removed it 2026-06-22**
    because it was net-negative under branch protection — see *Anti-pattern: don't

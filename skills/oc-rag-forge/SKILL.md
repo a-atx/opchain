@@ -1,7 +1,8 @@
 ---
 name: oc-rag-forge
 displayName: OC · RAG Forge
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Design and build RAG systems — vector DB choice, embeddings, chunking, hybrid search, retrieval eval. Tri-agent.
 phases: [build, ai-native]
 triAgent: true
@@ -16,7 +17,7 @@ description: >
   Vectors), embedding-model choice, chunking strategy, hybrid search, and
   retrieval evaluation. Use for /oc-rag, "RAG", "vector database", "embeddings",
   "chunking", "semantic search", "hybrid search", "retrieval eval", "reranking",
-  "knowledge base". Trigger liberally on retrieval / RAG work.
+  "knowledge base".
 governance:
   breaking_change_policy: skills/CHANGELOG.md
   last_reviewed: 2026-06-21
