@@ -38,8 +38,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const DIR = join(ROOT, ".checkpoints");
+const ROOT = process.env.OPCHAIN_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), "..");
+const DIR = process.env.OPCHAIN_CHECKPOINTS_DIR ?? join(ROOT, ".checkpoints");
 const SINK_REL = ".checkpoints/usage.sqlite";
 const SINK = join(ROOT, SINK_REL);
 const CHECKPOINT = join(DIR, "oc-telemetry-ops.checkpoint.json");

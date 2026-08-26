@@ -17,8 +17,8 @@ import {
 } from "./lib/pm-mcp-checks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS_DIR = join(ROOT, "skills");
-const PM_YAML = join(ROOT, ".opchain", "pm.yaml");
+const SKILLS_DIR = process.env.OPCHAIN_SKILLS_DIR ?? join(ROOT, "skills");
+const PM_YAML = process.env.OPCHAIN_PM_YAML ?? join(ROOT, ".opchain", "pm.yaml");
 
 const errors = [];
 const warnings = [];
