@@ -1,7 +1,8 @@
 ---
 name: oc-prompt-ops
 displayName: OC · Prompt Ops
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Prompt-as-code — versioning, eval datasets, regression and drift detection for LLM prompts.
 phases: [build, ai-native]
 triAgent: false
@@ -15,8 +16,7 @@ description: >
   source-controlled code. Owns prompt versioning, eval datasets, regression
   detection, and drift tracking. Use for /oc-prompt, "prompt versioning",
   "eval dataset", "prompt regression", "prompt drift", "golden set",
-  "prompt diff", "LLM eval", "regression suite". Trigger liberally on
-  prompt-engineering / eval work.
+  "prompt diff", "LLM eval", "regression suite".
 governance:
   breaking_change_policy: skills/CHANGELOG.md
   last_reviewed: 2026-06-25
@@ -26,6 +26,8 @@ governance:
 ---
 
 # Prompt Ops
+
+**On first invocation, read `references/orchestrator.md` and follow its welcome protocol.**
 
 Treat prompts as **code**: source-controlled, diffable, semver'd, and gated on
 an eval suite the same way application code is gated on tests. A prompt is the
@@ -379,7 +381,7 @@ deploy, and cost it.
 | **oc-rag-forge** | Consumes the same eval harness for its *generation* prompt (the answer-synthesis step). RAG owns the *retrieval* goldset; Prompt Ops owns the generation-prompt goldset; the two regression suites run side by side. |
 | **oc-cost-ops** | Owns live eval-spend tracking and the `cost_per_eval` field + cost-regression gate that runs alongside the score gate (shipped v1.6). |
 | **oc-deploy-ops** | Receives a frozen, score-gated prompt version; gates prod on the regression suite passing. |
-| **oc-git-ops** | Opens the PR carrying the prompt diff + scorecard; CI runs `/oc-prompt regress` as a required check. |
+| **oc-git-ops** | Opens the PR carrying the prompt diff + scorecard (surfaced in the PR's oc-docs-forge documentation packet); CI runs `/oc-prompt regress` as a required check. |
 | **oc-app-architect** | When an app has an LLM feature, its prompt is registered under `prompts/` with a goldset from day one rather than backfilled later. |
 
 ---

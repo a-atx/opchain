@@ -1,7 +1,8 @@
 ---
 name: oc-monitoring-ops
 displayName: OC · Monitoring Ops
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Post-deploy observability — uptime, errors, alerts, incidents. v1.2 opens PM incident tickets when alerts fire.
 phases: [build]
 triAgent: false
@@ -33,7 +34,7 @@ description: >
   "set up monitoring", "error tracking", "uptime check", "alerting", "incident
   response", "observability", "what's happening in prod", "set up Sentry", "logging
   strategy", "on-call", "runbook", "SLO", "SLI", "is prod healthy", "why is it
-  slow", "error rate", "status page". Trigger liberally.
+  slow", "error rate", "status page".
 ---
 
 # Monitoring Ops

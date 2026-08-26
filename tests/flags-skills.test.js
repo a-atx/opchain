@@ -7,11 +7,22 @@
 import { describe, it, expect } from "vitest";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, cpSync, symlinkSync, rmSync } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+function findNodeModules() {
+  // Locate the node_modules that actually contains the validator's one npm
+  // dependency, using Node's own resolution. A plain "does node_modules
+  // exist?" walk gets poisoned by vitest's cache: the first `vitest run` in a
+  // checkout without installed deps creates node_modules/.vite, and that
+  // cache-only shell would then shadow the real install one level up.
+  const require = createRequire(import.meta.url);
+  return dirname(dirname(require.resolve("gray-matter/package.json")));
+}
 
 function runValidator(skillsDir) {
   // The script reads from <ROOT>/skills, so we shim by symlinking from a
@@ -25,7 +36,7 @@ function runValidator(skillsDir) {
     // of MB / thousands of files per run and intermittently failed or timed out
     // under parallel test load; module resolution follows the symlink, so the
     // spawned validator still resolves gray-matter and the registry import.
-    symlinkSync(join(ROOT, "node_modules"), join(work, "node_modules"), "dir");
+    symlinkSync(findNodeModules(), join(work, "node_modules"), "dir");
     cpSync(join(ROOT, "package.json"), join(work, "package.json"));
     cpSync(skillsDir, join(work, "skills"), { recursive: true });
     return spawnSync("node", ["scripts/gen-skills-catalog.mjs"], {

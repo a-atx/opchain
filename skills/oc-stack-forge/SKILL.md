@@ -1,7 +1,8 @@
 ---
 name: oc-stack-forge
 displayName: OC · Stack Forge
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Stack decisions, Cloudflare patterns, typed pipeline. v1.2 records the chosen stack on the linked PM ticket as an ADR.
 phases: [plan, build]
 triAgent: false
@@ -13,7 +14,7 @@ commands:
 description: >
   Stack advisor for any platform: Cloudflare, Vercel, AWS, Supabase, Rails, Django.
   Use for /oc-stack, /oc-stack-decide, /oc-feature, "what stack", "tech stack", "what should I
-  build with", or framework comparisons. Auto-invoked by oc-app-architect. Trigger liberally.
+  build with", or framework comparisons. Invoked by oc-app-architect.
 ---
 
 # Stack Forge
@@ -261,7 +262,8 @@ Read `references/testing-patterns.md` for framework-specific tooling.
 | Railway | `git push` (auto) | Built-in | Automatic per PR |
 | Cloud Run | `gcloud run deploy` | Cloud Build | Traffic splitting |
 
-Read `references/deployment-patterns.md` for detailed patterns per platform.
+The table above summarizes deploy commands per platform; see `references/cf-deployment.md`
+for detailed Cloudflare (Workers / D1 / KV) patterns.
 
 ---
 
@@ -269,8 +271,8 @@ Read `references/deployment-patterns.md` for detailed patterns per platform.
 
 opchain v1.3 expands the platform menu beyond the JS / Cloudflare bias of v1.0–v1.2.
 Four full-stack patterns are first-class targets: oc-stack-forge recommends them,
-oc-app-architect's `references/scaffold-guide.md` knows how to scaffold them, and
-oc-deploy-ops knows how to ship them.
+oc-app-architect's `../oc-app-architect/references/scaffold-guide.md` knows how to
+scaffold them, and oc-deploy-ops knows how to ship them.
 
 | Stack | DB | Deploy target | When to pick it |
 |---|---|---|---|
@@ -465,6 +467,7 @@ Checkpoint location: `{project-dir}/.checkpoints/oc-stack-forge.checkpoint.json`
 | oc-code-auditor | Type pipeline standard → compliance check |
 | oc-scale-ops | Platform limits → scaling constraints |
 | oc-deploy-ops | Platform → deployment patterns |
+| oc-docs-forge | Chosen stack + decision rationale → PR documentation packet, README/product-doc updates |
 
 ---
 
@@ -474,7 +477,7 @@ Checkpoint location: `{project-dir}/.checkpoints/oc-stack-forge.checkpoint.json`
 |---|---|---|
 | /typed-pipeline | `references/typed-pipeline.md` | Type chains per stack |
 | /testing | `references/testing-patterns.md` | Testing pyramid per framework |
-| /oc-deploy | `references/deployment-patterns.md` | Deploy patterns per platform |
+| /oc-deploy | `references/cf-deployment.md` | Deploy patterns (Cloudflare; other platforms in the matrix above) |
 | /errors | `references/error-handling.md` | Structured errors, logging |
 | /oc-feature | `references/feature-decomposition.md` | Sprint templates for oc-app-architect Phase 6 |
 | — | `references/cf-deployment.md` | CF-specific patterns (Workers, D1, KV) |

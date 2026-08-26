@@ -1,7 +1,8 @@
 ---
 name: oc-modularize-ops
 displayName: OC · Modularize Ops
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: "Decompose a monolith with provably zero loss — golden fixtures from real data as the oracle. Willing to say don't."
 phases: [plan, build]
 triAgent: false
@@ -34,6 +35,8 @@ governance:
 ---
 
 # Modularize Ops
+
+**On first invocation, read `references/orchestrator.md` and follow its welcome protocol.**
 
 Take a monolith — a codebase, a container, or a large deployment — and decompose it into
 modules or services **without losing functionality or data**. The signature commitment of

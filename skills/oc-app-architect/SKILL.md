@@ -1,7 +1,8 @@
 ---
 name: oc-app-architect
 displayName: OC · App Architect
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Idea → spec → design → build → launch in one skill. v1.2 reads PM tickets and writes sprints back via PM-MCP.
 phases: [plan, build]
 triAgent: true
@@ -18,8 +19,7 @@ commands:
 description: >
   Unified app development: idea → spec → design → build with Generator/Evaluator
   QA loop → launch. Use for /oc-app, /oc-discover, /oc-spec, /oc-design, /oc-build, /oc-launch,
-  "build me an app", "I have an app idea", or any software project. Auto-invokes
-  oc-stack-forge and oc-ux-engineer. Trigger liberally.
+  "build me an app", "I have an app idea", or any software project. Chains to (when you invoke it): oc-stack-forge and oc-ux-engineer.
 ---
 
 # App Architect
@@ -358,8 +358,13 @@ Write checkpoint: phase "sprint-plan-approved".
 One-time project setup. Read `references/scaffold-guide.md`.
 
 Generates: directory structure, package manifest, config files, .env.example, initial
-migrations, test infrastructure, CI/CD config, .gitignore (includes `.checkpoints/`),
-README with setup instructions.
+migrations, test infrastructure, CI/CD config, .gitignore, README with setup instructions.
+
+> **Do NOT add `.checkpoints/` to `.gitignore`.** The checkpoint directory is tracked
+> in git on purpose — that's what lets session state survive across machines and
+> clones (see `references/checkpoint-protocol.md` → *Directory Convention*). The only
+> checkpoint artifact that IS gitignored is `.checkpoints/usage.sqlite` (oc-telemetry-ops'
+> local metering DB); the `*.checkpoint.json` files must be committed.
 
 Scaffold must be immediately runnable after USER setup tasks (create DB, fill .env, etc).
 
@@ -528,7 +533,7 @@ suggesting it:
 
 1. **oc-code-auditor** — read `oc-code-auditor/SKILL.md`, execute `/oc-audit pre-deploy`. Block on CRITICAL/HIGH findings.
 2. **oc-security-auditor** — read `oc-security-auditor/SKILL.md`, execute `/oc-security posture`. Block on CRITICAL findings.
-3. **oc-git-ops** — read `oc-git-ops/SKILL.md`, execute `/oc-git-sync`. (oc-git-ops auto-invokes oc-bug-check before commit.)
+3. **oc-git-ops** — read `oc-git-ops/SKILL.md`, execute `/oc-git-sync`. (oc-git-ops auto-invokes oc-bug-check before commit, then the oc-docs-forge → oc-repo-ops pre-PR gate before opening the PR.)
 4. **oc-deploy-ops** — read `oc-deploy-ops/SKILL.md`, execute `/oc-deploy staging`. After staging smoke-tests pass and user confirms, execute `/oc-deploy prod`.
 5. **oc-monitoring-ops** — read `oc-monitoring-ops/SKILL.md`, execute `/oc-monitor` to wire post-deploy observability.
 
@@ -617,7 +622,7 @@ project-dir/
 | **oc-stack-forge** | Auto-invoked during Phase 2. Produces stack recommendation that informs all specs. |
 | **oc-ux-engineer** | Design Evaluator auto-attaches during UI sprints in Phase 6. Also usable standalone for design iteration. |
 | **oc-code-auditor** | Evaluator reads oc-code-auditor checkpoint for pre-existing issues. Phase 7 suggests `/oc-audit pre-deploy`. |
-| **oc-git-ops** | Suggested after each sprint passes. Phase 7 suggests `/oc-git-sync`. |
+| **oc-git-ops** | Suggested after each sprint passes. Phase 7 suggests `/oc-git-sync`, which auto-invokes oc-bug-check at commit and the oc-docs-forge → oc-repo-ops pre-PR gate on every PR. |
 | **oc-deploy-ops** | Phase 7 hands off to deploy pipeline. |
 | **oc-integrations-engineer** | Phase 2 spec `04-integrations.md` can trigger integration planning (third-party APIs we *consume*). |
 | **oc-api-dev** | Phase 2 spec `02-architecture.md` "API Design" + `03-architecture.md` data model trigger oc-api-dev to elaborate the first-party API contract (OpenAPI/GraphQL, versioning, SDK). |

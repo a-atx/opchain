@@ -1,7 +1,8 @@
 ---
 name: oc-dash-forge
 displayName: OC · Dash Forge
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Dashboards, BI, dense data — design spec + React prototype. v1.2 attaches the handoff bundle to the linked PM ticket.
 phases: [plan]
 triAgent: false
@@ -26,12 +27,13 @@ description: >
   Also trigger on: "design a dashboard", "dashboard mockup", "BI design", "data
   visualization design", "KPI dashboard", "analytics UI", "monitoring dashboard",
   "dense information display", "what should the dashboard look like", "design a report
-  view". Auto-invoked by /oc-ux-engineer when the UI is data-heavy and by /oc-app-architect
-  when the design phase encounters a dashboard surface. Trigger liberally whenever
-  dashboards, BI interfaces, or dense data displays come up.
+  view". Invoked by /oc-ux-engineer when the UI is data-heavy and by /oc-app-architect
+  when the design phase encounters a dashboard surface.
 ---
 
 # Dash Forge
+
+**On first invocation, read `references/orchestrator.md` and follow its welcome protocol.**
 
 Dashboard and dense-information UI designer. Takes data (from data-architect handoff, upstream spec, or direct input) and produces:
 

@@ -1,7 +1,8 @@
 ---
 name: oc-cost-ops
 displayName: OC · Cost Ops
-version: 1.7.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: LLM cost attribution per skill phase, budget gates in checkpoints, and model-tier routing recommendations.
 phases: [build]
 triAgent: false
@@ -21,7 +22,7 @@ description: >
   attribution", "token cost", "budget gate", "model tier routing", "cost
   regression", "cheaper model", "spend per feature". Pairs with oc-prompt-ops
   (cost-regression gate alongside the score gate) and oc-telemetry-ops (feeds
-  the public /dashboard cost stats). Trigger liberally on cost/spend work.
+  the public /dashboard cost stats).
 governance:
   breaking_change_policy: skills/CHANGELOG.md
   last_reviewed: 2026-06-25
@@ -35,6 +36,8 @@ governance:
 ---
 
 # Cost Ops
+
+**On first invocation, read `references/orchestrator.md` and follow its welcome protocol.**
 
 Make LLM spend a **first-class, attributable number** in the pipeline. v1.5 added
 four AI-native skills; the predictable next question is *"what did that cost
@@ -212,6 +215,7 @@ price.
 | oc-claude-api | The price table + model IDs |
 | oc-prompt-ops | Per-eval token counts to cost |
 | oc-bug-check / oc-code-auditor | The phase a run belongs to |
+| oc-docs-forge / oc-repo-ops | Per-PR gate runs to attribute (docs packet + readiness verify) |
 
 | Read by | Why |
 |---|---|

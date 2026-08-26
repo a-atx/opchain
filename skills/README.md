@@ -12,16 +12,32 @@ context across sessions.
 
 ## Installation (Claude Code)
 
+**Plugin (recommended)** — ships the skills *and* the hooks that enforce them:
+
+```
+/plugin marketplace add asfbay-bit/opchain-skills
+/plugin install opchain
+```
+
+Adds a commit gate that blocks unverified commits, pipeline state at session
+start, a pointer to the next skill when one finishes, and eight registered
+slash commands.
+
+**Zip (skills only)** — where a plugin install isn't an option:
+
 1. Unzip all skills into `.claude/skills/` in your repo
-2. Claude Code auto-discovers them at startup
+2. Claude Code discovers them at startup
+
+Note what the zip does *not* include: none of the hooks, so nothing
+mechanically enforces a gate.
 
 ## Installation (Codex / any MCP agent)
 
 Codex Agent Skills use the same `SKILL.md` format as Claude Code, so two options:
 
 1. **Drop-in skills** — unzip into `.codex/skills/` (project) or `~/.codex/skills/`
-   (global). Codex auto-discovers them and triggers by description, the same way
-   Claude Code does.
+   (global). Codex discovers them and can invoke them when you name one — the
+   same unenforced, name-it-yourself matching Claude Code skills rely on.
 2. **MCP server** — point Codex (or any MCP client: Claude Desktop, Cursor,
    Windsurf) at the hosted opchain endpoint for the full pipeline — catalog,
    routing, the orchestrator protocol, and checkpoints. In `~/.codex/config.toml`:
@@ -39,6 +55,8 @@ Full walkthrough (including a local stdio server): https://opchain.dev/install
 |---|---|---|
 | oc-checkpoint-protocol    | foundation  | Session persistence (bundled in all skills) |
 | oc-orchestrator           | foundation  | `/oc-ops` — multi-project registry, status, routing |
+| oc-docs-forge             | plan+build  | Documentation generator for every PR: PR body/comments, README/catalog docs, product docs, changelog, ADR upkeep |
+| oc-repo-ops               | build       | Repository hygiene and PR readiness gate: docs packet, generated files, catalog parity, cleanup |
 | oc-reverse-spec           | plan        | Code → spec docs |
 | oc-stack-forge            | plan        | Universal stack advisor |
 | oc-ux-engineer            | plan+build  | Tri-design harness |
@@ -48,12 +66,29 @@ Full walkthrough (including a local stdio server): https://opchain.dev/install
 | oc-integrations-engineer  | plan+build  | API integration harness (third-party APIs you consume) |
 | oc-api-dev                | plan+build  | First-party API design + build harness (OpenAPI, versioning, SDKs) |
 | oc-migration-ops          | plan+build  | `/oc-migrate` — DB / framework / auth / platform migrations |
+| oc-agent-forge            | build+ai-native | Claude Agent SDK apps: topology, tool budgets, harness loops, agent eval |
+| oc-claude-api             | build+ai-native | Claude API apps: model routing, prompt caching, tool use, migration playbooks |
+| oc-prompt-ops             | build+ai-native | Prompt-as-code: versioning, eval datasets, regression and drift detection |
+| oc-rag-forge              | build+ai-native | RAG systems: vector DB choice, embeddings, chunking, hybrid search, retrieval eval |
+| oc-cost-ops               | build       | LLM cost attribution, budget gates, and model-tier routing recommendations |
+| oc-telemetry-ops          | build       | Opt-in local usage metering and anonymized aggregate dashboard feed |
+| oc-signal-forge           | build       | Product-analytics signal builder: question to trustworthy metric |
+| oc-modularize-ops         | plan+build  | Live-monolith decomposition with golden-fixture equivalence proof |
+| oc-fleet-ops              | build       | Self-managed fleet deployment and multi-container operations |
 | oc-code-auditor           | build       | Auditor → Fixer → Verifier |
+| oc-bug-check              | build       | Pre-commit QA gate: type, lint, tests, secrets, build, deps, anti-patterns |
 | oc-security-auditor       | build       | Threat modeling, OWASP hardening, attack-surface review |
 | oc-git-ops                | build       | Git workflow |
+| oc-release-ops            | build       | Release cadence: plan, draft, bump, announce, ship |
 | oc-deploy-ops             | build       | Deployment pipeline |
 | oc-monitoring-ops         | build       | Post-deploy observability — uptime, errors, alerts, incidents |
 
 ## More info
 
 https://opchain.dev
+
+## License
+
+Apache-2.0 — see the `LICENSE` and `NOTICE` files at the repository root.
+Copyright 2026 Aidan Elsesser and the opchain contributors. Catalog releases
+up to and including 1.8.2 were published under MIT.
