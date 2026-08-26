@@ -94,7 +94,7 @@ score and prioritized optimization list.
 | A | Production-ready at scale | 10K+ concurrent users |
 | B | Ready for moderate traffic | 1K-10K concurrent users |
 | C | Works for small teams | 100-1K concurrent users |
-| D | Works for personal use | 1-100 concurrent users (aidops-scale) |
+| D | Works for personal use | 1-100 concurrent users (solo-scale) |
 | F | Has scaling blockers | Will break under real load |
 
 ### Readiness Report
@@ -493,7 +493,7 @@ worth the PM noise.
    you think it is.
 2. **Cache the read path, optimize the write path.** Most apps are 90% reads.
    Caching reads buys the most headroom with the least complexity.
-3. **D1 is enough until it isn't.** For aidops-scale (< 100 users), D1's free
+3. **D1 is enough until it isn't.** For solo-scale (< 100 users), D1's free
    tier handles everything. Don't migrate to Postgres speculatively.
 4. **Performance budgets are guardrails, not goals.** Set them once, enforce in
    CI, forget about them until they break.

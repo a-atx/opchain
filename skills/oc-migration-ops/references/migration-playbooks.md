@@ -9,7 +9,7 @@ SKILL.md defines the framework; this file provides the tactical playbooks.
 
 ### D1 (SQLite) → Postgres (Supabase / Neon)
 
-The most common database migration in the aidops ecosystem. D1 is perfect for <100
+The most common database migration for small Cloudflare-stack apps. D1 is perfect for <100
 users; Postgres scales further and adds features (full-text search, LISTEN/NOTIFY,
 advanced types, row-level security with fine-grained policies).
 
@@ -293,7 +293,7 @@ Timeline:
 
 ### WebAuthn → Supabase Auth
 
-Specific to the aidops ecosystem pattern:
+Specific to the acme-core monorepo pattern:
 
 1. Set up Supabase project + enable auth providers
 2. Create `src/auth/supabase-auth.ts` alongside existing `src/auth/webauthn.ts`

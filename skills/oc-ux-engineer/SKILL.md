@@ -452,7 +452,7 @@ Stored in `design/component-registry.json`:
 
 ```json
 {
-  "project": "gtrack",
+  "project": "fieldkit",
   "last_updated": "2026-04-03T10:00:00Z",
   "tokens": {
     "source": "design/style-book.html",

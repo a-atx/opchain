@@ -109,7 +109,7 @@ export const api = createClient<paths>({ baseUrl: import.meta.env.VITE_API_URL }
 
 // Usage — fully typed, autocomplete on path params, request body, and response
 const { data, error } = await api.POST("/users", {
-  body: { name: "Aidan", email: "aidan@example.com" },
+  body: { name: "Alex", email: "alex@example.com" },
 });
 // data is typed as User, error is typed as ErrorResponse
 ```
@@ -224,11 +224,11 @@ All three tools work with either backend path. Choose based on frontend needs.
 
 | Tool | Runtime Size | React Query | MSW Mocks | Best For |
 |---|---|---|---|---|
-| openapi-typescript + openapi-fetch | 6 KB | Via plugin | No | Minimal overhead, aidops-scale apps |
+| openapi-typescript + openapi-fetch | 6 KB | Via plugin | No | Minimal overhead, solo-scale apps |
 | @hey-api/openapi-ts | Varies | Plugin | No | Full SDK generation, larger teams |
 | Orval | Varies | Native | Yes (Faker.js) | TanStack Query + auto-generated test mocks |
 
-**Default recommendation for aidops-scale:** `openapi-typescript` — smallest runtime, no
+**Default recommendation for solo-scale:** `openapi-typescript` — smallest runtime, no
 codegen bloat, types-only output. Add Orval if you need MSW mocks for testing.
 
 ### Package.json Scripts

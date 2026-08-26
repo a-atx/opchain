@@ -1,7 +1,7 @@
 # Cloudflare Deployment Patterns Reference
 
 Deployment, infrastructure, and operational patterns for Cloudflare Workers, D1, KV, Pages,
-and hybrid architectures. Tuned for solo/small-team apps (aidops-scale).
+and hybrid architectures. Tuned for solo/small-team apps (solo-scale).
 
 ---
 
@@ -131,7 +131,7 @@ drop + add. Manual edit to `ALTER TABLE ... RENAME COLUMN` when appropriate.
 
 ### D1 Limitations to Know
 
-- Max 10GB per database (more than enough for aidops-scale)
+- Max 10GB per database (more than enough for solo-scale)
 - No full-text search (use KV or an external search service)
 - No `LISTEN/NOTIFY` (use Queues or polling for real-time)
 - SQLite semantics (type affinity, not strict typing — Drizzle handles this)
@@ -159,13 +159,13 @@ async function getCached<T>(kv: KVNamespace, key: string, ttl: number, fetcher: 
 const user = await getCached(env.CACHE, `user:${id}`, 300, () => getDb(env).select().from(users).where(eq(users.id, id)));
 ```
 
-### KV for Page Registry (aidops pattern)
+### KV for Page Registry
 
 ```typescript
 // Registry: KV key = route path, value = page config
-await env.PAGES_REGISTRY.put("cycle-tracker", JSON.stringify({
-  title: "CycleTracker",
-  workerUrl: "https://cycle-tracker.aidops.dev",
+await env.PAGES_REGISTRY.put("fieldkit", JSON.stringify({
+  title: "FieldKit",
+  workerUrl: "https://fieldkit.example.com",
   status: "active",
 }));
 ```
@@ -187,15 +187,15 @@ npx wrangler pages deploy frontend/dist --project-name=my-app
 ### Custom Domain Routing
 
 ```
-aidops.dev           → Pages (landing/homepage)
-app.aidops.dev       → Pages (React SPA)
-api.aidops.dev       → Worker (API)
+example.com          → Pages (landing/homepage)
+app.example.com      → Pages (React SPA)
+api.example.com      → Worker (API)
 ```
 
 Or single domain with path-based routing via a Worker:
 ```
-aidops.dev/app/*     → Pages
-aidops.dev/api/*     → Worker
+example.com/app/*    → Pages
+example.com/api/*    → Worker
 ```
 
 ### SPA Fallback
@@ -368,7 +368,7 @@ This matches the enterprise guide's "deploy migrations before code" principle.
 
 ## Cost Model
 
-### Cloudflare Free Tier (covers most aidops-scale apps)
+### Cloudflare Free Tier (covers most solo-scale apps)
 
 | Service | Free Allowance | Paid Rate |
 |---|---|---|

@@ -1,6 +1,6 @@
 # Checkpoint Schema — oc-dash-forge
 
-Conforms to aidops checkpoint protocol v1.0.
+Conforms to the opchain checkpoint protocol v1.0.
 
 **Location:** `{project-dir}/.checkpoints/oc-dash-forge.checkpoint.json`
 

@@ -228,25 +228,25 @@ layer to keep warm or invalidate.)
 {
   "projects": [
     {
-      "id": "aidops-core",
-      "name": "aidops-core",
-      "path": "/home/claude/aidops",
+      "id": "acme-core",
+      "name": "acme-core",
+      "path": "/home/claude/acme-core",
       "type": "monorepo",
       "priority": "primary",
-      "apps": ["gtrackr", "dose", "pintrack", "get-ripped", "career-ops"],
+      "apps": ["storefront", "fieldkit", "atlas-crm", "acme-app", "billing"],
       "notes": "Main platform monorepo — Workers + D1 + KV"
     },
     {
-      "id": "penthreshold",
-      "name": "PenThreshold",
-      "path": "/home/claude/penthreshold",
+      "id": "meridian",
+      "name": "Meridian",
+      "path": "/home/claude/meridian",
       "type": "app",
       "priority": "secondary",
       "apps": null,
-      "notes": "SharePoint training compliance platform"
+      "notes": "Compliance-training platform"
     }
   ],
-  "default_project": "aidops-core"
+  "default_project": "acme-core"
 }
 ```
 
@@ -262,23 +262,23 @@ Schema design rationale:
 
 ### Monorepo Sub-Project Handling
 
-For monorepos like aidops-core with multiple apps, the scanner checks for
+For monorepos like acme-core with multiple apps, the scanner checks for
 app-scoped checkpoints using **subdirectories** within `.checkpoints/`:
 
 ```
-aidops-core/
+acme-core/
 ├── .checkpoints/
 │   ├── oc-reverse-spec.checkpoint.json       ← project-wide (applies to whole repo)
 │   ├── oc-git-ops.checkpoint.json            ← project-wide
-│   ├── gtrackr/
+│   ├── storefront/
 │   │   ├── oc-app-architect.checkpoint.json  ← app-specific
 │   │   └── oc-code-auditor.checkpoint.json
-│   └── dose/
+│   └── fieldkit/
 │       └── oc-app-architect.checkpoint.json
 ├── apps/
-│   ├── gtrackr/
-│   ├── dose/
-│   └── pintrack/
+│   ├── storefront/
+│   ├── fieldkit/
+│   └── atlas-crm/
 ```
 
 This follows the existing checkpoint protocol convention (each skill writes
@@ -292,24 +292,24 @@ subdirectories, and `checkpoint:validate` won't see subdir files either. So the
 subdirectory layout above is **not** the supported default today. Until recursion
 lands in the CLI, use the **flat** layout and group by the `project` field inside
 each checkpoint: write app-specific checkpoints as
-`.checkpoints/<app>-<skill>.checkpoint.json` (e.g. `gtrackr-app-architect.checkpoint.json`)
-with `project: "gtrackr"`, and let the oc-orchestrator group by that field. This keeps
+`.checkpoints/<app>-<skill>.checkpoint.json` (e.g. `storefront-app-architect.checkpoint.json`)
+with `project: "storefront"`, and let the oc-orchestrator group by that field. This keeps
 every checkpoint visible to `status`/`validate`/`doctor` with no tooling change.
 
 Status output groups by app within a monorepo:
 
 ```
-▶ aidops-core                             [active]
+▶ acme-core                               [active]
   Project-wide:
     ✅ oc-reverse-spec    complete     Specs for 4 apps
     ⏳ oc-git-ops         not started
 
-  gtrackr:
+  storefront:
     🔄 oc-app-architect   in_progress  Sprint 2/4
     ✅ oc-code-auditor    complete     Grade B+
     🚫 BLOCKER: F-003 rate limiting
 
-  dose:
+  fieldkit:
     🔄 oc-app-architect   in_progress  Phase 3 design
 ```
 
@@ -395,21 +395,21 @@ could slow down with many projects or slow filesystems. Strategy:
 OPCHAIN STATUS — All Projects
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-▶ aidops-core                              [active]
+▶ acme-core                                [active]
   ✅ oc-reverse-spec      complete     Specs generated for 4 apps
-  🔄 oc-app-architect     in_progress  Sprint 2/4 — CRUD API (gtrackr)
+  🔄 oc-app-architect     in_progress  Sprint 2/4 — CRUD API (storefront)
   ✅ oc-code-auditor      complete     Grade B+, 2 HIGH findings open
   ⏳ oc-deploy-ops        not started
   ⏳ oc-git-ops           not started
   🚫 BLOCKER: rate limiting gap (oc-code-auditor F-003)
   → Next: Fix F-003, then resume oc-app-architect sprint 2
 
-▶ GET RIPPED
+▶ acme-app
   🔄 oc-app-architect     in_progress  Phase 3 — design pipeline
   ⏳ oc-code-auditor      not started
   → Next: Complete design approval gate
 
-▶ penthreshold
+▶ meridian
   ✅ oc-dash-forge        complete     Exec archetype, prototype delivered
   ⏳ oc-app-architect     not started
   → Next: Feed oc-dash-forge handoff into oc-app-architect Phase 3d
@@ -501,7 +501,7 @@ edit directly.
 ```
 NEXT ACTION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Project: aidops-core (gtrackr)
+Project: acme-core (storefront)
 Skill:   oc-code-auditor
 Action:  Fix finding F-003 (missing rate limiting on /api/auth/*)
 Why:     Blocks oc-app-architect sprint 2 evaluator pass + oc-deploy-ops gate
@@ -583,7 +583,7 @@ Shows the canonical pipeline DAG with the project's current position highlighted
 ### Text-Based Pipeline View
 
 ```
-PIPELINE — aidops-core (gtrackr)
+PIPELINE — acme-core (storefront)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   ✅ oc-reverse-spec ──► 🔄 oc-app-architect ──► ⏳ oc-git-ops ──► ⏳ oc-deploy-ops
@@ -611,14 +611,14 @@ Aggregates all blockers from all checkpoints across all projects.
 BLOCKERS — All Projects
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  aidops-core (gtrackr)
+  acme-core (storefront)
   🚫 B1: Missing rate limiting on auth endpoints
      Source: oc-code-auditor F-003
      Blocking: oc-app-architect sprint 2
      Needs: code_fix
      Resolution: Add rate-limit middleware → /oc-audit fix F-003
 
-  GET RIPPED
+  acme-app
   🚫 B1: Design direction not approved
      Source: oc-app-architect Phase 3 gate
      Blocking: oc-app-architect punch list
@@ -674,10 +674,10 @@ update timestamp and progress_summary, sorted reverse-chronologically.
 ```
 LAST KNOWN STATE — Per Skill
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  15:30 today   aidops-core    oc-code-auditor   Audit complete, grade B+
-  14:45 today   aidops-core    oc-app-architect  Sprint 2/4 in progress
-  yesterday     GET RIPPED     oc-app-architect  Phase 3 design started
-  3 days ago    penthreshold   oc-dash-forge     Prototype delivered
+  15:30 today   acme-core      oc-code-auditor   Audit complete, grade B+
+  14:45 today   acme-core      oc-app-architect  Sprint 2/4 in progress
+  yesterday     acme-app       oc-app-architect  Phase 3 design started
+  3 days ago    meridian       oc-dash-forge     Prototype delivered
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -708,15 +708,15 @@ file.
 {
   "registry": {
     "projects": [ /* see Registry Schema above */ ],
-    "default_project": "aidops-core"
+    "default_project": "acme-core"
   },
-  "active_project": "aidops-core",       // starts as default each session; /oc-ops switch changes it
+  "active_project": "acme-core",         // starts as default each session; /oc-ops switch changes it
   "last_scan": "2026-04-21T15:30:00Z",
   "scan_summary": {
-    "aidops-core": { "skills_found": ["oc-reverse-spec", "oc-app-architect", "oc-code-auditor"], "blocker_count": 1, "status_summary": "Sprint 2/4, 1 blocker" }
+    "acme-core": { "skills_found": ["oc-reverse-spec", "oc-app-architect", "oc-code-auditor"], "blocker_count": 1, "status_summary": "Sprint 2/4, 1 blocker" }
   },
   "routing_history": [
-    { "at": "2026-04-21T15:30:00Z", "intent": "audit the code", "routed_to": "oc-code-auditor", "project": "aidops-core" }
+    { "at": "2026-04-21T15:30:00Z", "intent": "audit the code", "routed_to": "oc-code-auditor", "project": "acme-core" }
   ]
 }
 ```
@@ -772,11 +772,11 @@ summarizes its `skill_state`:
 ORCHESTRATOR STATE  (.checkpoints/oc-orchestrator.checkpoint.json — tracked in git)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Registry:
-  3 projects (aidops-core [primary], penthreshold, GET RIPPED)
-  Default: aidops-core
+  3 projects (acme-core [primary], meridian, acme-app)
+  Default: acme-core
 
 Session:
-  Active: aidops-core
+  Active: acme-core
   Last scan: 2 min ago
   Routing history: 3 dispatches this session
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -794,10 +794,10 @@ run an automatic scan and present the most relevant status:
 ```
 Welcome back. Here's where things stand:
 
-▶ aidops-core has a blocker (rate limiting fix needed)
-▶ GET RIPPED is waiting on your design approval
+▶ acme-core has a blocker (rate limiting fix needed)
+▶ acme-app is waiting on your design approval
 
-/oc-ops next recommends: Fix F-003 on aidops-core (unblocks the build pipeline)
+/oc-ops next recommends: Fix F-003 on acme-core (unblocks the build pipeline)
 ```
 
 ### Stale Checkpoint Detection
@@ -805,7 +805,7 @@ Welcome back. Here's where things stand:
 If a checkpoint's `updated_at` is >7 days old and status is `in_progress`:
 
 ```
-⚠️ aidops-core / oc-app-architect hasn't been updated in 9 days.
+⚠️ acme-core / oc-app-architect hasn't been updated in 9 days.
    Last status: Sprint 2 in progress.
    This might be stale. Resume or reset?
 ```
@@ -822,18 +822,18 @@ A project is "pipeline complete" when all skills that have checkpoints show
 When detected:
 
 ```
-🎉 penthreshold — pipeline complete!
+🎉 meridian — pipeline complete!
    oc-dash-forge ✅ → oc-app-architect ✅ → oc-git-ops ✅ → oc-deploy-ops ✅
    (oc-scale-ops, oc-integrations-engineer not applicable — no checkpoints)
-   Archive this project? (/oc-ops unregister penthreshold)
+   Archive this project? (/oc-ops unregister meridian)
 ```
 
 ### Implicit Project Detection
 
-If the user says "deploy gtrackr" and gtrackr is a known app in the aidops-core
+If the user says "deploy storefront" and storefront is a known app in the acme-core
 monorepo, the oc-orchestrator should:
-1. Set active project to aidops-core
-2. Route to oc-deploy-ops with the gtrackr app context
+1. Set active project to acme-core
+2. Route to oc-deploy-ops with the storefront app context
 3. No extra question needed
 
 ---

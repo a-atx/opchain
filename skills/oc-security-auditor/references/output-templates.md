@@ -19,7 +19,7 @@ Reference templates for oc-security-auditor findings and reports. The SKILL.md d
 ### Data Stores
 | Store | Type | Encryption | Access Pattern | Backup | Notes |
 |---|---|---|---|---|---|
-| gtrack-db | D1 | At-rest (CF) | Worker binding | None | Single region |
+| fieldkit-db | D1 | At-rest (CF) | Worker binding | None | Single region |
 
 ### External Integrations
 | Service | Auth Method | Data Sent | Data Received | Failure Mode |
@@ -47,7 +47,7 @@ Reference templates for oc-security-auditor findings and reports. The SKILL.md d
 1. **Ingress:** User submits via POST /api/doses/log (HTTPS, WebAuthn-authenticated)
 2. **Validation:** Zod schema validates shape; no content sanitization
 3. **Processing:** Worker formats and timestamps
-4. **Storage:** Written to D1 `gtrack-db`, `doses` table (CF at-rest encryption)
+4. **Storage:** Written to D1 `fieldkit-db`, `doses` table (CF at-rest encryption)
 5. **Retrieval:** GET /api/doses (auth-gated, user-scoped query)
 6. **Egress:** JSON response over HTTPS to client; also sent to Amplitude as event
 

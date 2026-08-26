@@ -6,7 +6,7 @@ Channel setup, alert transport code, SLO math, and escalation patterns.
 
 ## Alert Channel Setup
 
-### Telegram (aidops default — free, instant, mobile)
+### Telegram (opchain default — free, instant, mobile)
 
 **Setup:**
 1. Create a bot via @BotFather → get `BOT_TOKEN`
@@ -147,7 +147,7 @@ SLO 99.9%  → 0.1% budget → 43.8 min downtime/month → 1.4 min/day
 SLO 99.99% → 0.01% budget → 4.4 min downtime/month → 8.6 sec/day
 ```
 
-For aidops-scale apps, 99% (7.3 hours/month) is plenty. That's roughly one full
+For small-scale apps, 99% (7.3 hours/month) is plenty. That's roughly one full
 outage per month with time to spare. Don't chase nines you don't need.
 
 ### Burn Rate Alerting
@@ -235,7 +235,7 @@ export default {
 | L2 | L1 can't resolve in 1 hour | External support | 30 min | Vendor escalation, domain expert |
 | L3 | Data loss or security breach | Legal / compliance | Immediate | Incident commander, comms plan |
 
-For solo developers (aidops-scale), L0 and L1 are the same person. L2 is "post on
+For solo developers (small-scale), L0 and L1 are the same person. L2 is "post on
 the framework's Discord." L3 is "call a lawyer."
 
 ---

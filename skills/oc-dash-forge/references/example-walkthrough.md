@@ -1,8 +1,8 @@
-# Worked Example: Ops Dashboard for PenThreshold Compliance Monitoring
+# Worked Example: Ops Dashboard for Meridian Compliance Monitoring
 
 A complete run of oc-dash-forge on a realistic scenario. Use this as the north star for output quality.
 
-**Scenario:** Aidan wants a real-time monitoring dashboard for the PenThreshold IT training compliance platform — the ops team needs to see at a glance whether training is landing, which integrations are healthy, and what's backing up.
+**Scenario:** Alex wants a real-time monitoring dashboard for the Meridian IT training compliance platform — the ops team needs to see at a glance whether training is landing, which integrations are healthy, and what's backing up.
 
 This run was invoked by `/oc-app-architect` during its Phase 3b wireframe review, which detected the dashboard surface and routed to `/oc-data-forge`.
 
@@ -12,8 +12,8 @@ This run was invoked by `/oc-app-architect` during its Phase 3b wireframe review
 
 ### Upstream context found
 
-- `data-architect-handoff.md` exists (PenThreshold schema: users, courses, completions, requirements, tickets)
-- oc-app-architect style book exists (Penumbra blue + neutral warm grays, Inter font, 8px spacing scale)
+- `data-architect-handoff.md` exists (Meridian schema: users, courses, completions, requirements, tickets)
+- oc-app-architect style book exists (Meridian blue + neutral warm grays, Inter font, 8px spacing scale)
 - No prior oc-dash-forge checkpoint
 
 ### Exec summary
@@ -125,7 +125,7 @@ export const dashboardTokens = {
       50: "#fafafa", 100: "#f5f5f5", 200: "#e5e5e5", 400: "#a3a3a3",
       500: "#737373", 700: "#404040", 800: "#262626", 900: "#171717", 950: "#0a0a0a",
     },
-    accent: { primary: "#3b82f6" },  // Penumbra blue, for primary chart series
+    accent: { primary: "#3b82f6" },  // Meridian blue, for primary chart series
     state: {
       success: "#10b981",
       warning: "#f59e0b",
@@ -168,7 +168,7 @@ User confirmed. Proceed to prototype.
 
 ## Phase 3: React Prototype
 
-Building `prototype.tsx` with Recharts + Tailwind. Mock data uses realistic entity names (real IT service names from PenThreshold integration list in the upstream data-architect handoff).
+Building `prototype.tsx` with Recharts + Tailwind. Mock data uses realistic entity names (real IT service names from Meridian integration list in the upstream data-architect handoff).
 
 ### Key prototype decisions
 
@@ -235,7 +235,7 @@ All 13 checks passed:
 ### Bundle created
 
 ```
-/home/claude/penthreshold/dash-forge-handoff/
+/home/claude/meridian/dash-forge-handoff/
 ├── spec.md                 (design spec + rationale)
 ├── tokens.ts               (design tokens)
 ├── types.ts                (TypeScript types)
@@ -262,7 +262,7 @@ This prototype uses mock data in `mock-data.ts`. To wire to real data:
 
 ### Return to oc-app-architect
 
-> `/oc-app-architect` → add "PenThreshold Ops Dashboard" to Phase 3d punch list with source=oc-dash-forge
+> `/oc-app-architect` → add "Meridian Ops Dashboard" to Phase 3d punch list with source=oc-dash-forge
 > Build sprint estimate: S (4–6 hours, mostly wiring)
 ```
 
@@ -274,9 +274,9 @@ oc-app-architect's checkpoint now has:
 "sub_skill_invocations": [
   {
     "skill": "oc-dash-forge",
-    "checkpoint_path": "/home/claude/penthreshold/.checkpoints/oc-dash-forge.checkpoint.json",
+    "checkpoint_path": "/home/claude/meridian/.checkpoints/oc-dash-forge.checkpoint.json",
     "status": "complete",
-    "handoff_path": "/home/claude/penthreshold/dash-forge-handoff/"
+    "handoff_path": "/home/claude/meridian/dash-forge-handoff/"
   }
 ]
 ```

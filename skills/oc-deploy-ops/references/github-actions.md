@@ -100,24 +100,24 @@ jobs:
 
 ---
 
-## Monorepo Variant (aidops-core)
+## Monorepo Variant (acme-core)
 
 For monorepos with multiple apps, use path filters:
 
 ```yaml
-# .github/workflows/deploy-gtrack.yml
-name: Deploy gtrack
+# .github/workflows/deploy-acme-app.yml
+name: Deploy acme-app
 
 on:
   push:
     branches: [main]
     paths:
-      - 'apps/gtrack/**'
+      - 'apps/acme-app/**'
       - 'packages/shared/**'
   pull_request:
     branches: [main]
     paths:
-      - 'apps/gtrack/**'
+      - 'apps/acme-app/**'
       - 'packages/shared/**'
 
 jobs:
@@ -125,7 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/gtrack
+        working-directory: apps/acme-app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -140,13 +140,13 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/gtrack
+        working-directory: apps/acme-app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - run: npm ci
-      - run: npx wrangler d1 migrations apply gtrack-prod --remote
+      - run: npx wrangler d1 migrations apply acme-app-prod --remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
       - run: npx wrangler deploy
@@ -168,9 +168,9 @@ jobs:
 
 | Variable | Example | Purpose |
 |---|---|---|
-| `D1_STAGING_DB` | `gtrack-staging` | Staging D1 database name |
-| `D1_PROD_DB` | `gtrack-prod` | Production D1 database name |
-| `STAGING_URL` | `https://gtrack-staging.aidops.workers.dev` | Staging smoke test URL |
-| `PROD_URL` | `https://gtrack.aidops.workers.dev` | Production smoke test URL |
+| `D1_STAGING_DB` | `acme-app-staging` | Staging D1 database name |
+| `D1_PROD_DB` | `acme-app-prod` | Production D1 database name |
+| `STAGING_URL` | `https://acme-app-staging.example.workers.dev` | Staging smoke test URL |
+| `PROD_URL` | `https://acme-app.example.workers.dev` | Production smoke test URL |
 | `TELEGRAM_BOT_TOKEN` | (optional) | Telegram notification bot |
 | `TELEGRAM_CHAT_ID` | (optional) | Telegram chat for notifications |

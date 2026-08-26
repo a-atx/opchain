@@ -271,7 +271,7 @@ Check: DNSSEC, CAA records, SPF/DKIM/DMARC (if domain sends email), no dangling 
 
 ### Platform-Specific Hardening (`/oc-security cloudflare`)
 
-**Platform routing:** The checks below use Cloudflare as the default (matching the aidops
+**Platform routing:** The checks below use Cloudflare as the default (matching the opchain
 stack). For other platforms, adapt the equivalent controls:
 
 | Category | Cloudflare | Vercel | AWS |
@@ -361,7 +361,7 @@ on a personal hobby app (Principle 7).
 owasp`, `/oc-security headers`, etc.) always run at full depth regardless of tier — if the
 user explicitly asks, deliver.
 
-**Monorepo scoping:** For multi-app repos (like aidops-core), assess per-app — each app
+**Monorepo scoping:** For multi-app repos (like acme-core), assess per-app — each app
 has its own data sensitivity, attack surface, and tier. Shared infrastructure (single
 Cloudflare account, shared D1 instance, common auth) gets assessed once and cross-referenced
 by each app's report. Write one checkpoint per app, not one per repo.
