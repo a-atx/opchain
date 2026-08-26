@@ -1,8 +1,10 @@
 /**
- * Validates that the skill-catalog generator rejects SKILL.md frontmatter
- * referencing unknown flags. We do this by spawning the script against a
- * temp skills/ tree that includes one bad fixture, then asserting the
- * error message points at the offender.
+ * Validates that the site-side flag-drift gate (scripts/check-skill-flags.mjs)
+ * rejects SKILL.md frontmatter referencing unknown flags or unregistered
+ * command verbs. (gen-skills-catalog.mjs is deliberately product-pure and no
+ * longer touches the registry — seam S2 of the OSS-split plan.) We spawn the
+ * script against a temp skills/ tree that includes one bad fixture, then
+ * assert the error message points at the offender.
  */
 import { describe, it, expect } from "vitest";
 import { spawnSync } from "node:child_process";
@@ -39,7 +41,7 @@ function runValidator(skillsDir) {
     symlinkSync(findNodeModules(), join(work, "node_modules"), "dir");
     cpSync(join(ROOT, "package.json"), join(work, "package.json"));
     cpSync(skillsDir, join(work, "skills"), { recursive: true });
-    return spawnSync("node", ["scripts/gen-skills-catalog.mjs"], {
+    return spawnSync("node", ["scripts/check-skill-flags.mjs"], {
       cwd: work,
       encoding: "utf8",
     });
@@ -78,7 +80,7 @@ function makeFixture({ extraSkills = {} } = {}) {
   return dir;
 }
 
-describe("gen-skills-catalog — flag validation", () => {
+describe("check-skill-flags — registry drift validation", () => {
   it("passes with a clean fixture", () => {
     const dir = makeFixture();
     try {
