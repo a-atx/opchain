@@ -1,7 +1,8 @@
 ---
 name: oc-deploy-ops
 displayName: OC · Deploy Ops
-version: 1.8.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Audit gate → staging → production → monitor. v1.2 creates deploy tickets and updates linked PM tickets per env.
 phases: [build]
 triAgent: false
@@ -13,7 +14,7 @@ commands:
 description: >
   Deployment pipeline: audit gate → staging → production → monitoring. Use for
   /oc-deploy, "deploy this", "ship it", "push to production", "staging", "rollback",
-  "health check", or any deployment task. Trigger liberally.
+  "health check", or any deployment task.
 ---
 
 # Deploy Ops

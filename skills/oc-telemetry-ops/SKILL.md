@@ -1,7 +1,8 @@
 ---
 name: oc-telemetry-ops
 displayName: OC · Telemetry Ops
-version: 1.8.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Opt-in, local-first usage metering to .checkpoints/usage.sqlite; anonymized aggregates power the public /dashboard.
 phases: [build]
 triAgent: false
@@ -21,8 +22,7 @@ description: >
   do people use", "usage stats", "dashboard data", "anonymized usage". Default
   stance is OFF — nothing is recorded until you explicitly enable it, and no
   prompt content or PII ever leaves the machine. Pairs with oc-cost-ops (cost per
-  run) for the cost-per-feature dashboard stats. Trigger liberally on
-  usage/telemetry work.
+  run) for the cost-per-feature dashboard stats.
 governance:
   breaking_change_policy: skills/CHANGELOG.md
   last_reviewed: 2026-06-25
@@ -85,9 +85,9 @@ TELEMETRY OPS COMMANDS
 ## How This Skill Fits the Build Pipeline
 
 ```
-every skill run ──(opt-in)──► .checkpoints/usage.sqlite   (LOCAL, gitignored)
-                                       │  skill, phase, model-tier, cost (from
-                                       │  oc-cost-ops), timestamp — NO content
+every skill run ╌╌(YOU must call)╌► .checkpoints/usage.sqlite   (LOCAL, gitignored)
+   `npm run telemetry -- record`       │  skill, phase, model-tier, cost (from
+   nothing records automatically       │  oc-cost-ops), timestamp — NO content
                                        ▼
                               /oc-telemetry aggregate
                                        │  anonymized rollup (counts + sums only)

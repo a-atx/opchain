@@ -1,7 +1,8 @@
 ---
 name: oc-migration-ops
 displayName: OC · Migration Ops
-version: 1.8.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Change the engine mid-flight — DB, framework, auth, platform. v1.2 mirrors the plan as parent + step children.
 phases: [plan, build]
 triAgent: false
@@ -34,7 +35,7 @@ description: >
   ecosystem upgrades: "update all skills", "checkpoint protocol upgrade", "bulk update
   SKILL.md". Trigger when transforming an existing system from one state to another —
   not greenfield building (oc-app-architect) or documenting what exists
-  (oc-reverse-spec). Trigger liberally.
+  (oc-reverse-spec).
 ---
 
 # Migration Ops

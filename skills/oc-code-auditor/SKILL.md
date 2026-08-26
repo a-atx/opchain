@@ -1,7 +1,8 @@
 ---
 name: oc-code-auditor
 displayName: OC · Code Auditor
-version: 1.8.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: Auditor → Fixer → Verifier quality loop. v1.2 posts findings to the linked PM ticket; HIGH+ filed as sub-tickets.
 phases: [build]
 triAgent: true
@@ -12,7 +13,7 @@ commands:
 description: >
   Code quality auditor with Auditor/Fixer/Verifier loop. Use for /oc-audit, "audit this",
   "find bugs", "security audit", "code review", "pre-deploy check", "what's wrong with
-  this code", or any code quality question. Trigger liberally.
+  this code", or any code quality question.
 ---
 
 # Code Auditor

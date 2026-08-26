@@ -1,7 +1,8 @@
 ---
 name: oc-docs-forge
 displayName: OC · Docs Forge
-version: 1.8.0
+version: 1.8.2
+license: Apache-2.0
 shortDesc: "Documentation generator for every PR: PR body, PR comments, README/catalog docs, product docs, changelog and ADR upkeep."
 phases: [plan, build]
 triAgent: false
@@ -14,7 +15,7 @@ commands:
   - /oc-docs upkeep
   - /oc-docs verify
 description: >
-  Documentation creation, standardization, and upkeep for every PR. Auto-invoked
+  Documentation creation, standardization, and upkeep for every PR. Invoked
   by oc-git-ops before PR creation and by release flows before release PRs. Use
   for /oc-docs, /oc-docs pr, "generate the PR docs", "update README", "standardize
   docs", "refresh product documentation", "write PR body docs", "post a PR docs

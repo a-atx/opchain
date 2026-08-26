@@ -12,16 +12,32 @@ context across sessions.
 
 ## Installation (Claude Code)
 
+**Plugin (recommended)** — ships the skills *and* the hooks that enforce them:
+
+```
+/plugin marketplace add asfbay-bit/opchain-skills
+/plugin install opchain
+```
+
+Adds a commit gate that blocks unverified commits, pipeline state at session
+start, a pointer to the next skill when one finishes, and eight registered
+slash commands.
+
+**Zip (skills only)** — where a plugin install isn't an option:
+
 1. Unzip all skills into `.claude/skills/` in your repo
-2. Claude Code auto-discovers them at startup
+2. Claude Code discovers them at startup
+
+Note what the zip does *not* include: none of the hooks, so nothing
+mechanically enforces a gate.
 
 ## Installation (Codex / any MCP agent)
 
 Codex Agent Skills use the same `SKILL.md` format as Claude Code, so two options:
 
 1. **Drop-in skills** — unzip into `.codex/skills/` (project) or `~/.codex/skills/`
-   (global). Codex auto-discovers them and triggers by description, the same way
-   Claude Code does.
+   (global). Codex discovers them and can invoke them when you name one — the
+   same unenforced, name-it-yourself matching Claude Code skills rely on.
 2. **MCP server** — point Codex (or any MCP client: Claude Desktop, Cursor,
    Windsurf) at the hosted opchain endpoint for the full pipeline — catalog,
    routing, the orchestrator protocol, and checkpoints. In `~/.codex/config.toml`:
@@ -70,3 +86,9 @@ Full walkthrough (including a local stdio server): https://opchain.dev/install
 ## More info
 
 https://opchain.dev
+
+## License
+
+Apache-2.0 — see the `LICENSE` and `NOTICE` files at the repository root.
+Copyright 2026 Aidan Elsesser and the opchain contributors. Catalog releases
+up to and including 1.8.2 were published under MIT.

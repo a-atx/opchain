@@ -83,13 +83,13 @@ const PLATFORMS: Record<string, Platform> = {
   opchain: {
     name: "opchain", accent: true, fixed: true,
     cells: {
-      "prompts":    { v: "SKILL.md files checked into your repo", note: "MIT, plain text — diffable, reviewable, portable" },
+      "prompts":    { v: "SKILL.md files checked into your repo", note: "Apache-2.0, plain text — diffable, reviewable, portable" },
       "session":    { v: "JSON checkpoints in .checkpoints/", note: "Survive across chats; auto-resume next session" },
       "pipeline":   { v: "Yes — orchestrator routes between 22 skills", note: "Knows what phase you're in and what's next" },
       "ai-apps":    { v: "Yes — 4 AI-native skills", note: "oc-claude-api, oc-rag-forge, oc-agent-forge, oc-prompt-ops: model routing, RAG, agent harnesses, prompt evals" },
       "tri-agent":  { v: "Built into the skill protocols", note: "Planner / Builder / Evaluator loops where they matter, committed as Markdown contracts" },
       "gates":      { v: "Three (oc-bug-check, oc-code-auditor, oc-security-auditor)", note: "oc-deploy-ops blocks prod if any gate fails" },
-      "cost":       { v: "Free, MIT", note: "Pay only for the model or agent surface you run it through" },
+      "cost":       { v: "Free, Apache-2.0", note: "Pay only for the model or agent surface you run it through" },
       "lockin":     { v: "None — every skill is one Markdown file", note: "Fork, edit, fork again" },
       "runs-on":    { v: "Claude Code · Claude.ai/Desktop · Codex · any MCP client", note: "Drop-in skills plus the hosted MCP endpoint at opchain.dev/mcp" },
       "extend":     { v: "Write a SKILL.md or fork an existing skill", note: "oc-reverse-spec can backfill a spec from existing code" },

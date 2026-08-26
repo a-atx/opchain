@@ -10,6 +10,84 @@ contract another skill depends on → called out as **BREAKING**. The on-disk
 checkpoint `protocol_version` is tracked separately (see
 `oc-checkpoint-protocol/SKILL.md`).
 
+## [Unreleased]
+
+### Licensing
+
+- The opchain skill catalog, plugin, and MCP tooling are licensed under
+  **Apache-2.0** (decision recorded 2026-08-22; applied 2026-08-24).
+  Releases up to and including **1.8.2** were published under MIT; every
+  release after this notice is Apache-2.0. Copyright 2026 Aidan Elsesser
+  and the opchain contributors — see `LICENSE` and `NOTICE` at the repo root.
+
+## [1.8.2] — 2026-07-24 — "Enforcement that ships"
+
+The catalog stops describing gates it cannot enforce and starts shipping one that
+works. opchain now installs as a Claude Code **plugin** carrying executable hooks —
+previously the bundle was markdown only, so every "auto-invokes" claim in it was
+unenforceable everywhere except the opchain.dev repo itself.
+
+### Added
+- **Claude Code plugin** (`/plugin marketplace add asfbay-bit/opchain-skills` →
+  `/plugin install opchain`). Ships three hooks and eight registered slash commands
+  alongside the 29 skills. The skills-only zip is unchanged and still supported.
+  - **Commit gate** (`PreToolUse`) — blocks `git commit` unless oc-bug-check
+    recorded a PASS bound to the full working-tree state. Fails closed.
+  - **Session state** (`SessionStart`) — surfaces stale checkpoints, open findings,
+    and the next action, computed from `.checkpoints/` rather than asked for.
+  - **Next-skill suggestion** (`Stop`) — when a skill finishes, names the one to
+    invoke next. Fires on checkpoint *transitions*, not standing state; silent when
+    nothing changed. Mute with `OPCHAIN_SUGGEST=0`.
+
+### Fixed
+- **oc-bug-check** — added Swift stack support and a terminal `UNSUPPORTED` verdict
+  distinct from PASS; an unrecognized stack previously reported green on code it
+  never read. Secret-detection greps were scoped to TypeScript/JS includes and so
+  matched nothing in Swift, Kotlin, Ruby or Java — now unscoped, plus JWT (`eyJ…`)
+  and `sk_test_` patterns.
+- **oc-git-ops** — removed a paragraph claiming a `PreToolUse` hook enforced the
+  pre-commit gate. That hook existed in exactly one repository; the claim shipped to
+  everyone. The plugin now makes it true where installed, and the text says so.
+- **Checkpoint staleness detection** — `doctor`/`status` only flagged
+  `in_progress` checkpoints, so a `complete` one asserting a long-shipped release
+  drew no warning for 30 days. Now status-aware across `in_progress`, `complete`,
+  and `blocked`.
+- **Checkpoint next-action drift** — the highest-priority ranks (`user_decision`
+  blockers, `failed`/`blocked` status) bypassed the stale-work filter entirely,
+  which is how `next` recommended tagging a release that had shipped twelve days
+  earlier. Both now route through the filter.
+
+### Changed
+- **Honesty pass, all 29 skills + the shared `orchestrator.md`.** Every
+  `Auto-invokes X` and `Trigger liberally` claim removed from frontmatter and the
+  bundled protocol doc. Measured across 87 transcripts: zero of 54 skill
+  invocations were autonomous, so those phrases described a mechanism that has
+  never once fired. Replaced with "chains to (when you invoke it)" and an explicit
+  note that cross-skill edges need enforcement outside the catalog.
+- Lockstep patch bump: all 29 skills → `1.8.2`.
+
+### Compatibility
+- Back-compatible with v1.8.1. No checkpoint migration, no route/command removals.
+  The plugin is an additive install channel; existing zip installs keep working
+  exactly as before, minus the enforcement they never actually had.
+
+## [1.8.1] — 2026-07-12 — "Checkpoint truth without the CLI"
+
+Consumer repos no longer lose trustworthy project status merely because they do not
+carry opchain.dev's optional checkpoint CLI.
+
+### Fixed
+- **oc-orchestrator** — treats direct `.checkpoints/*.checkpoint.json` reads as the
+  authoritative fallback and no longer recommends a repo-local scaffolder where it
+  cannot exist.
+- **oc-checkpoint-protocol** — explicitly requires agents to corroborate directly
+  read checkpoint state against specs, git, tests, and release artifacts; missing CLI
+  output is neither a blocker nor product progress.
+- Lockstep patch bump: all 29 skills → `1.8.1`.
+
+### Compatibility
+- Back-compatible with v1.8.0. Existing checkpoint files require no migration.
+
 ## [1.8.0] — 2026-07-04 — "The quality-gate rail"
 
 Every PR now rides a documentation + hygiene rail before it opens. The catalog
