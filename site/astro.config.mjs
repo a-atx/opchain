@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { rehypeTaskListLabels } from "./src/lib/rehype-task-list-labels.mjs";
@@ -14,11 +15,18 @@ export default defineConfig({
   trailingSlash: "never",
   integrations: [sitemap()],
   markdown: {
-    // GFM task-list checkboxes (`- [ ] item`) render as bare disabled
-    // <input type="checkbox"> elements; this plugin gives them an
-    // aria-label so axe's `label` rule passes. See B-11 in
-    // roadmap/05-post-sprint-7-backlog.md.
-    rehypePlugins: [rehypeTaskListLabels],
+    // Astro 7 defaults to the Sätteri markdown processor, which doesn't
+    // support remark/rehype plugins. rehypeTaskListLabels is a plain
+    // unified/HAST plugin, so we opt back into the unified() pipeline
+    // (still officially supported through Astro 8) instead of porting it
+    // to a Sätteri-native plugin.
+    processor: unified({
+      // GFM task-list checkboxes (`- [ ] item`) render as bare disabled
+      // <input type="checkbox"> elements; this plugin gives them an
+      // aria-label so axe's `label` rule passes. See B-11 in
+      // roadmap/05-post-sprint-7-backlog.md.
+      rehypePlugins: [rehypeTaskListLabels],
+    }),
     // Shiki dual-theme (ADEV-340): Astro's default github-dark has known
     // low-contrast tokens (comments fail WCAG AA on the dark page bg).
     // github-dark-default is the GitHub-published refresh that bumps every
