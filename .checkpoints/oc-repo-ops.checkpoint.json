@@ -3,15 +3,16 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-26T17:23:40.308Z",
+  "updated_at": "2026-08-27T18:53:31.000Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "feat/site-truth-sweep",
-  "progress_summary": "2026-08-26 pre-PR verify for feat/site-truth-sweep: PASS — 22 intended files, no generated artifacts, docs packet present, bug-check fresh.",
+  "step": "codex/roadmap-email-privacy",
+  "progress_summary": "Pre-PR readiness PASS for the focused roadmap email-privacy fix: five intended tracked files, generated OG output restored, catalogs synchronized, Docs Forge packet current, and Bug Check fresh.",
   "context_primer": {
     "key_decisions": [
-      "Docs Forge packet verified present before this gate ran (mesh order honored on its own release PR)."
+      "Docs Forge packet is current for this branch and includes the required Documentation section.",
+      "Build-generated OG image churn was restored so it cannot leak into the focused privacy PR."
     ],
     "generated_files": [
       ".checkpoints/oc-repo-ops.checkpoint.json"
@@ -24,15 +25,13 @@
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
-    "verified_for_sha": "claude/release-v1-8 (pre-commit; base e5ea561)",
+    "verified_for_sha": "codex/roadmap-email-privacy (pre-commit; base 5c5ae9d)",
     "last_verify": {
-      "at": "2026-08-26T17:23:40.308Z",
-      "branch": "feat/site-truth-sweep",
+      "at": "2026-08-27T18:53:31.000Z",
+      "branch": "codex/roadmap-email-privacy",
       "verdict": "PASS",
       "blocking_findings": []
     }
   },
-  "next_actions": [
-    "Re-run verify on the governance-pack PR when it opens."
-  ]
+  "next_actions": []
 }

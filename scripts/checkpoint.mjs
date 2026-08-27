@@ -57,8 +57,8 @@ import { dirname, join, basename } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { execSync } from "node:child_process";
 
-const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
-const DIR  = join(ROOT, ".checkpoints");
+const ROOT = process.env.OPCHAIN_ROOT ?? dirname(dirname(fileURLToPath(import.meta.url)));
+const DIR  = process.env.OPCHAIN_CHECKPOINTS_DIR ?? join(ROOT, ".checkpoints");
 
 /** On-disk schema version stamped on new writes. See header note: distinct from
  *  the skill release version. v1.1 (v1.6 release) added the additive optional

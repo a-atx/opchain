@@ -61,9 +61,10 @@ jobs:
           cp -R mirror/.github/ISSUE_TEMPLATE "$STAGE/.github/ISSUE_TEMPLATE"
           # Plugin + marketplace. Without these the public repo is skills-only:
           # `/plugin marketplace add` finds nothing and the gates — the entire
-          # point of the plugin — never reach a user. `-L` dereferences
-          # plugins/opchain/skills, which is a symlink to the source tree here
-          # and must become a real directory in the published snapshot.
+          # point of the plugin — never reach a user. plugins/opchain/skills is
+          # a real directory since seam S5 (materialised by
+          # scripts/sync-plugin-skills.mjs, drift-gated in pretest); `-L` stays
+          # as belt-and-braces for any future symlink.
           cp -RL plugins "$STAGE/plugins"
           cp -R .claude-plugin "$STAGE/.claude-plugin"
           echo "Staged tree:"

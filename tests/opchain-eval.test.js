@@ -10,11 +10,19 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
-import { isKnown } from "../src/lib/flags/registry.js";
+// The verb→flag drift gate lives in the site half (scripts/check-skill-flags.mjs
+// + the registry). This suite moves to the product repo at the split, where the
+// registry is absent — so the import degrades to a skip instead of an error.
+let isKnown = null;
+try {
+  ({ isKnown } = await import("../src/lib/flags/registry.js"));
+} catch {
+  // product-repo context: no registry, verb gating is checked site-side
+}
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const EVAL_DIR = join(ROOT, "prompts", "opchain-eval");
-const SKILLS_DIR = join(ROOT, "skills");
+const SKILLS_DIR = process.env.OPCHAIN_SKILLS_DIR ?? join(ROOT, "skills");
 
 function readJsonl(file) {
   return readFileSync(join(EVAL_DIR, file), "utf8")
@@ -86,10 +94,12 @@ describe("prompts/opchain-eval — expected routes point at real skills + comman
       expect(skill, `${row.id} expect.all names no real skill`).toBeDefined();
       expect(command, `${row.id} expect.all names no /command`).toBeDefined();
       const verb = command.replace(/^\//, "").split(/\s+/, 1)[0];
-      expect(
-        isKnown(`skills.command.${verb}.enabled`),
-        `command /${verb} has no registry flag`,
-      ).toBe(true);
+      if (isKnown) {
+        expect(
+          isKnown(`skills.command.${verb}.enabled`),
+          `command /${verb} has no registry flag`,
+        ).toBe(true);
+      }
     });
   }
 });

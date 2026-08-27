@@ -3,7 +3,9 @@
  *
  * Routes:
  *   GET  /api/health           → health check
- *   POST /api/feedback         → Linear issue creation
+ *   POST /api/feedback         → Linear issue creation (bug/improvement/security/general);
+ *                                 roadmap feature requests (type=feature + category) go to
+ *                                 GitHub Issues instead — see docs/plans/2026-08-26-roadmap-github-issues.md
  *   POST /api/notify           → install/download soft-gate capture (KV-backed)
  *   GET  /*                    → static assets (public/)
  *
@@ -43,6 +45,7 @@ import {
   SECURITY_PRIORITY,
   LINEAR_MUTATION,
 } from "./lib/feedback-config.js";
+import { ROADMAP_GITHUB_REPO, ROADMAP_COMMUNITY_LABEL } from "./lib/roadmap-config.js";
 
 // Injected at build time by esbuild `define` (see build.mjs).
 // eslint-disable-next-line no-undef
@@ -85,20 +88,18 @@ async function fetchAsset(env, request, origin) {
 }
 
 // ── Roadmap vote handlers ───────────────────────────────────────────────────
-// One vote per IP per day per Linear issue. Vote counts are stored in the
-// NOTIFY KV namespace under keys:
-//   vote-count:<TEAM-NNN>                          → integer
-//   vote-lock:<TEAM-NNN>:<YYYY-MM-DD>:<ip-hash>    → "1" (TTL 25h)
+// One vote per IP per day per GitHub issue (asfbay-bit/opchain-skills — see
+// docs/plans/2026-08-26-roadmap-github-issues.md). Vote counts are stored in
+// the NOTIFY KV namespace under keys:
+//   vote-count:<issue-number>                          → integer
+//   vote-lock:<issue-number>:<YYYY-MM-DD>:<ip-hash>    → "1" (TTL 25h)
 // We hash the IP (first 16 hex chars of SHA-256) so the lock keys carry
 // no PII at rest. KV is eventually consistent — that's fine for a vote
 // counter; the worst case is a few seconds of stale display.
 //
-// The regex accepts any Linear team prefix (2-8 uppercase letters), not just
-// the original `OPCHN-` — the workspace renamed its team to "Aidopsdev"
-// (`ADEV-`) at some point and the old hardcoded pattern silently rejected
-// every real identifier. The strict character class (uppercase letters +
-// digits only) keeps the value safe to interpolate into KV keys.
-const VOTE_ID_RE = /^[A-Z]{2,8}-\d{1,6}$/;
+// Ids are bare GitHub issue numbers (e.g. "42") — the strict digits-only
+// character class keeps the value safe to interpolate into KV keys.
+const VOTE_ID_RE = /^\d{1,6}$/;
 const VOTE_BATCH_MAX = 50;
 const VOTE_TTL_SECONDS = 25 * 60 * 60; // 25h, so lock spans the next-day boundary
 
@@ -232,6 +233,15 @@ async function handleFeedback(request, env, ctx, origin, requestId) {
     );
   }
 
+  // Roadmap feature requests (RoadmapForm.astro) go to GitHub Issues, not
+  // Linear — see docs/plans/2026-08-26-roadmap-github-issues.md. Everything
+  // else (bug/improvement/security/general) continues below on Linear.
+  if (isCommunity) {
+    // Roadmap requests become public GitHub issues, so never forward contact
+    // information from the shared feedback payload to that write path.
+    return handleRoadmapRequest(request, env, ctx, log, origin, requestId, { type, title, description, category });
+  }
+
   if (!env.LINEAR_API_KEY) {
     return new Response(
       JSON.stringify({ error: "Feedback endpoint not configured", code: "not_configured" }),
@@ -243,16 +253,10 @@ async function handleFeedback(request, env, ctx, origin, requestId) {
   const projectId = env.LINEAR_PROJECT_ID || DEFAULT_PROJECT_ID;
   // Label resolution. Security disclosures prefer a dedicated label
   // (configurable via env.LINEAR_SECURITY_LABEL_ID); regular feedback
-  // uses the static LABEL_MAP entry. Community roadmap submissions
-  // additionally get LINEAR_COMMUNITY_LABEL_ID (optional env var) so
-  // triagers can see the new ask without flipping it onto the public
-  // roadmap. Empty → no label, never blocks.
+  // uses the static LABEL_MAP entry. Empty → no label, never blocks.
   let labelIds = LABEL_MAP[type] ? [LABEL_MAP[type]] : [];
   if (isSecurity && env.LINEAR_SECURITY_LABEL_ID) {
     labelIds = [env.LINEAR_SECURITY_LABEL_ID];
-  }
-  if (isCommunity && env.LINEAR_COMMUNITY_LABEL_ID) {
-    labelIds = [...labelIds, env.LINEAR_COMMUNITY_LABEL_ID];
   }
   // Priority resolution. Security disclosures bypass the
   // user-submitted priority and ride the SECURITY_PRIORITY table —
@@ -281,22 +285,15 @@ async function handleFeedback(request, env, ctx, origin, requestId) {
     descParts.push(description);
   }
   if (skillName) descParts.push(`**Skill:** ${skillName}`);
-  if (isCommunity) descParts.push(`**Category:** ${category}`);
   if (email) descParts.push(`**Contact:** ${email}`);
   descParts.push(`**Request ID:** ${requestId}`);
   descParts.push(
     isSecurity
       ? "_Submitted via opchain.dev /security disclosure form_"
-      : isCommunity
-      ? "_Submitted via opchain.dev /changelog roadmap form — community-submitted; needs `roadmap-visible` label to appear publicly._"
       : "_Submitted via opchain.dev_",
   );
 
-  const titlePrefix = isSecurity
-    ? "[SECURITY]"
-    : isCommunity
-    ? `[community/${type}]`
-    : `[${type}]`;
+  const titlePrefix = isSecurity ? "[SECURITY]" : `[${type}]`;
 
   const variables = {
     input: {
@@ -349,6 +346,88 @@ async function handleFeedback(request, env, ctx, origin, requestId) {
   }
 
   log.eventError(EVENTS.FEEDBACK_FAILED, { errors: linearData?.errors?.map((e) => e.message) ?? null });
+  return new Response(
+    JSON.stringify({ error: "Failed to create issue.", code: "upstream_error" }),
+    { status: 500, headers: corsHeaders(origin, requestId) },
+  );
+}
+
+// ── Roadmap community-request handler (GitHub Issues) ───────────────────────
+// RoadmapForm.astro's "Request a feature" form. Unlike the rest of
+// /api/feedback (Linear), this creates a public GitHub issue on
+// ROADMAP_GITHUB_REPO — visible the instant it's created, not gated behind
+// triage the way a Linear ticket was. Two mitigations for that: the
+// `community-submitted` label (not a roadmap:* bucket label, so it doesn't
+// appear on the public roadmap until a maintainer promotes it) and a
+// per-IP rate limit tighter than handleNotify's, since spam here is
+// immediately public rather than a private lead-capture record.
+const ROADMAP_REQUEST_RATELIMIT_MAX = 5;
+const ROADMAP_REQUEST_RATELIMIT_TTL_S = 60 * 60; // 1h
+
+async function handleRoadmapRequest(request, env, ctx, log, origin, requestId, { type, title, description, category }) {
+  const ip = request.headers.get("CF-Connecting-IP") || "0.0.0.0";
+  if (env.NOTIFY) {
+    const rlKey = `ratelimit:roadmap-request:${ip}`;
+    const current = Number(await env.NOTIFY.get(rlKey)) || 0;
+    if (current >= ROADMAP_REQUEST_RATELIMIT_MAX) {
+      log.event(EVENTS.RATE_LIMIT_HIT, { ip, source: "roadmap-request" });
+      return new Response(
+        JSON.stringify({ error: "Too many requests, slow down.", code: "rate_limited" }),
+        { status: 429, headers: corsHeaders(origin, requestId) },
+      );
+    }
+    await env.NOTIFY.put(rlKey, String(current + 1), {
+      expirationTtl: ROADMAP_REQUEST_RATELIMIT_TTL_S,
+    });
+  }
+
+  if (!env.ROADMAP_GITHUB_TOKEN) {
+    return new Response(
+      JSON.stringify({ error: "Roadmap request endpoint not configured", code: "not_configured" }),
+      { status: 503, headers: corsHeaders(origin, requestId) },
+    );
+  }
+
+  const descParts = [description];
+  descParts.push(`**Category:** ${category}`);
+  descParts.push(`**Request ID:** ${requestId}`);
+  descParts.push("_Submitted via opchain.dev /changelog roadmap form — stays off the public roadmap until a maintainer adds a `roadmap:*` label during triage._");
+
+  let ghRes;
+  try {
+    ghRes = await fetch(`https://api.github.com/repos/${ROADMAP_GITHUB_REPO}/issues`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.ROADMAP_GITHUB_TOKEN}`,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "opchain-dev-worker",
+      },
+      body: JSON.stringify({
+        title: `[community/${type}] ${title}`,
+        body: descParts.join("\n\n"),
+        labels: [ROADMAP_COMMUNITY_LABEL],
+      }),
+    });
+  } catch (e) {
+    log.eventError(EVENTS.UPSTREAM_FAILED, { upstream: "github", reason: "fetch_error", message: e.message });
+    return new Response(
+      JSON.stringify({ error: "Could not reach issue tracker.", code: "upstream_unreachable" }),
+      { status: 502, headers: corsHeaders(origin, requestId) },
+    );
+  }
+
+  if (ghRes.ok) {
+    const issue = await ghRes.json();
+    const id = `${ROADMAP_GITHUB_REPO.split("/")[1]}#${issue.number}`;
+    log.event(EVENTS.FEEDBACK_SUBMITTED, { type, skill: null, issue: id, source: "github" });
+    return new Response(
+      JSON.stringify({ ok: true, id, url: issue.html_url }),
+      { status: 201, headers: corsHeaders(origin, requestId) },
+    );
+  }
+
+  log.eventError(EVENTS.FEEDBACK_FAILED, { errors: [await ghRes.text().catch(() => "")] });
   return new Response(
     JSON.stringify({ error: "Failed to create issue.", code: "upstream_error" }),
     { status: 500, headers: corsHeaders(origin, requestId) },
