@@ -12,10 +12,13 @@
  *
  * Voting is real: vote buttons carry data-vote-target=<id> and the client
  * script batches GET /api/votes then POSTs /api/votes/<id> per click (the
- * Worker dedups per-IP/day in KV). Votable ids:
- * OPC-170/173/174 (v1.9 distribution-theme options — these also drive the bar
- * chart), and OPC-18x (v1.10/v1.11 planned items). v1.8 shipped 2026-07-10, so
- * it has no vote buttons.
+ * Worker dedups per-IP/day in KV). Votable ids are GitHub issue numbers
+ * (e.g. "42") pulled live from `asfbay-bit/opchain-skills` via
+ * `loadRoadmap()` — see scripts/gen-roadmap.mjs and
+ * docs/plans/2026-08-26-roadmap-github-issues.md. The v1.9 theme-vote
+ * options and the v1.10/v1.11 planned items are all `roadmap:planned`
+ * issues, distinguished by milestone. v1.8 shipped 2026-07-10, so it has no
+ * vote buttons.
  *
  * Deep links (#v1-8/#v1-7/#v1-6/#v1-5 → Just Released; #v1-9 → Coming Next;
  * #v1-10/#v1-11 → Planned; #v1-4 → /coverage) are handled client-side:
@@ -29,6 +32,9 @@
  */
 import Base from "../layouts/Base.astro";
 import RoadmapForm from "../components/RoadmapForm.astro";
+import { loadRoadmap, itemsForMilestone } from "../data/roadmap-types";
+
+const roadmap = loadRoadmap();
 
 // v1.7 "Seams & Signals" — shipped release. Three new skills take the catalog
 // 24 → 27, lockstep-bumped to 1.7.0. Per the plan of record, oc-signal-forge
@@ -78,48 +84,22 @@ const v18Skills = [
 ];
 
 // v1.9 "The distribution play" — pick ONE growth theme, rendered as a relative
-// bar chart of three competing options, each a real vote. (Was v1.8 before the
-// v1.8 PR documentation mesh took the next future slot.) OPC-170 carries over
-// its existing count (was the standalone "marketplace" item); the other two are
-// their own vote keys. Bars redistribute live as votes arrive.
-const v19Options = [
-  {
-    id: "OPC-170",
-    label: "Marketplace + templates",
-    blurb:
-      "A community skill/pack registry plus opinionated project starters. Every contribution adds breadth at zero core-team cost.",
-    deliverables: [
-      "Public skill and pack listings with install paths, compatibility notes, and maintainer metadata.",
-      "Starter templates that pair a stack-forge pack with the right skill bundle and checkpoint defaults.",
-      "Contribution docs and intake forms that make external submissions reviewable before they appear on opchain.dev.",
-    ],
-  },
-  {
-    id: "OPC-173",
-    label: "Agency play",
-    blurb:
-      "oc-monorepo-ops, multi-project checkpoint scoping, a /for-agencies expansion, and a client-handoff demo scenario.",
-    deliverables: [
-      "A /for-agencies page aimed at studios that run many client builds in parallel.",
-      "Multi-project checkpoint scoping so work can roll up by client, repo, and release train.",
-      "A client handoff demo showing specs, audit trail, deploy state, and what changed since the last review.",
-    ],
-  },
-  {
-    id: "OPC-174",
-    label: "Pipeline depth",
-    blurb:
-      "oc-discovery-ops (JTBD / opportunity trees, upstream of app-architect) and oc-qa-ops, splitting test-pyramid design out of oc-bug-check.",
-    deliverables: [
-      "oc-discovery-ops upstream of app-architect for JTBD, opportunity trees, and problem framing.",
-      "oc-qa-ops for test-pyramid design, contract testing, regression strategy, and release readiness.",
-      "Deeper evaluator rubrics so generated plans include stronger evidence before build and deploy.",
-    ],
-  },
-];
+// bar chart of three competing options, each a real vote. Options are the
+// `roadmap:planned` GitHub issues milestoned "v1.9" — see
+// docs/plans/2026-08-26-roadmap-github-issues.md for the pipeline. Bars
+// redistribute live as votes arrive.
+const v19Options = itemsForMilestone(roadmap, "planned", "v1.9").map((item) => ({
+  id: item.id,
+  label: item.title,
+  blurb: item.blurb,
+  deliverables: item.deliverables,
+}));
 
-// Planned release groups beyond v1.9. Votable to signal priority; fresh vote
-// keys (OPC-18x), independent of any Linear identifier.
+// Planned release groups beyond v1.9. The group shell (title/timing/summary)
+// is editorial copy, kept hand-written same as the shipped-release hero
+// cards above; only the item lists are live data — `roadmap:planned` GitHub
+// issues milestoned "v1.10" / "v1.11". See
+// docs/plans/2026-08-26-roadmap-github-issues.md for the pipeline.
 const futureReleaseGroups = [
   {
     version: "v1.10",
@@ -128,32 +108,11 @@ const futureReleaseGroups = [
     timing: "planned after v1.9",
     summary:
       "Make opchain easier to adopt in the places people already work: Claude.ai, editors, discovery, and multi-repo programs.",
-    items: [
-      {
-        id: "OPC-186",
-        title: "Claude.ai web skill install",
-        blurb:
-          "One-click skill install from the opchain site straight into Claude.ai Projects — no file management.",
-      },
-      {
-        id: "OPC-185",
-        title: "VS Code / Cursor extension",
-        blurb:
-          "A native sidebar showing checkpoint state, skill shortcuts, and pipeline progress without leaving the editor.",
-      },
-      {
-        id: "OPC-180",
-        title: "oc-discovery-ops",
-        blurb:
-          "A JTBD / opportunity-tree skill upstream of app-architect — maps user problems before any code is written.",
-      },
-      {
-        id: "OPC-182",
-        title: "oc-monorepo-ops",
-        blurb:
-          "Multi-project checkpoint scoping, shared skill config, and coordinated releases across repos in a monorepo.",
-      },
-    ],
+    items: itemsForMilestone(roadmap, "planned", "v1.10").map((item) => ({
+      id: item.id,
+      title: item.title,
+      blurb: item.blurb,
+    })),
   },
   {
     version: "v1.11",
@@ -162,32 +121,11 @@ const futureReleaseGroups = [
     timing: "planned after v1.10",
     summary:
       "Deepen the quality, data, compliance, and security layers that larger teams need before they trust the pipeline for serious delivery.",
-    items: [
-      {
-        id: "OPC-181",
-        title: "oc-qa-ops",
-        blurb:
-          "A dedicated test-pyramid design skill: coverage strategy, contract testing, and load-test planning, split out of oc-bug-check.",
-      },
-      {
-        id: "OPC-183",
-        title: "oc-data-ops",
-        blurb:
-          "A data-pipeline design skill: ingestion patterns, transformation layers, dbt integration, and observable data contracts.",
-      },
-      {
-        id: "OPC-184",
-        title: "oc-compliance-ops",
-        blurb:
-          "SOC 2 / HIPAA / GDPR checklists wired into the pipeline, with audit-ready docs generated at deploy time.",
-      },
-      {
-        id: "OPC-187",
-        title: "oc-security-hardening",
-        blurb:
-          "A security-review skill running a full OWASP + threat-model pass before every deploy, separate from oc-code-auditor.",
-      },
-    ],
+    items: itemsForMilestone(roadmap, "planned", "v1.11").map((item) => ({
+      id: item.id,
+      title: item.title,
+      blurb: item.blurb,
+    })),
   },
 ];
 ---

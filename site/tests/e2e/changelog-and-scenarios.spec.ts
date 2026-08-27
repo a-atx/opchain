@@ -100,7 +100,10 @@ test.describe("/changelog", () => {
       "aria-expanded",
       "true",
     );
-    for (const id of ["OPC-170", "OPC-173", "OPC-174"]) {
+    // Vote ids are now bare GitHub issue numbers (asfbay-bit/opchain-skills
+    // #1/#2/#3 — Marketplace + templates / Agency play / Pipeline depth),
+    // not Linear identifiers. See docs/plans/2026-08-26-roadmap-github-issues.md.
+    for (const id of ["1", "2", "3"]) {
       await expect(page.locator(`#v1-9 [data-vote-target="${id}"]`)).toBeVisible();
     }
     // v1.8 lives in Just Released now, not here.
@@ -119,8 +122,8 @@ test.describe("/changelog", () => {
     await expect(page.locator("#panel-planned #v1-8")).toHaveCount(0);
     await expect(page.locator("#panel-planned #v1-9")).toHaveCount(0);
 
-    // Votable items across the whole page: OPC-170/173/174 (v1.9 theme) +
-    // OPC-18x (v1.10 / v1.11 planned).
+    // Votable items across the whole page: 3 v1.9 theme options + 8 v1.10/
+    // v1.11 planned items, all GitHub issue numbers.
     const voteButtons = page.locator("[data-vote-target]");
     expect(await voteButtons.count()).toBeGreaterThanOrEqual(6);
   });
