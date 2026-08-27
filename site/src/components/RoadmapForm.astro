@@ -19,9 +19,8 @@
       <h2>Request a feature</h2>
       <p>
         Lands as a public GitHub issue the team triages. We label it
-        <code>community-submitted</code> and reply when it ships if you
-        leave an email. Submissions stay off the public roadmap until a
-        maintainer promotes them during triage.
+        <code>community-submitted</code>. Submissions stay off the public
+        roadmap until a maintainer promotes them during triage.
       </p>
     </header>
 
@@ -40,27 +39,15 @@
         />
       </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label for="rr-category">Category</label>
-          <select id="rr-category" name="category" required>
-            <option value="skill">New skill</option>
-            <option value="feature">Feature inside an existing skill</option>
-            <option value="docs">Docs / examples</option>
-            <option value="integration">Integration (Linear, Slack, etc.)</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="rr-email">Email <span class="opt">(optional — we'll only use it to reply)</span></label>
-          <input
-            id="rr-email"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            autocomplete="email"
-          />
-        </div>
+      <div class="field">
+        <label for="rr-category">Category</label>
+        <select id="rr-category" name="category" required>
+          <option value="skill">New skill</option>
+          <option value="feature">Feature inside an existing skill</option>
+          <option value="docs">Docs / examples</option>
+          <option value="integration">Integration (Linear, Slack, etc.)</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       <div class="field">
@@ -87,8 +74,7 @@
     <div class="submit-success" id="rr-success" role="status" aria-live="polite" hidden>
       <strong>Got it. </strong>
       Your request was filed as <a class="lid" data-success-id href="#" target="_blank" rel="noopener">…</a> and
-      will be triaged on the next pass. Leave an email and we'll let you
-      know when it ships.
+      will be triaged on the next pass.
     </div>
 
     <div class="submit-error" id="rr-error" role="alert" aria-live="assertive" hidden>
@@ -119,9 +105,6 @@
         description: String(data.get("description") || "").trim(),
         category: String(data.get("category") || "other"),
       };
-      const emailRaw = String(data.get("email") || "").trim();
-      if (emailRaw) body.email = emailRaw;
-
       // Quick client-side gate to match the schema's min lengths.
       if (body.title.length < 3 || body.description.length < 10) {
         error.hidden = false;

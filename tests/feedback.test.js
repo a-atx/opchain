@@ -478,7 +478,7 @@ describe("POST /api/feedback", () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it("posts to GitHub (not Linear), with the community label and no roadmap:* label", async () => {
+    it("posts to GitHub without publishing email supplied directly to the API", async () => {
       fetchMock.mockResolvedValueOnce(githubIssueOk());
       const res = await worker.fetch(
         req("https://opchain.dev/api/feedback", {
@@ -503,7 +503,8 @@ describe("POST /api/feedback", () => {
       expect(sent.labels).toEqual(["community-submitted"]);
       expect(sent.body).toContain("Would love a manual override");
       expect(sent.body).toContain("**Category:** feature");
-      expect(sent.body).toContain("**Contact:** requester@example.com");
+      expect(sent.body).not.toContain("requester@example.com");
+      expect(sent.body).not.toContain("**Contact:**");
     });
 
     it("502s upstream_unreachable when the fetch to GitHub throws", async () => {
