@@ -6,9 +6,9 @@
   "created_at": "2026-05-01T16:58:00Z",
   "updated_at": "2026-08-27T20:19:35.304Z",
   "phase": "oss-split-planning",
-  "step": "codex/v2-workflow-skills",
+  "step": "pr-454-open",
   "status": "in_progress",
-  "progress_summary": "OSS-split merge wave is complete through runbook rev 3 (#452). In parallel, codex/v2-workflow-skills is preparing the v2.0 two-workflow plan and changelog surface for PR review; production remains behind main pending the runbook's explicit staging and user gates.",
+  "progress_summary": "Draft PR #454 is open for the v2.0 two-workflow plan and changelog surface; its branch preview has passed staging smoke and visual review. The OSS-split merge wave is also complete through runbook rev 3 (#452). Production remains gated on merge, a staging-from-main review, and explicit user approval.",
   "progress_table": [
     {
       "id": "pr-183",
@@ -92,7 +92,8 @@
   },
   "blockers": [],
   "next_actions": [
-    "Run the pre-commit gate, commit, push, and open a PR for the v2.0 two-workflow plan.",
+    "Review and merge PR #454 after CI passes.",
+    "After merge, redeploy staging from main before considering production.",
     "Execute docs/runbooks/oss-split-execution-handoff.md Phase A: sync staging to main, human eyeball, then prod ship (prereqs: ROADMAP_GITHUB_TOKEN secret on prod, vote-KV migrate-vs-reset decision, npm run gen-roadmap before deploy).",
     "Phase C (the flip) on user go: manifest PR, freeze, filter-repo extraction, force-push over opchain-skills, ruleset+DCO, consume PR — the runbook is authoritative over plan §2.4-§2.5 where they disagree.",
     "Phase B compliance pass (/privacy + /security scope + unsubscribe copy) can run while waiting on gates."
@@ -365,6 +366,15 @@
         "branch": "claude/opchain-repo-licensing-compliance-c39ebb",
         "opened_at": "2026-08-24"
       }
-    ]
+    ],
+    "open_prs+": {
+      "number": 454,
+      "title": "docs(roadmap): make v2.0 two governed workflows",
+      "branch": "codex/v2-workflow-skills",
+      "status": "draft — awaiting CI and review",
+      "url": "https://github.com/asfbay-bit/opchain/pull/454"
+    },
+    "last_pr_number": 454,
+    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/454"
   }
 }
