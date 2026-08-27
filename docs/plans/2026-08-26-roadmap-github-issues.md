@@ -1,8 +1,29 @@
 # Roadmap → GitHub Issues
 
-**Status:** Both sprints built, tested, and verified end-to-end locally.
-**Not deployed** — this is all sitting in the working tree, one deploy away.
+**Status:** Shipped to staging on 2026-08-27; production remains behind the
+runbook's explicit approval gate. Roadmap sequencing was revised later that day.
 Produced via `/oc-app-architect` (checkpoint `skill_state.roadmap_github_issues`).
+
+## 2026-08-27 sequencing amendment
+
+The owner selected **v1.9 — Assurance and governed delivery ops** and promoted
+the recovered [`docs/releases/2.0-plan.md`](../releases/2.0-plan.md), **The
+self-improving pipeline**, into the committed v2.0 slot immediately after it.
+Voting now applies to the following three release groups:
+
+| Release | Theme | GitHub issues |
+|---|---|---|
+| v1.9 | Assurance and governed delivery ops (selected; not votable) | #8 oc-qa-ops, #9 oc-data-ops, #10 oc-compliance-ops, #11 oc-security-hardening |
+| v2.0 | The self-improving pipeline (committed; not votable) | [#12](https://github.com/asfbay-bit/opchain-skills/issues/12) |
+| v2.1 | Distribution and installation | #1 Marketplace + templates, #4 Claude.ai web skill install, #5 VS Code / Cursor extension |
+| v2.2 | Agency and multi-project delivery | #2 Agency play, #7 oc-monorepo-ops |
+| v2.3 | Discovery and pipeline depth | #3 Pipeline depth, #6 oc-discovery-ops |
+
+Issue numbers were preserved during reassignment, so existing vote records stay
+attached to the same ideas. The now-empty v1.10 and v1.11 milestones were closed
+as superseded. The changelog's Coming Next panel presents selected v1.9 scope;
+the Planned panel presents committed v2.0 followed by issue-level voting for
+v2.1-v2.3.
 
 ## Problem
 
