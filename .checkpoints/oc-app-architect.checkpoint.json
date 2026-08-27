@@ -4,9 +4,9 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-08-27T19:31:30Z",
-  "phase": "launch",
-  "step": "roadmap-v1-9-v2-series-awaiting-production-approval",
+  "updated_at": "2026-08-27T23:55:14.697Z",
+  "phase": "build",
+  "step": "git-ops-per-release-built",
   "status": "in_progress",
   "progress_summary": "2026-08-27: v1.9 Assurance and governed delivery ops plus the v2.0-v2.3 sequence shipped through PR #451 (merge 4b1f720) and staging. Staging smoke/health, deployed-content assertions, a staging vote, and the dry-run request path passed. Production is paused at the runbook's fresh explicit-approval gate.",
   "progress_table": [
@@ -138,11 +138,28 @@
       "decision": "v1.9 Assurance and governed delivery ops; v2.0 The self-improving pipeline; voting for v2.1-v2.3",
       "recovered_plan": "docs/releases/2.0-plan.md (source worktree preserved unmodified)",
       "public_roadmap": {
-        "v1.9": ["#8 oc-qa-ops", "#9 oc-data-ops", "#10 oc-compliance-ops", "#11 oc-security-hardening"],
-        "v2.0": ["#12 The self-improving pipeline"],
-        "v2.1": ["#1 Marketplace + templates", "#4 Claude.ai web skill install", "#5 VS Code / Cursor extension"],
-        "v2.2": ["#2 Agency play", "#7 oc-monorepo-ops"],
-        "v2.3": ["#3 Pipeline depth", "#6 oc-discovery-ops"]
+        "v1.9": [
+          "#8 oc-qa-ops",
+          "#9 oc-data-ops",
+          "#10 oc-compliance-ops",
+          "#11 oc-security-hardening"
+        ],
+        "v2.0": [
+          "#12 The self-improving pipeline"
+        ],
+        "v2.1": [
+          "#1 Marketplace + templates",
+          "#4 Claude.ai web skill install",
+          "#5 VS Code / Cursor extension"
+        ],
+        "v2.2": [
+          "#2 Agency play",
+          "#7 oc-monorepo-ops"
+        ],
+        "v2.3": [
+          "#3 Pipeline depth",
+          "#6 oc-discovery-ops"
+        ]
       },
       "vote_policy": "v1.9 and v2.0 are selected/committed and render without vote controls; v2.1-v2.3 render 7 vote controls using preserved GitHub issue ids",
       "superseded": "v1.10 and v1.11 milestones closed after all issues were reassigned",

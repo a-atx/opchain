@@ -306,6 +306,88 @@ const plannedReleaseGroups = [
           </div>
         </div>
       </article>
+      <!-- v1.8.3 — Apache-2.0 + the release-ledger patch under the v1.8 line. Deep-linkable from #v1-8-3. -->
+      <article class="rel-card" id="v1-8-3" data-card>
+        <button class="rc-row" type="button" aria-expanded="false" aria-controls="v1-8-3-body" data-disclosure-toggle>
+          <span class="rc-toggle" aria-hidden="true">&#9654;</span>
+          <span class="rc-meta">
+            <span class="rc-head"><span class="ver-pill ver-pill--past">v1.8.3 patch</span><span class="rc-title">Open seams, closed ledger</span><span class="rc-date">Aug 27, 2026</span></span>
+            <span class="rc-summary">opchain is now Apache-2.0, and the release process stops lying about itself &mdash; a release that skips its git tag can no longer reach production.</span>
+          </span>
+        </button>
+        <div class="card-body" id="v1-8-3-body" data-disclosure-body inert>
+          <div class="card-body-inner">
+            <div class="tag-row"><span class="tag">Apache-2.0</span><span class="tag">release ledger</span><span class="tag">OSS seams</span><span class="tag">60&rarr;6 alerts</span><span class="tag">29 skills</span></div>
+            <h3>Now Apache-2.0</h3>
+            <p>
+              The skill catalog, plugin, and MCP tooling are licensed under
+              <strong>Apache-2.0</strong>. Releases up to and including v1.8.2 were
+              published under MIT and remain under the terms they shipped with;
+              every release from v1.8.3 onward is Apache-2.0.
+              <code>LICENSE</code> and <code>NOTICE</code> now travel inside every
+              distributed artifact &mdash; the zip, the plugin, and each
+              machine-readable discovery surface &mdash; so you receive the terms
+              without visiting the repo.
+            </p>
+            <h3>The release ledger closes</h3>
+            <p>
+              An audit compared <code>/changelog</code> to <code>git tag</code> and
+              found <strong>thirteen shipped releases and three tags</strong>. v1.0
+              through v1.7 all shipped untagged. Because the MCP-registry publisher
+              triggers on <code>v*</code> tags, ten releases never republished the
+              registry pointer.
+            </p>
+            <p>
+              The cause was structural. <strong>oc-release-ops handed off &ldquo;the
+              merge / tag&rdquo; to oc-git-ops &mdash; a skill with no tag verb.</strong>
+              The handoff named a step that did not exist, and nothing checked whether
+              it happened.
+            </p>
+            <ul>
+              <li><strong><code>/oc-git-release</code></strong> &mdash; oc-git-ops finally owns the tag. It refuses an unmerged HEAD, a semver that disagrees with the catalog, or a tag that already exists.</li>
+              <li><strong>The deploy refuses.</strong> <code>npm run deploy</code> blocks a production ship when the lockstep catalog version moved somewhere no tag follows. Blog and hotfix deploys never touch that version, so they never trip it.</li>
+              <li><strong>One implementation, two callers.</strong> <code>/oc-release verify</code> and the deploy path both call <code>scripts/check-release-tag.mjs</code>, so the check you run and the check that blocks you cannot drift apart.</li>
+              <li><strong>A daily backstop</strong> opens a single tracking issue when a shipped release has no tag &mdash; catching drift the gate cannot, like a tag made locally and never pushed.</li>
+              <li><strong>Only the newest tag publishes</strong> to the MCP registry, which makes backfilling the ten historical tags safe instead of a pointer regression.</li>
+            </ul>
+            <h3>Repository seams</h3>
+            <p>
+              Five changes let the skills tree build and ship independently of the
+              private site tooling: input-path overrides for every skills-tree reader,
+              flag-registry drift checks split out of the product validator, internal
+              identifiers scrubbed from shipped text, the site building against a
+              vendored skills tree, and <code>plugins/opchain/skills</code>
+              materialised. Groundwork for inverting the public mirror.
+            </p>
+            <h3>Changed</h3>
+            <ul>
+              <li>The <code>/changelog</code> roadmap is sourced from <strong>GitHub Issues instead of Linear</strong>, with contact details kept out of public issues. v1.9 direction is set and v2 theme voting is open.</li>
+              <li>Vulnerability reports become GitHub security incidents rather than ordinary issues.</li>
+              <li><code>gray-matter</code> replaced with a minimal in-repo frontmatter parser.</li>
+            </ul>
+            <h3>Fixed</h3>
+            <ul>
+              <li><strong>Accessibility</strong> &mdash; scrollable code blocks on <code>/install</code>, <code>/pipeline-builder</code> and <code>/security</code> are keyboard-focusable.</li>
+              <li><strong>Truth sweep</strong> &mdash; fabricated claims, incorrect counts, and scattered repo links corrected and centralised.</li>
+            </ul>
+            <h3>Security &amp; dependencies</h3>
+            <p>
+              Open Dependabot alerts cut from <strong>60 to 6</strong>. Astro migrated
+              to 7.x, unblocking the esbuild and sharp advisories; vite, postcss,
+              undici, wrangler, js-yaml, nanoid, dompurify and others bumped. The
+              residue is blocked on upstream <code>@lhci/cli</code> transitive deps.
+            </p>
+            <div class="compat-box">
+              <strong>Back-compatible with v1.8.2.</strong> All 29 skills lockstep-bump
+              to <code>1.8.3</code>. No checkpoint migration; no commands or routes
+              removed. The one behavioural change is that <code>npm run deploy</code>
+              refuses an untagged release &mdash; deliberate, with
+              <code>OPCHAIN_ALLOW_UNTAGGED_RELEASE=1</code> as the loud escape hatch.
+              <strong>License change:</strong> this release is Apache-2.0, not MIT.
+            </div>
+          </div>
+        </div>
+      </article>
       <article class="rel-card" id="v1-8-2" data-card>
         <button class="rc-row" type="button" aria-expanded="false" aria-controls="v1-8-2-body" data-disclosure-toggle>
           <span class="rc-toggle" aria-hidden="true">▶</span>

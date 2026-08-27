@@ -12,13 +12,107 @@ checkpoint `protocol_version` is tracked separately (see
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [1.8.3] — 2026-08-27 — "Open seams, closed ledger"
+
+The first Apache-2.0 release, and the one that stops the release process from
+lying about itself.
+
 ### Licensing
 
 - The opchain skill catalog, plugin, and MCP tooling are licensed under
   **Apache-2.0** (decision recorded 2026-08-22; applied 2026-08-24).
   Releases up to and including **1.8.2** were published under MIT; every
-  release after this notice is Apache-2.0. Copyright 2026 Aidan Elsesser
+  release from **1.8.3** onward is Apache-2.0. Copyright 2026 Aidan Elsesser
   and the opchain contributors — see `LICENSE` and `NOTICE` at the repo root.
+- `LICENSE` and `NOTICE` now ship inside every distributed artifact — the
+  skills zip, the plugin, and every machine-readable discovery surface — so a
+  consumer who never visits the repo still receives the terms.
+
+### The release ledger closes
+
+An audit on 2026-08-26 compared `/changelog` to `git tag` and found **thirteen
+shipped releases and three tags**. v1.0 through v1.7 all shipped untagged.
+`publish-mcp-registry.yml` fires on `v*` tags, so ten releases never
+republished the registry pointer; `/oc-release plan`, which reads
+`git log <last-release-tag>..HEAD`, had been falling back to scraping the
+changelog page.
+
+The cause was structural, not careless. `oc-release-ops` handed off "the merge
+/ tag" to `oc-git-ops` — **a skill with no tag verb.** The handoff named a step
+that did not exist, and nothing checked whether it happened.
+
+- **`/oc-git-release <semver>`** — oc-git-ops finally owns the tag. It refuses
+  to tag an unmerged HEAD, a semver that disagrees with the lockstep catalog, or
+  a tag that already exists (a published tag is never moved; cut the next patch).
+- **`scripts/check-release-tag.mjs`** — asserts the lockstep catalog version has
+  a tag that is an ancestor of HEAD and present on origin. Fails closed: a split
+  catalog, an unreadable catalog, or no git is a refusal, never a pass.
+- **`npm run deploy` enforces it.** A production deploy is refused when the
+  catalog version moved somewhere no tag follows. Scope is narrow on purpose —
+  the guard reads the lockstep catalog version, so blog and hotfix deploys never
+  trip it. A guard that fired on every deploy would be switched off within a
+  month.
+- **`/oc-release verify`** gained a matching gate row calling the same script, so
+  the check you run and the check that blocks you cannot drift apart.
+- **`.github/workflows/release-ledger.yml`** — daily backstop; one tracking issue
+  when a shipped release has no tag.
+- **A monotonicity guard on `publish-mcp-registry.yml`** — only the newest
+  release tag may publish. This makes backfilling the ten historical tags safe;
+  without it, pushing `v1.3.0` today would walk the public registry pointer
+  backwards from 1.8.x.
+
+Staging is deliberately exempt: you deploy staging to review a release *before*
+committing to it, and tagging an unreviewed build is backwards.
+
+### Repository seams (OSS split groundwork)
+
+Five seam changes let the skills tree build and ship independently of the
+private site tooling — prep for inverting the public mirror:
+
+- Input-path overrides for every skills-tree reader (S1), so readers no longer
+  assume a monorepo layout.
+- Flag-registry drift checks split out of the product validator (S2).
+- Internal identifiers scrubbed from shipped product text (S3).
+- The site builds against a vendored skills tree (S4).
+- `plugins/opchain/skills` materialised, retiring the last cross-boundary test
+  read (S5).
+
+### Changed
+
+- `/changelog` roadmap data is sourced from **GitHub Issues instead of Linear**,
+  with contact details kept out of public issues. v1.9 direction is set and v2
+  theme voting is open.
+- Vulnerability reports become GitHub security incidents rather than ordinary
+  issues.
+- `gray-matter` replaced with a minimal in-repo frontmatter parser, dropping a
+  dependency from the build path.
+
+### Fixed
+
+- **Accessibility** — scrollable code blocks on `/install`, `/pipeline-builder`
+  and `/security` are keyboard-focusable, so keyboard users can scroll them.
+- **Site truth sweep** — fabricated claims, incorrect counts, and scattered repo
+  links corrected and centralised.
+
+### Security & dependencies
+
+- Open Dependabot alerts cut from **60 to 6**. Astro migrated to **7.x**,
+  unblocking the esbuild and sharp advisories; vite, postcss, undici, wrangler,
+  js-yaml, nanoid, dompurify, brace-expansion, svgo and others bumped. The
+  residue is blocked on upstream `@lhci/cli` transitive deps.
+
+### Compatibility
+
+**Back-compatible with v1.8.2.** All 29 skills lockstep-bump to `1.8.3`. No
+checkpoint migration; no commands or routes removed. `/oc-git-release` is
+additive. The one behavioural change is that `npm run deploy` now refuses an
+untagged release — deliberate, with `OPCHAIN_ALLOW_UNTAGGED_RELEASE=1` as the
+loud escape hatch.
+
+**License change:** this release is Apache-2.0, not MIT. Prior releases remain
+under the terms they shipped with.
 
 ## [1.8.2] — 2026-07-24 — "Enforcement that ships"
 
