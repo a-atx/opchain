@@ -237,7 +237,9 @@ async function handleFeedback(request, env, ctx, origin, requestId) {
   // Linear — see docs/plans/2026-08-26-roadmap-github-issues.md. Everything
   // else (bug/improvement/security/general) continues below on Linear.
   if (isCommunity) {
-    return handleRoadmapRequest(request, env, ctx, log, origin, requestId, { type, title, description, category, email });
+    // Roadmap requests become public GitHub issues, so never forward contact
+    // information from the shared feedback payload to that write path.
+    return handleRoadmapRequest(request, env, ctx, log, origin, requestId, { type, title, description, category });
   }
 
   if (!env.LINEAR_API_KEY) {
@@ -362,7 +364,7 @@ async function handleFeedback(request, env, ctx, origin, requestId) {
 const ROADMAP_REQUEST_RATELIMIT_MAX = 5;
 const ROADMAP_REQUEST_RATELIMIT_TTL_S = 60 * 60; // 1h
 
-async function handleRoadmapRequest(request, env, ctx, log, origin, requestId, { type, title, description, category, email }) {
+async function handleRoadmapRequest(request, env, ctx, log, origin, requestId, { type, title, description, category }) {
   const ip = request.headers.get("CF-Connecting-IP") || "0.0.0.0";
   if (env.NOTIFY) {
     const rlKey = `ratelimit:roadmap-request:${ip}`;
@@ -388,7 +390,6 @@ async function handleRoadmapRequest(request, env, ctx, log, origin, requestId, {
 
   const descParts = [description];
   descParts.push(`**Category:** ${category}`);
-  if (email) descParts.push(`**Contact:** ${email}`);
   descParts.push(`**Request ID:** ${requestId}`);
   descParts.push("_Submitted via opchain.dev /changelog roadmap form — stays off the public roadmap until a maintainer adds a `roadmap:*` label during triage._");
 
@@ -420,18 +421,6 @@ async function handleRoadmapRequest(request, env, ctx, log, origin, requestId, {
     const issue = await ghRes.json();
     const id = `${ROADMAP_GITHUB_REPO.split("/")[1]}#${issue.number}`;
     log.event(EVENTS.FEEDBACK_SUBMITTED, { type, skill: null, issue: id, source: "github" });
-    if (email) {
-      try {
-        const distinctId = await hashDistinctId(email);
-        ctx?.waitUntil?.(capture(env, {
-          distinctId,
-          event: "feedback_submitted",
-          properties: { type, skill: null, request_id: requestId, source: "github" },
-        }));
-      } catch (e) {
-        log.warn("analytics error:", e.message);
-      }
-    }
     return new Response(
       JSON.stringify({ ok: true, id, url: issue.html_url }),
       { status: 201, headers: corsHeaders(origin, requestId) },
