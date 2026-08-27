@@ -6,9 +6,9 @@
   "created_at": "2026-05-01T16:58:00Z",
   "updated_at": "2026-08-27T20:19:35.304Z",
   "phase": "oss-split-planning",
-  "step": "last-merge-#452",
+  "step": "codex/v2-workflow-skills",
   "status": "in_progress",
-  "progress_summary": "OSS-split merge wave complete through 2026-08-27: relicense+plan (#416), trademark knockout (#423), governance+license-in-artifacts (#440), all seam PRs S1-S5 (#445/#447/#448), and the Codex execution handoff runbook rev 3 (#452, adversarially verified — supersedes stale plan passages). Prod is behind main pending Phase A of the runbook (needs ROADMAP_GITHUB_TOKEN + vote-KV decision + staging eyeball); the flip (Phase C) awaits the user go.",
+  "progress_summary": "OSS-split merge wave is complete through runbook rev 3 (#452). In parallel, codex/v2-workflow-skills is preparing the v2.0 two-workflow plan and changelog surface for PR review; production remains behind main pending the runbook's explicit staging and user gates.",
   "progress_table": [
     {
       "id": "pr-183",
@@ -78,7 +78,8 @@
       "After rebase, main turned out to have 5 pre-existing CI failures that were silently broken on main itself. Per user direction, fixed all 5 in #183 rather than open a separate hotfix PR — scope creep was the cheaper path to merge.",
       "Test loosening on changelog-and-scenarios.spec.ts: the original toHaveCount(1) over-specified a contract the changelog page never actually held; switched to .first() + toBeVisible() and split test fixtures (v13_LINKED for changelog assertion, ALL_PICKABLE for /demo picker coverage).",
       "Pixel 5 demo-mobile scenario count needed two bumps in this session: 6→9 (v1.2 carry-over, originally on PR #184) then 9→12 (v1.3 additions, on the rebased #183). Both surfaced only on CI; can't run Playwright locally (no chromium browsers in this env).",
-      "Used --force-with-lease once after the rebase. No --force, --amend, or --no-verify."
+      "Used --force-with-lease once after the rebase. No --force, --amend, or --no-verify.",
+      "The v2.0 plan/site revision is one logical change on codex/v2-workflow-skills; production deployment is out of scope until a post-staging approval."
     ],
     "generated_files": [
       "Branch ref claude/add-upgrade-instructions-yvBC8 — squash-merged & deletable",
@@ -91,12 +92,13 @@
   },
   "blockers": [],
   "next_actions": [
+    "Run the pre-commit gate, commit, push, and open a PR for the v2.0 two-workflow plan.",
     "Execute docs/runbooks/oss-split-execution-handoff.md Phase A: sync staging to main, human eyeball, then prod ship (prereqs: ROADMAP_GITHUB_TOKEN secret on prod, vote-KV migrate-vs-reset decision, npm run gen-roadmap before deploy).",
     "Phase C (the flip) on user go: manifest PR, freeze, filter-repo extraction, force-push over opchain-skills, ruleset+DCO, consume PR — the runbook is authoritative over plan §2.4-§2.5 where they disagree.",
     "Phase B compliance pass (/privacy + /security scope + unsubscribe copy) can run while waiting on gates."
   ],
   "skill_state": {
-    "current_branch": "main (no active feature branch)",
+    "current_branch": "codex/v2-workflow-skills",
     "open_prs": [
       {
         "number": 232,
