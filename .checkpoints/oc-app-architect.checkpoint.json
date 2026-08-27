@@ -4,40 +4,40 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-08-26T15:49:15.609Z",
-  "phase": "build",
-  "step": "oss-split-plan-D1-apache-decided",
+  "updated_at": "2026-08-27T19:22:20Z",
+  "phase": "pr",
+  "step": "roadmap-v1-9-v2-series-pr",
   "status": "in_progress",
-  "progress_summary": "2026-08-22: OSS split / licensing / compliance decision plan drafted (docs/plans/2026-08-22-oss-split-licensing-compliance.md) — options A/B/C compared, A (invert the mirror) recommended; product manifest, five seam PRs, licensing pack (Apache-2.0 recommended, DCO not CLA), four compliance checklists, sequencing with rollback. Blog/site build state unchanged below.",
+  "progress_summary": "2026-08-27: owner selected v1.9 Assurance and governed delivery ops; recovered the uncommitted 2.0 self-improving pipeline plan into docs/releases/2.0-plan.md; established GitHub roadmap milestones v2.0-v2.3 with v2.0 committed and voting preserved across 7 candidates in v2.1-v2.3. Evaluation is green; focused PR and refreshed staging are next.",
   "progress_table": [
     {
       "id": "discovery",
-      "label": "Discovery (from context: blog infra + release history recon)",
+      "label": "Repository/worktree discovery — recover 2.0 design and inventory roadmap candidates",
       "status": "complete"
     },
     {
       "id": "spec",
-      "label": "Content plan (9 posts + 30-day calendar, §8 QA rubric)",
+      "label": "Sequence v1.9 → v2.0 → votable v2.1-v2.3 with vote-id preservation",
       "status": "complete"
     },
     {
       "id": "build",
-      "label": "Build — 9 posts, calendar doc, plan reconcile",
+      "label": "GitHub milestones/issues, changelog UI, recovered 2.0 plan, docs and tests",
       "status": "complete"
     },
     {
       "id": "eval",
-      "label": "Evaluator — build/check/tests/links/OG/draft gates",
+      "label": "Evaluator — full tests, Astro checks/build, live-data assertions and staging review",
       "status": "complete"
     },
     {
       "id": "pr",
-      "label": "Commit + PR + CI green (PR #372 merged as b77144e)",
-      "status": "complete"
+      "label": "Focused PR, CI green, merge",
+      "status": "in_progress"
     },
     {
       "id": "launch",
-      "label": "Deploy (publishes through 07-02) + flip staged drafts",
+      "label": "Refresh staging; production only after fresh explicit approval",
       "status": "not_started"
     }
   ],
@@ -133,6 +133,21 @@
     "site_surface_pass": {
       "doc": "docs/plans/2026-08-25-site-surface-pass.md",
       "at": "2026-08-26T15:49:15.609Z"
+    },
+    "roadmap_v2_sequence": {
+      "decision": "v1.9 Assurance and governed delivery ops; v2.0 The self-improving pipeline; voting for v2.1-v2.3",
+      "recovered_plan": "docs/releases/2.0-plan.md (source worktree preserved unmodified)",
+      "public_roadmap": {
+        "v1.9": ["#8 oc-qa-ops", "#9 oc-data-ops", "#10 oc-compliance-ops", "#11 oc-security-hardening"],
+        "v2.0": ["#12 The self-improving pipeline"],
+        "v2.1": ["#1 Marketplace + templates", "#4 Claude.ai web skill install", "#5 VS Code / Cursor extension"],
+        "v2.2": ["#2 Agency play", "#7 oc-monorepo-ops"],
+        "v2.3": ["#3 Pipeline depth", "#6 oc-discovery-ops"]
+      },
+      "vote_policy": "v1.9 and v2.0 are selected/committed and render without vote controls; v2.1-v2.3 render 7 vote controls using preserved GitHub issue ids",
+      "superseded": "v1.10 and v1.11 milestones closed after all issues were reassigned",
+      "evaluation": "npm test 461/461; Astro check 0 errors/0 warnings; Astro builds 76 pages; Playwright changelog/demo 22/22; checkpoint validation green; full repository build green",
+      "production_gate": "paused until refreshed staging is deployed, reviewed, and explicitly approved"
     },
     "roadmap_github_issues": {
       "doc": "docs/plans/2026-08-26-roadmap-github-issues.md",

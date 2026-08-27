@@ -1,5 +1,12 @@
 # Ship "roadmap → GitHub Issues" — instructions for an executing agent
 
+> **2026-08-27 sequencing amendment:** The original GitHub-Issues migration and
+> staging deployment completed. Before production, the roadmap was deliberately
+> revised: v1.9 is now Assurance and governed delivery ops; v2.0 is the committed
+> self-improving pipeline; voting is established for v2.1-v2.3. Steps 5 and 5b
+> below describe the refreshed staging gate. Production still requires a new,
+> explicit approval after that review.
+
 **Audience:** this document is written to be handed directly to an AI agent
 with computer control (browser + terminal) — e.g. pasted as the task prompt
 for ChatGPT's computer-use / Operator mode — running **on Aidan's own Mac,
@@ -160,7 +167,7 @@ Still from `/Users/aidanelsesser/repos/opchain` on `main` (now containing
 the merged PR):
 
 ```bash
-npm run gen-roadmap        # pulls the 11 real GitHub issues into roadmap.json fresh
+npm run gen-roadmap        # pulls the 12 real GitHub issues into roadmap.json fresh
 npm run deploy:staging
 npm run smoke:staging
 curl -sS "https://staging.opchain.dev/api/health?cb=$(date +%s)"
@@ -174,8 +181,9 @@ Confirm the health check's `version` matches the local commit SHA
 Open `https://staging.opchain.dev/changelog` in the browser yourself (or
 have it opened for review) and check:
 
-- The "Coming Next" tab's v1.9 theme vote shows 3 real options (Marketplace + templates / Agency play / Pipeline depth), not empty.
-- The "Planned" tab shows v1.10 (4 items) and v1.11 (4 items).
+- The "Coming Next" tab shows the selected v1.9 direction, Assurance and governed delivery ops, with 4 scope items and no vote controls.
+- The "Planned" tab shows committed v2.0 (The self-improving pipeline) followed by v2.1 (3 items), v2.2 (2 items), and v2.3 (2 items).
+- v2.0 has no vote control. All 7 candidates in v2.1-v2.3 do, using preserved GitHub issue ids #1-#7.
 - Vote buttons work (click one, count should tick up — staging KV is separate from prod, this is just testing the mechanism).
 - Scroll to "Request a feature," submit a test entry. Since staging is dry-run, expect the synthetic success state — this only proves the form still round-trips correctly, not that GitHub issue creation works (that only happens on prod, where the token now lives).
 
