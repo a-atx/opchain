@@ -1,0 +1,42 @@
+{
+  "protocol_version": "1.1",
+  "skill": "oc-deploy-ops",
+  "project": "opchain.dev",
+  "project_dir": "/Users/aidanelsesser/repos/opchain",
+  "created_at": "2026-08-27T23:49:17.485Z",
+  "updated_at": "2026-08-27T23:49:17.486Z",
+  "phase": "staging",
+  "step": "pr-454-branch-preview-deployed",
+  "status": "complete",
+  "progress_summary": "PR #454 branch commit f2e88ee deployed to staging.opchain.dev as Cloudflare Worker version edbe031d-e8c2-4064-aa5e-32484b1d7ba3. Scoped code/security gates found no new CRITICAL or HIGH findings; 461 unit tests, Astro check, runtime dependency audit, smoke suite, DOM inspection, and visual inspection passed.",
+  "next_actions": [
+    "Review the v2.0 workflow surface on staging and merge PR #454 when approved.",
+    "After merge, redeploy staging from main before considering production.",
+    "Require explicit user confirmation before any production deployment."
+  ],
+  "skill_state": {
+    "current_env": "staging",
+    "staging_version": "f2e88ee",
+    "cloudflare_version_id": "edbe031d-e8c2-4064-aa5e-32484b1d7ba3",
+    "staging_url": "https://staging.opchain.dev",
+    "branch_preview": true,
+    "source_pr": 454,
+    "audit_gate": {
+      "critical": 0,
+      "high": 0,
+      "scope": "origin/main...f2e88ee docs/site delta",
+      "result": "pass"
+    },
+    "smoke_results": {
+      "health": "pass",
+      "home": "pass",
+      "zip": "pass",
+      "license": "pass",
+      "redirect": "pass",
+      "headers": "pass",
+      "content": "pass",
+      "visual": "pass"
+    },
+    "rollback_available": true
+  }
+}
