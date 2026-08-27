@@ -1,4 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { existsSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { FLAGS, FLAG_NAMES, PUBLIC_FLAG_NAMES, getDefault, isKnown, CATEGORIES } from "../src/lib/flags/registry.js";
 
 describe("flag registry", () => {
@@ -64,16 +67,18 @@ describe("flag registry", () => {
     }
   });
 
-  it("includes a flag for every skill in the registry", () => {
-    const expected = [
-      "oc-api-dev", "oc-app-architect", "oc-bug-check", "oc-checkpoint-protocol",
-      "oc-code-auditor", "oc-dash-forge", "oc-deploy-ops", "oc-git-ops",
-      "oc-integrations-engineer", "oc-migration-ops", "oc-monitoring-ops",
-      "oc-orchestrator", "oc-reverse-spec", "oc-scale-ops", "oc-security-auditor",
-      "oc-stack-forge", "oc-ux-engineer",
-    ];
-    for (const id of expected) {
-      expect(isKnown(`skills.registry.${id}.enabled`)).toBe(true);
+  it("includes a flag for every skill directory in skills/", () => {
+    // Derived from the real tree, not a hand-list — a literal list here went
+    // stale at 17 ids while the catalog grew to 29 (S2 audit finding A03).
+    const skillsDir =
+      process.env.OPCHAIN_SKILLS_DIR ??
+      join(dirname(fileURLToPath(import.meta.url)), "..", "skills");
+    const ids = readdirSync(skillsDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && existsSync(join(skillsDir, e.name, "SKILL.md")))
+      .map((e) => e.name);
+    expect(ids.length).toBeGreaterThanOrEqual(29);
+    for (const id of ids) {
+      expect(isKnown(`skills.registry.${id}.enabled`), `missing skills.registry.${id}.enabled`).toBe(true);
     }
   });
 });

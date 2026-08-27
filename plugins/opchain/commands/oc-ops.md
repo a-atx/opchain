@@ -7,7 +7,7 @@ Invoke the `oc-orchestrator` skill.
 Before reporting any status, reconcile against ground truth — do not trust the
 checkpoints alone:
 
-1. `node scripts/checkpoint.mjs doctor` (or read `.checkpoints/*.json` directly)
+1. Read `.checkpoints/*.json` directly (repos that vendor the opchain checkpoint CLI can run `node scripts/checkpoint.mjs doctor` instead)
 2. `git log --oneline -5`, `git tag --sort=-creatordate | head -3`
 3. Compare what the checkpoints claim against what git shows.
 

@@ -4,40 +4,40 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-08-26T15:49:15.609Z",
-  "phase": "build",
-  "step": "oss-split-plan-D1-apache-decided",
+  "updated_at": "2026-08-27T19:22:20Z",
+  "phase": "pr",
+  "step": "roadmap-v1-9-v2-series-pr",
   "status": "in_progress",
-  "progress_summary": "2026-08-22: OSS split / licensing / compliance decision plan drafted (docs/plans/2026-08-22-oss-split-licensing-compliance.md) — options A/B/C compared, A (invert the mirror) recommended; product manifest, five seam PRs, licensing pack (Apache-2.0 recommended, DCO not CLA), four compliance checklists, sequencing with rollback. Blog/site build state unchanged below.",
+  "progress_summary": "2026-08-27: owner selected v1.9 Assurance and governed delivery ops; recovered the uncommitted 2.0 self-improving pipeline plan into docs/releases/2.0-plan.md; established GitHub roadmap milestones v2.0-v2.3 with v2.0 committed and voting preserved across 7 candidates in v2.1-v2.3. Evaluation is green; focused PR and refreshed staging are next.",
   "progress_table": [
     {
       "id": "discovery",
-      "label": "Discovery (from context: blog infra + release history recon)",
+      "label": "Repository/worktree discovery — recover 2.0 design and inventory roadmap candidates",
       "status": "complete"
     },
     {
       "id": "spec",
-      "label": "Content plan (9 posts + 30-day calendar, §8 QA rubric)",
+      "label": "Sequence v1.9 → v2.0 → votable v2.1-v2.3 with vote-id preservation",
       "status": "complete"
     },
     {
       "id": "build",
-      "label": "Build — 9 posts, calendar doc, plan reconcile",
+      "label": "GitHub milestones/issues, changelog UI, recovered 2.0 plan, docs and tests",
       "status": "complete"
     },
     {
       "id": "eval",
-      "label": "Evaluator — build/check/tests/links/OG/draft gates",
+      "label": "Evaluator — full tests, Astro checks/build, live-data assertions and staging review",
       "status": "complete"
     },
     {
       "id": "pr",
-      "label": "Commit + PR + CI green (PR #372 merged as b77144e)",
-      "status": "complete"
+      "label": "Focused PR, CI green, merge",
+      "status": "in_progress"
     },
     {
       "id": "launch",
-      "label": "Deploy (publishes through 07-02) + flip staged drafts",
+      "label": "Refresh staging; production only after fresh explicit approval",
       "status": "not_started"
     }
   ],
@@ -133,6 +133,59 @@
     "site_surface_pass": {
       "doc": "docs/plans/2026-08-25-site-surface-pass.md",
       "at": "2026-08-26T15:49:15.609Z"
+    },
+    "roadmap_v2_sequence": {
+      "decision": "v1.9 Assurance and governed delivery ops; v2.0 The self-improving pipeline; voting for v2.1-v2.3",
+      "recovered_plan": "docs/releases/2.0-plan.md (source worktree preserved unmodified)",
+      "public_roadmap": {
+        "v1.9": ["#8 oc-qa-ops", "#9 oc-data-ops", "#10 oc-compliance-ops", "#11 oc-security-hardening"],
+        "v2.0": ["#12 The self-improving pipeline"],
+        "v2.1": ["#1 Marketplace + templates", "#4 Claude.ai web skill install", "#5 VS Code / Cursor extension"],
+        "v2.2": ["#2 Agency play", "#7 oc-monorepo-ops"],
+        "v2.3": ["#3 Pipeline depth", "#6 oc-discovery-ops"]
+      },
+      "vote_policy": "v1.9 and v2.0 are selected/committed and render without vote controls; v2.1-v2.3 render 7 vote controls using preserved GitHub issue ids",
+      "superseded": "v1.10 and v1.11 milestones closed after all issues were reassigned",
+      "evaluation": "npm test 461/461; Astro check 0 errors/0 warnings; Astro builds 76 pages; Playwright changelog/demo 22/22; checkpoint validation green; full repository build green",
+      "production_gate": "paused until refreshed staging is deployed, reviewed, and explicitly approved"
+    },
+    "roadmap_github_issues": {
+      "doc": "docs/plans/2026-08-26-roadmap-github-issues.md",
+      "status": "sprint-1-done-locally",
+      "decisions": {
+        "repo": "asfbay-bit/opchain-skills (public mirror) — confirmed via gh api: 0 issues, only default labels, asfbay-bit has repo-write auth locally",
+        "scope": "phased full swap — Sprint 1 read path done; Sprint 2 write path + content migration gated on explicit go-ahead (live public repo + new secret)",
+        "voting": "REVISED from reactions back to keeping /api/votes — reactions require leaving the site + GitHub login to vote, too much conversion friction for a marketing page. VOTE_ID_RE now /^\\d{1,6}$/ (GitHub issue numbers) instead of Linear team-prefix ids.",
+        "bucketing": "roadmap:shipped/in-progress/planned/backlog labels — collapses Linear's two-concept (roadmap-visible gate + state bucket) into one",
+        "unification": "discovered site/src/data/roadmap-static.ts + roadmap-types.ts were orphaned dead code — nothing imported them. Real data lived as two hardcoded arrays inline in changelog.astro. Revived roadmap-types.ts as the real contract (chose 'unify' over 'minimal change' as the reconciliation approach); deleted roadmap-static.ts."
+      },
+      "sprint_1_files": [
+        "site/src/data/roadmap-types.ts (revived contract + itemsForMilestone helper)",
+        "site/src/data/roadmap-static.ts (deleted)",
+        "scripts/gen-roadmap.mjs (rewritten for GitHub REST, anonymous public read)",
+        "tests/gen-roadmap.test.js (rewritten)",
+        "site/src/pages/changelog.astro (v19Options/futureReleaseGroups items now derived via loadRoadmap())",
+        "src/index.js (VOTE_ID_RE → digits-only)",
+        "tests/votes.test.js (rewritten for numeric ids)",
+        "CLAUDE.md, .env.example (updated)"
+      ],
+      "sprint_1_verified": "npm test 456/456 · astro check 0 errors · astro build 76 pages incl /changelog (renders empty-but-intact, as expected with 0 real issues) · gen-roadmap.mjs run for real against the live public repo (read-only, confirmed 0 items)",
+      "not_deployed_because": "opchain-skills has 0 real roadmap:* issues — deploying now would blank the live roadmap. Also: production KV has vote-count:OPC-170-style keys that won't carry over to the new numeric-id format without a manual wrangler kv copy at deploy time.",
+      "sprint_2_done": {
+        "live_repo_setup": "5 labels (roadmap:shipped/in-progress/planned/backlog, community-submitted) + 3 milestones (v1.9=#1, v1.10=#2, v1.11=#3) + 11 issues created on asfbay-bit/opchain-skills, preserving exact copy from the old hardcoded arrays. Issue numbers 1-11 map to OPC-170/173/174 (v1.9) and OPC-186/185/180/182 (v1.10), OPC-181/183/184/187 (v1.11) in creation order.",
+        "write_path": "src/lib/roadmap-config.js (new, shared by gen-roadmap.mjs + index.js). handleFeedback branches isCommunity before the Linear code, calls new handleRoadmapRequest() -> creates GitHub issue with community-submitted label (not roadmap:*, stays off public roadmap until triage promotion). Dead Linear isCommunity branches + LINEAR_COMMUNITY_LABEL_ID removed. Added 5/hr per-IP rate limit (reuses NOTIFY KV) as a mitigation for spam being instantly public.",
+        "roadmap_form": "RoadmapForm.astro copy updated to GitHub; success-state id is now a real link to the created issue",
+        "tests": "462/462 passing incl. new tests/feedback.test.js roadmap-community-request suite (503/201/502/500/429/dry-run)",
+        "verified_e2e": "gh api created the real labels/milestones/issues -> node scripts/gen-roadmap.mjs pulled them for real (11 items, correct buckets/milestones) -> astro build confirmed 3 theme-options + 8 horizon-items + vote targets 1-11 in the rendered HTML"
+      },
+      "bug_found_and_fixed": "loadRoadmap()'s original fs.readFileSync(__dirname + roadmap.json) pattern silently returned an empty roadmap under real astro build (Vite bundles the module into dist/.prerender/chunks/, so import.meta.url-relative path math resolves to the wrong location) — worked fine under plain node/Vitest, which is why it was never caught before nothing had ever actually exercised loadRoadmap() through a real Astro build. Fixed with import.meta.glob('./roadmap.json', { eager: true }), which resolves against the source module graph at compile time. Confirmed fixed via a real astro build after the fix.",
+      "blocked_on_user": "ROADMAP_GITHUB_TOKEN (fine-grained PAT, issues:write on opchain-skills) must be provisioned by the user via wrangler secret put -- cannot be done by the assistant. Until set, the write path 503s not_configured (fails closed).",
+      "not_deployed": "everything built/tested locally only; docs/plans/2026-08-26-roadmap-github-issues.md 'Suggested next step' has the exact deploy sequence (gen-roadmap refresh -> secret provisioning -> staging -> prod)",
+      "open_questions": [
+        "Turnstile in front of the request form (the 5/hr rate limit is a floor, not a final answer)",
+        "Vote-history migration for production KV's old OPC-170-style keys (not carried over automatically to numeric issue-number keys)",
+        "Whether to also drop Linear internally, or keep this scoped to the public roadmap surface only"
+      ]
     }
   }
 }

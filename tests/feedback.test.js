@@ -15,6 +15,22 @@ function envWith(overrides = {}) {
   };
 }
 
+function makeKv() {
+  const store = new Map();
+  return {
+    store,
+    async get(key) { return store.get(key) ?? null; },
+    async put(key, value, _opts) { store.set(key, value); },
+  };
+}
+
+function githubIssueOk(number = 42, htmlUrl = "https://github.com/asfbay-bit/opchain-skills/issues/42") {
+  return new Response(
+    JSON.stringify({ number, html_url: htmlUrl }),
+    { status: 201, headers: { "Content-Type": "application/json" } },
+  );
+}
+
 function linearOk(identifier = "OPC-42", url = "https://linear.app/opchain/issue/OPC-42") {
   return new Response(
     JSON.stringify({
@@ -433,6 +449,134 @@ describe("POST /api/feedback", () => {
         envWith(),
       );
       expect(res.status).toBe(400);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("roadmap community requests (category present → GitHub, not Linear)", () => {
+    function roadmapBody(overrides = {}) {
+      return JSON.stringify({
+        type: "feature",
+        title: "Add a dark-mode toggle to /changelog",
+        description: "Would love a manual override, not just prefers-color-scheme.",
+        category: "feature",
+        ...overrides,
+      });
+    }
+
+    it("503s with not_configured when ROADMAP_GITHUB_TOKEN is unset", async () => {
+      const res = await worker.fetch(
+        req("https://opchain.dev/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: roadmapBody(),
+        }),
+        envWith({ ROADMAP_GITHUB_TOKEN: undefined }),
+      );
+      expect(res.status).toBe(503);
+      expect((await res.json()).code).toBe("not_configured");
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("posts to GitHub without publishing email supplied directly to the API", async () => {
+      fetchMock.mockResolvedValueOnce(githubIssueOk());
+      const res = await worker.fetch(
+        req("https://opchain.dev/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: roadmapBody({ email: "requester@example.com" }),
+        }),
+        envWith({ ROADMAP_GITHUB_TOKEN: "gh_test_token" }),
+      );
+      expect(res.status).toBe(201);
+      const resBody = await res.json();
+      expect(resBody.ok).toBe(true);
+      expect(resBody.id).toBe("opchain-skills#42");
+      expect(resBody.url).toBe("https://github.com/asfbay-bit/opchain-skills/issues/42");
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe("https://api.github.com/repos/asfbay-bit/opchain-skills/issues");
+      expect(init.headers.Authorization).toBe("Bearer gh_test_token");
+      const sent = JSON.parse(init.body);
+      expect(sent.title).toBe("[community/feature] Add a dark-mode toggle to /changelog");
+      expect(sent.labels).toEqual(["community-submitted"]);
+      expect(sent.body).toContain("Would love a manual override");
+      expect(sent.body).toContain("**Category:** feature");
+      expect(sent.body).not.toContain("requester@example.com");
+      expect(sent.body).not.toContain("**Contact:**");
+    });
+
+    it("502s upstream_unreachable when the fetch to GitHub throws", async () => {
+      fetchMock.mockRejectedValueOnce(new Error("network down"));
+      const res = await worker.fetch(
+        req("https://opchain.dev/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: roadmapBody(),
+        }),
+        envWith({ ROADMAP_GITHUB_TOKEN: "gh_test_token" }),
+      );
+      expect(res.status).toBe(502);
+      expect((await res.json()).code).toBe("upstream_unreachable");
+    });
+
+    it("500s upstream_error when GitHub returns a non-2xx response", async () => {
+      fetchMock.mockResolvedValueOnce(new Response("nope", { status: 422 }));
+      const res = await worker.fetch(
+        req("https://opchain.dev/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: roadmapBody(),
+        }),
+        envWith({ ROADMAP_GITHUB_TOKEN: "gh_test_token" }),
+      );
+      expect(res.status).toBe(500);
+      expect((await res.json()).code).toBe("upstream_error");
+    });
+
+    it("429s after ROADMAP_REQUEST_RATELIMIT_MAX submissions from the same IP within the window", async () => {
+      const kv = makeKv();
+      const env = envWith({ ROADMAP_GITHUB_TOKEN: "gh_test_token", NOTIFY: kv });
+      // A fresh Response per call — mockResolvedValue would return the same
+      // instance every time, and a Response body can only be read once.
+      fetchMock.mockImplementation(async () => githubIssueOk());
+
+      for (let i = 0; i < 5; i++) {
+        const res = await worker.fetch(
+          req("https://opchain.dev/api/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "CF-Connecting-IP": "9.9.9.9" },
+            body: roadmapBody(),
+          }),
+          env,
+        );
+        expect(res.status).toBe(201);
+      }
+
+      const sixth = await worker.fetch(
+        req("https://opchain.dev/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "CF-Connecting-IP": "9.9.9.9" },
+          body: roadmapBody(),
+        }),
+        env,
+      );
+      expect(sixth.status).toBe(429);
+      expect((await sixth.json()).code).toBe("rate_limited");
+    });
+
+    it("dry-run mode 201s with synthetic id and never reaches GitHub", async () => {
+      const res = await worker.fetch(
+        req("https://staging.opchain.dev/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: roadmapBody(),
+        }),
+        envWith({ FEEDBACK_DRY_RUN: "true", ROADMAP_GITHUB_TOKEN: undefined }),
+      );
+      expect(res.status).toBe(201);
+      expect((await res.json()).id).toBe("STAGING-DRY-RUN");
       expect(fetchMock).not.toHaveBeenCalled();
     });
   });

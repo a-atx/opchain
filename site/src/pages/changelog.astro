@@ -6,19 +6,22 @@
  *   Just Released → v1.8 open hero (accent) + v1.7 / v1.6 / v1.5 / v1.4.3
  *                   collapsed heroes (the "active" window) + compact release
  *                   cards (v1.4.2 ↓, older).
- *   Coming Next   → v1.9 distribution theme vote (relative bar-chart) — the
- *                   next slot; theme undecided, vote open.
- *   Planned       → v1.10/v1.11 grouped roadmap cards, then the request form.
+ *   Coming Next   → v1.9 assurance and governed delivery — direction set.
+ *   Planned       → committed v2.0 self-improvement plan, then votable
+ *                   v2.1/v2.2/v2.3 roadmap groups and the request form.
  *
  * Voting is real: vote buttons carry data-vote-target=<id> and the client
  * script batches GET /api/votes then POSTs /api/votes/<id> per click (the
- * Worker dedups per-IP/day in KV). Votable ids:
- * OPC-170/173/174 (v1.9 distribution-theme options — these also drive the bar
- * chart), and OPC-18x (v1.10/v1.11 planned items). v1.8 shipped 2026-07-10, so
- * it has no vote buttons.
+ * Worker dedups per-IP/day in KV). Votable ids are GitHub issue numbers
+ * (e.g. "42") pulled live from `asfbay-bit/opchain-skills` via
+ * `loadRoadmap()` — see scripts/gen-roadmap.mjs and
+ * docs/plans/2026-08-26-roadmap-github-issues.md. The v1.9 and v2.0 scope
+ * is committed; voting is attached only to the v2.1-v2.3 candidates. All
+ * roadmap items are `roadmap:planned` issues, distinguished by milestone.
+ * v1.8 shipped 2026-07-10, so it has no vote buttons.
  *
  * Deep links (#v1-8/#v1-7/#v1-6/#v1-5 → Just Released; #v1-9 → Coming Next;
- * #v1-10/#v1-11 → Planned; #v1-4 → /coverage) are handled client-side:
+ * #v2-0/#v2-1/#v2-2/#v2-3 → Planned; #v1-4 → /coverage) are handled client-side:
  * the matching tab is activated, the target card expanded, and scrolled into
  * view.
  *
@@ -29,6 +32,9 @@
  */
 import Base from "../layouts/Base.astro";
 import RoadmapForm from "../components/RoadmapForm.astro";
+import { loadRoadmap, itemsForMilestone } from "../data/roadmap-types";
+
+const roadmap = loadRoadmap();
 
 // v1.7 "Seams & Signals" — shipped release. Three new skills take the catalog
 // 24 → 27, lockstep-bumped to 1.7.0. Per the plan of record, oc-signal-forge
@@ -77,117 +83,73 @@ const v18Skills = [
   },
 ];
 
-// v1.9 "The distribution play" — pick ONE growth theme, rendered as a relative
-// bar chart of three competing options, each a real vote. (Was v1.8 before the
-// v1.8 PR documentation mesh took the next future slot.) OPC-170 carries over
-// its existing count (was the standalone "marketplace" item); the other two are
-// their own vote keys. Bars redistribute live as votes arrive.
-const v19Options = [
-  {
-    id: "OPC-170",
-    label: "Marketplace + templates",
-    blurb:
-      "A community skill/pack registry plus opinionated project starters. Every contribution adds breadth at zero core-team cost.",
-    deliverables: [
-      "Public skill and pack listings with install paths, compatibility notes, and maintainer metadata.",
-      "Starter templates that pair a stack-forge pack with the right skill bundle and checkpoint defaults.",
-      "Contribution docs and intake forms that make external submissions reviewable before they appear on opchain.dev.",
-    ],
-  },
-  {
-    id: "OPC-173",
-    label: "Agency play",
-    blurb:
-      "oc-monorepo-ops, multi-project checkpoint scoping, a /for-agencies expansion, and a client-handoff demo scenario.",
-    deliverables: [
-      "A /for-agencies page aimed at studios that run many client builds in parallel.",
-      "Multi-project checkpoint scoping so work can roll up by client, repo, and release train.",
-      "A client handoff demo showing specs, audit trail, deploy state, and what changed since the last review.",
-    ],
-  },
-  {
-    id: "OPC-174",
-    label: "Pipeline depth",
-    blurb:
-      "oc-discovery-ops (JTBD / opportunity trees, upstream of app-architect) and oc-qa-ops, splitting test-pyramid design out of oc-bug-check.",
-    deliverables: [
-      "oc-discovery-ops upstream of app-architect for JTBD, opportunity trees, and problem framing.",
-      "oc-qa-ops for test-pyramid design, contract testing, regression strategy, and release readiness.",
-      "Deeper evaluator rubrics so generated plans include stronger evidence before build and deploy.",
-    ],
-  },
-];
+// v1.9 "Assurance and governed delivery ops" — the selected direction.
+// Scope comes from `roadmap:planned` GitHub issues milestoned "v1.9". It is
+// displayed without vote controls because the release direction is settled.
+const v19Items = itemsForMilestone(roadmap, "planned", "v1.9").map((item) => ({
+  id: item.id,
+  title: item.title,
+  blurb: item.blurb,
+}));
 
-// Planned release groups beyond v1.9. Votable to signal priority; fresh vote
-// keys (OPC-18x), independent of any Linear identifier.
-const futureReleaseGroups = [
+// v2.0 is committed. v2.1-v2.3 are the voting horizon: their issue-level vote
+// controls preserve the existing vote ids while making the sequence explicit.
+const plannedReleaseGroups = [
   {
-    version: "v1.10",
-    id: "v1-10",
-    title: "Install and operate anywhere",
-    timing: "planned after v1.9",
+    version: "v2.0",
+    id: "v2-0",
+    title: "The self-improving pipeline",
+    timing: "committed after v1.9",
     summary:
-      "Make opchain easier to adopt in the places people already work: Claude.ai, editors, discovery, and multi-repo programs.",
-    items: [
-      {
-        id: "OPC-186",
-        title: "Claude.ai web skill install",
-        blurb:
-          "One-click skill install from the opchain site straight into Claude.ai Projects — no file management.",
-      },
-      {
-        id: "OPC-185",
-        title: "VS Code / Cursor extension",
-        blurb:
-          "A native sidebar showing checkpoint state, skill shortcuts, and pipeline progress without leaving the editor.",
-      },
-      {
-        id: "OPC-180",
-        title: "oc-discovery-ops",
-        blurb:
-          "A JTBD / opportunity-tree skill upstream of app-architect — maps user problems before any code is written.",
-      },
-      {
-        id: "OPC-182",
-        title: "oc-monorepo-ops",
-        blurb:
-          "Multi-project checkpoint scoping, shared skill config, and coordinated releases across repos in a monorepo.",
-      },
-    ],
+      "Make opchain and its skills learn from measured outcomes without turning generated suggestions into hidden authority.",
+    votable: false,
+    items: itemsForMilestone(roadmap, "planned", "v2.0").map((item) => ({
+      id: item.id,
+      title: item.title,
+      blurb: item.blurb,
+    })),
   },
   {
-    version: "v1.11",
-    id: "v1-11",
-    title: "Assurance and governed delivery",
-    timing: "planned after v1.10",
+    version: "v2.1",
+    id: "v2-1",
+    title: "Distribution and installation",
+    timing: "voting open",
     summary:
-      "Deepen the quality, data, compliance, and security layers that larger teams need before they trust the pipeline for serious delivery.",
-    items: [
-      {
-        id: "OPC-181",
-        title: "oc-qa-ops",
-        blurb:
-          "A dedicated test-pyramid design skill: coverage strategy, contract testing, and load-test planning, split out of oc-bug-check.",
-      },
-      {
-        id: "OPC-183",
-        title: "oc-data-ops",
-        blurb:
-          "A data-pipeline design skill: ingestion patterns, transformation layers, dbt integration, and observable data contracts.",
-      },
-      {
-        id: "OPC-184",
-        title: "oc-compliance-ops",
-        blurb:
-          "SOC 2 / HIPAA / GDPR checklists wired into the pipeline, with audit-ready docs generated at deploy time.",
-      },
-      {
-        id: "OPC-187",
-        title: "oc-security-hardening",
-        blurb:
-          "A security-review skill running a full OWASP + threat-model pass before every deploy, separate from oc-code-auditor.",
-      },
-    ],
+      "Make opchain easier to discover and install in the places people already work: the public catalog, Claude.ai, and editors.",
+    votable: true,
+    items: itemsForMilestone(roadmap, "planned", "v2.1").map((item) => ({
+      id: item.id,
+      title: item.title,
+      blurb: item.blurb,
+    })),
+  },
+  {
+    version: "v2.2",
+    id: "v2-2",
+    title: "Agency and multi-project delivery",
+    timing: "voting open",
+    summary:
+      "Give studios and larger programs first-class coordination across clients, repositories, checkpoints, releases, and handoffs.",
+    votable: true,
+    items: itemsForMilestone(roadmap, "planned", "v2.2").map((item) => ({
+      id: item.id,
+      title: item.title,
+      blurb: item.blurb,
+    })),
+  },
+  {
+    version: "v2.3",
+    id: "v2-3",
+    title: "Discovery and pipeline depth",
+    timing: "voting open",
+    summary:
+      "Strengthen the pipeline before implementation with sharper problem discovery, opportunity framing, and evaluator evidence.",
+    votable: true,
+    items: itemsForMilestone(roadmap, "planned", "v2.3").map((item) => ({
+      id: item.id,
+      title: item.title,
+      blurb: item.blurb,
+    })),
   },
 ];
 ---
@@ -239,7 +201,7 @@ const futureReleaseGroups = [
           aria-selected="false"
           tabindex="-1"
         >
-          Planned <span class="tab-count">v1.10 → v1.11</span>
+          Planned <span class="tab-count">v2.0 → v2.3</span>
         </button>
       </div>
       <span class="tab-indicator" data-tab-indicator aria-hidden="true"></span>
@@ -933,11 +895,11 @@ const futureReleaseGroups = [
     >
       <div class="panel-head">
         <h2>What's coming</h2>
-        <span class="panel-sub">v1.9 is next — and the theme is an open vote. Three contenders, live bars, your call.</span>
+        <span class="panel-sub">v1.9 is next. The direction is set: assurance and governed delivery ops.</span>
       </div>
 
-      <!-- v1.9 — "The distribution play"; the next slot, theme decided by open
-           vote. Deep-linkable from #v1-9. -->
+      <!-- v1.9 — Assurance and governed delivery ops; selected direction.
+           Deep-linkable from #v1-9. -->
       <article class="hero-card hero-card--next is-open" id="v1-9" data-card>
         <button
           class="hero-head"
@@ -947,49 +909,31 @@ const futureReleaseGroups = [
           data-disclosure-toggle
         >
           <span class="hero-chevron" aria-hidden="true">▶</span>
-          <span class="hero-badge">voting open</span>
-          <span class="hero-ver">v1.9.0 · next · theme vote open</span>
-          <span class="hero-title">The distribution play</span>
+          <span class="hero-badge">direction set</span>
+          <span class="hero-ver">v1.9.0 · next · scope selected</span>
+          <span class="hero-title">Assurance and governed delivery ops</span>
           <span class="hero-desc">
-            With v1.8 giving every PR a documentation and repo-readiness gate,
-            the biggest remaining gap is distribution. v1.9 deliberately
-            promotes one growth play into a flagship theme instead of accreting
-            more skills — and the theme is yours to pick. Your vote goes on
-            record now and helps decide the order.
+            Turn the pipeline's quality, test, data, compliance, and security
+            evidence into governed delivery that larger teams can trust. The
+            release direction is selected; the work below defines its scope.
           </span>
         </button>
         <div class="card-body" id="v1-9-body" data-disclosure-body>
           <div class="card-body-inner hero-body-inner">
-            <div class="tag-row"><span class="tag tag--info">theme vote open</span><span class="tag">next release</span><span class="tag">1 flagship theme</span></div>
-            <p>The three contenders are below. Bars redistribute live as votes arrive; the final v1.9 theme is chosen closer to the time.</p>
-            <h3>Choose the v1.9 theme</h3>
-            <ul class="theme-list">
-              {v19Options.map((opt) => (
-                <li class="theme-option">
-                  <div class="theme-meta">
-                    <span class="theme-label">{opt.label}</span>
-                    <p class="theme-blurb">{opt.blurb}</p>
-                    <ul class="theme-deliverables">
-                      {opt.deliverables.map((item) => (
-                        <li>{item}</li>
-                      ))}
-                    </ul>
-                    <span class="theme-bar-wrap"><span class="theme-bar" data-theme-bar={opt.id} style="width:0%"></span></span>
+            <div class="tag-row"><span class="tag tag--info">direction set</span><span class="tag">next release</span><span class="tag">{v19Items.length} delivery tracks</span></div>
+            <p>v1.9 makes delivery evidence reviewable and enforceable across the pipeline.</p>
+            <h3>Selected scope</h3>
+            <ul class="horizon-list">
+              {v19Items.map((item) => (
+                <li class="horizon-item">
+                  <div class="horizon-meta">
+                    <span class="horizon-title">{item.title}</span>
+                    <p class="horizon-blurb">{item.blurb}</p>
                   </div>
-                  <button
-                    class="vote-btn"
-                    type="button"
-                    data-vote-target={opt.id}
-                    aria-label={`Vote for the ${opt.label} theme`}
-                  >
-                    <span class="v-arrow" aria-hidden="true">▲</span>
-                    <span class="v-count" data-vote-count>—</span>
-                    <span class="v-label" data-vote-label>vote</span>
-                  </button>
                 </li>
               ))}
             </ul>
-            <div class="planned-box">Lean, not locked — the final v1.9 theme is chosen closer to the time.</div>
+            <div class="planned-box">Direction selected — implementation scope will be refined through the v1.9 release plan.</div>
           </div>
         </div>
       </article>
@@ -1006,10 +950,10 @@ const futureReleaseGroups = [
     >
       <div class="panel-head">
         <h2>What's planned</h2>
-        <span class="panel-sub">v1.10 and v1.11 group the longer-range work — order and scope settle after the v1.9 theme vote. Vote to signal priority.</span>
+        <span class="panel-sub">v2.0 is the committed major after v1.9. Vote within v2.1-v2.3 to shape what follows.</span>
       </div>
 
-      {futureReleaseGroups.map((group) => (
+      {plannedReleaseGroups.map((group) => (
         <article class:list={["plan-card"]} id={group.id} data-card>
           <button class="pc-row" type="button" aria-expanded="false" aria-controls={`${group.id}-body`} data-disclosure-toggle>
             <span class="pc-toggle" aria-hidden="true">▶</span>
@@ -1020,7 +964,7 @@ const futureReleaseGroups = [
           </button>
           <div class="card-body" id={`${group.id}-body`} data-disclosure-body inert>
             <div class="card-body-inner">
-              <div class="tag-row"><span class="tag tag--info">planned</span><span class="tag">{group.items.length} items</span></div>
+              <div class="tag-row"><span class="tag tag--info">planned</span><span class="tag">{group.items.length} {group.items.length === 1 ? "item" : "items"}</span></div>
               <p>{group.summary}</p>
               <ul class="horizon-list">
                 {group.items.map((h) => (
@@ -1029,20 +973,28 @@ const futureReleaseGroups = [
                       <span class="horizon-title">{h.title}</span>
                       <p class="horizon-blurb">{h.blurb}</p>
                     </div>
-                    <button
-                      class="vote-btn"
-                      type="button"
-                      data-vote-target={h.id}
-                      aria-label={`Vote for ${h.title}`}
-                    >
-                      <span class="v-arrow" aria-hidden="true">▲</span>
-                      <span class="v-count" data-vote-count>—</span>
-                      <span class="v-label" data-vote-label>vote</span>
-                    </button>
+                    {group.votable && (
+                      <button
+                        class="vote-btn"
+                        type="button"
+                        data-vote-target={h.id}
+                        aria-label={`Vote for ${h.title}`}
+                      >
+                        <span class="v-arrow" aria-hidden="true">▲</span>
+                        <span class="v-count" data-vote-count>—</span>
+                        <span class="v-label" data-vote-label>vote</span>
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
-              <div class="planned-box">Planned — order and scope may shift after the v1.9 theme is chosen.</div>
+              <div class="planned-box">
+                {group.votable ? (
+                  "Voting is open — use each item to signal priority within this release."
+                ) : (
+                  <>Committed after v1.9 — <a href="https://github.com/asfbay-bit/opchain/blob/main/docs/releases/2.0-plan.md">read the full 2.0 plan of record</a>.</>
+                )}
+              </div>
             </div>
           </div>
         </article>
@@ -1178,29 +1130,6 @@ const futureReleaseGroups = [
     window.addEventListener("hashchange", () => revealHash(location.hash));
     if (location.hash) revealHash(location.hash);
 
-    // ===== v1.9 theme bar chart (relative widths from live vote counts) =
-    // Each bar reads the live count of its matching vote button and renders
-    // a percentage of the three-option total. Re-run after the batched load
-    // and after every successful vote so the bars redistribute.
-    function recomputeThemeBars() {
-      const bars = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-theme-bar]"),
-      );
-      if (!bars.length) return;
-      const counts = bars.map((bar) => {
-        const id = bar.getAttribute("data-theme-bar") || "";
-        const cnt = document.querySelector<HTMLElement>(
-          `[data-vote-target="${id}"] [data-vote-count]`,
-        );
-        const n = parseInt(cnt?.textContent || "0", 10);
-        return Number.isFinite(n) ? n : 0;
-      });
-      const total = counts.reduce((a, b) => a + b, 0);
-      bars.forEach((bar, i) => {
-        bar.style.width = `${total > 0 ? Math.round((counts[i] / total) * 100) : 0}%`;
-      });
-    }
-
     // ===== Votes (batched GET + per-click POST; localStorage mirror) ===
     const voteButtons = Array.from(
       document.querySelectorAll<HTMLButtonElement>("[data-vote-target]"),
@@ -1237,7 +1166,6 @@ const futureReleaseGroups = [
         } catch {
           for (const btn of voteButtons) setCount(btn, 0);
         }
-        recomputeThemeBars();
       })();
       for (const btn of voteButtons) {
         btn.addEventListener("click", async () => {
@@ -1260,7 +1188,6 @@ const futureReleaseGroups = [
               setCount(btn, data.count);
               localStorage.setItem(lsKey(id), "1");
               setVoted(btn, true);
-              recomputeThemeBars();
             } else {
               setCount(btn, previous);
               setVoted(btn, localStorage.getItem(lsKey(id)) === "1");
@@ -1663,42 +1590,6 @@ const futureReleaseGroups = [
     font-family: var(--font-mono);
     letter-spacing: var(--ls-wide);
   }
-
-  /* ── v1.9 theme vote (relative bar chart) ─────────────── */
-  .theme-list { list-style: none; padding: 0 !important; margin: 0.5rem 0 0 !important; display: grid; gap: 0.5rem; }
-  .theme-option {
-    display: flex; align-items: flex-start; gap: 1rem;
-    background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--r-sm);
-    padding: 0.7rem 0.85rem; margin: 0 !important;
-  }
-  .theme-meta { flex: 1; min-width: 0; }
-  .theme-label { display: block; font-family: var(--font-display); font-size: var(--fs-sm); font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .theme-blurb { font-size: 12px; color: var(--muted); line-height: var(--lh-snug); margin: 0 0 0.5rem !important; }
-  .theme-deliverables { list-style: none; padding: 0 !important; margin: 0 0 0.65rem !important; display: grid; gap: 0.25rem; }
-  .theme-deliverables li {
-    position: relative;
-    padding-left: 0.9rem;
-    font-size: 12px;
-    color: var(--muted);
-    line-height: var(--lh-snug);
-    margin: 0 !important;
-  }
-  .theme-deliverables li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--cl-violet);
-  }
-  .theme-bar-wrap { display: block; height: 5px; background: var(--border); border-radius: var(--r-pill); overflow: hidden; }
-  .theme-bar { display: block; height: 100%; width: 0; background: var(--cl-violet); border-radius: var(--r-pill); transition: width var(--dur-base) var(--ease-standard); }
-  .theme-option .vote-btn { margin-top: 0.15rem; }
-  .theme-option .vote-btn:hover { border-color: var(--cl-violet); background: var(--cl-violet-dim); transform: translateY(-1px); }
-  .theme-option .vote-btn.voted { border-color: var(--cl-violet); background: var(--cl-violet-dim); color: var(--cl-violet); }
-  .theme-option .vote-btn.voted .v-label { color: var(--cl-violet); }
 
   /* ── Future release rows ──────────────────────────────── */
   .horizon-list { list-style: none; padding: 0 !important; margin: 0 0 1.5rem !important; display: grid; gap: 0.5rem; }

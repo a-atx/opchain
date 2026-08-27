@@ -37,7 +37,7 @@ feature branch ─► PR ─► CI green (tests only) ─► merge to main
 
 - `npm run deploy:staging` → `node scripts/deploy.mjs --staging` → `wrangler deploy --env staging`
 - `npm run deploy` → `node scripts/deploy.mjs` → `wrangler deploy` (production)
-- The wrapper loads `.dev.vars` into the build env and inlines the `PUBLIC_POSTHOG_*` analytics vars. It **no longer requires `LINEAR_API_KEY`**: the `/changelog` roadmap is hand-maintained in `site/src/data/roadmap-static.ts`, so the old build-time Linear pull (`scripts/gen-roadmap.mjs`) is no longer on the deploy path and Linear being unreachable can't block a deploy. `gen-roadmap` and `OPCHAIN_REQUIRE_LINEAR` were removed from the deploy/prebuild flow on 2026-06-19; the script is kept for a future re-wire to a live roadmap.
+- The wrapper loads `.dev.vars` into the build env and inlines the `PUBLIC_POSTHOG_*` analytics vars. It **no longer requires `LINEAR_API_KEY`**: `POST /api/feedback` still uses it for bug/improvement/security tickets, but the `/changelog` roadmap itself is sourced from GitHub Issues (`scripts/gen-roadmap.mjs` → `site/src/data/roadmap.json`, read via `loadRoadmap()`), not Linear. `gen-roadmap` reads are anonymous (public repo), so nothing there can block a deploy either. `gen-roadmap` isn't wired into `prebuild` — run it by hand (`npm run gen-roadmap`) before a deploy when you want fresh roadmap data baked in; see `docs/plans/2026-08-26-roadmap-github-issues.md`.
 - After each deploy, sanity-check by hand: `curl -sS https://staging.opchain.dev/api/health` and confirm `version` matches your local commit SHA. The route (and every `/api/*` response) is `Cache-Control: no-store`, so this check can't read a stale edge-cached version; the deploy-lag canary and `scripts/smoke.sh` additionally append a cache-busting query string in case a zone-level cache rule ever overrides origin headers (that bit us on 2026-07-10: `cf-cache-status: HIT` served a pre-deploy `version` on staging).
 
 ### CI
@@ -99,7 +99,8 @@ opchain/
 │   │                       # published skill-doc build output.
 ├── specs/, roadmap/, sprints/, checklists/  # Historical planning docs from earlier
 │   │                       # releases; roadmap/ is unrelated to the live /changelog
-│   │                       # data (site/src/data/roadmap-static.ts).
+│   │                       # data (GitHub Issues on asfbay-bit/opchain-skills,
+│   │                       # pulled via scripts/gen-roadmap.mjs → roadmap.json).
 ├── design/, design-previews/, previews/, mockups/  # Design exploration HTML/mockups
 │   │                       # (see each dir's README for current-vs-archived status).
 ├── plugins/                # Claude Code plugin source. plugins/opchain/ = hooks (commit
@@ -246,8 +247,9 @@ recommended WAF bot-challenge skip list (`/.well-known/*`), so agents can fetch 
 
 Template lives in `.env.example`. Copy to `.dev.vars` for local dev; set in the Cloudflare dashboard (or via `wrangler secret put`) for staging + production.
 
-- `LINEAR_API_KEY` — Linear API key for feedback endpoint
+- `LINEAR_API_KEY` — Linear API key for `POST /api/feedback` (bug/improvement/security/general tickets only — roadmap feature requests go to GitHub instead, see below)
 - `LINEAR_TEAM_ID`, `LINEAR_PROJECT_ID` — optional overrides for the default team/project
+- `ROADMAP_GITHUB_TOKEN` — fine-grained PAT scoped to `issues:write` on `asfbay-bit/opchain-skills`. Used by `POST /api/feedback`'s roadmap community-request path (RoadmapForm.astro) to create a GitHub issue instead of a Linear ticket. Unset → that path 503s `not_configured`; everything else on `/api/feedback` (and the read-only `gen-roadmap.mjs` pull) is unaffected. Separate from `MIRROR_TOKEN` (least-privilege — that one only needs `contents:write`).
 - `POSTHOG_PROJECT_API_KEY`, `POSTHOG_HOST` — server-side analytics capture. Env-gated; unset → no-op.
 - `PUBLIC_POSTHOG_KEY`, `PUBLIC_POSTHOG_HOST` — client-side PostHog (consent-gated via `ConsentBanner.astro`).
 
@@ -290,7 +292,7 @@ Env-var override naming: `site.ops.api-feedback.kill` → `FLAG_SITE_OPS_API_FEE
 Skill source (`skills/`) is mirrored to a public GitHub repo at `asfbay-bit/opchain-skills` for community visibility, issues, and external PRs. The site and build tooling stay private here.
 
 - **Workflow:** `.github/workflows/mirror-public.yml`. Triggers on every push to `main` that touches `skills/`, `mirror/`, `plugins/`, `.claude-plugin/`, `LICENSE`, or the workflow itself. Manual `workflow_dispatch` is also supported.
-- **What gets mirrored:** `skills/` + `LICENSE` + `plugins/` (with `cp -RL`, so the `plugins/opchain/skills` symlink becomes a real directory in the snapshot) + `.claude-plugin/` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs. The plugin + marketplace files are what make `/plugin marketplace add asfbay-bit/opchain-skills` → `/plugin install opchain` work; without them the public repo is skills-only.
+- **What gets mirrored:** `skills/` + `LICENSE` + `plugins/` (with `cp -RL`, so the `plugins/opchain/skills` symlink becomes a real directory in the snapshot) + `.claude-plugin/` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/SECURITY.md` → `SECURITY.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs. The plugin + marketplace files are what make `/plugin marketplace add asfbay-bit/opchain-skills` → `/plugin install opchain` work; without them the public repo is skills-only.
 - **Mode:** force-push snapshot. The public repo's history is reset on every sync to a single commit (`Mirror from asfbay-bit/opchain@<sha>`). External PRs against the public repo can't merge directly; maintainers cherry-pick them here, and they propagate back on the next sync. Documented in `mirror/CONTRIBUTING.md`.
 - **Required secret:** `MIRROR_TOKEN` — a fine-grained GitHub PAT with `contents:write` on `asfbay-bit/opchain-skills`. Set via repo Settings → Secrets and variables → Actions. The workflow fails loud if it's missing.
 - **Editing the public face:** all public-facing copy (README, contributing guide, issue forms) lives under `mirror/` so it's easy to find. The `LICENSE` at repo root is shared between private and public.
