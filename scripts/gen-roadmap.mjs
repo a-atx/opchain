@@ -1,118 +1,115 @@
 #!/usr/bin/env node
 /**
- * scripts/gen-roadmap.mjs — pulls roadmap items from Linear at build time.
+ * scripts/gen-roadmap.mjs — pulls roadmap items from GitHub Issues at build time.
  *
- * Fetches every Linear issue that carries the `roadmap-visible` label and
- * buckets them by state into `shipped / in-progress / planned / backlog`.
- * Writes the result to `site/src/data/roadmap.json` (gitignored — regenerated
- * on every build).
+ * Source: the public `asfbay-bit/opchain-skills` mirror. An issue is a
+ * roadmap item iff it carries exactly one of the four `roadmap:*` labels —
+ * that label IS both the visibility gate and the bucket, collapsing the old
+ * Linear model's two separate concepts (`roadmap-visible` label + a
+ * state-driven bucket) into one. Writes the result to
+ * `site/src/data/roadmap.json` (gitignored — regenerated on every run).
  *
- * Graceful degrade (default — for contributors / CI without a Linear token):
- *   - LINEAR_API_KEY missing → writes an empty roadmap and exits 0
- *   - Linear API errors / rate limits → writes an empty roadmap and exits 0
- *   - 0 issues with the label → writes an empty roadmap and exits 0
- * The empty form keeps the Astro build green even on contributors' machines
- * who don't have a Linear token.
+ * Auth: none required. `opchain-skills` is public, so anonymous REST reads
+ * work (60 req/hr per IP — comfortably enough for four label-scoped fetches
+ * per run). Set GITHUB_TOKEN to raise the ceiling to 5,000/hr if that's ever
+ * not enough; never required.
  *
- * Strict mode (`OPCHAIN_REQUIRE_LINEAR=1` — set by scripts/deploy.mjs):
- *   - LINEAR_API_KEY missing → exits 1 with a remediation message
- *   - Linear API errors / rate limits → exits 1 (was: silent empty)
- *   - 0 issues with the label → exits 1 (was: silent empty)
- * Strict mode catches the exact failure mode that shipped an empty
- * /changelog roadmap to production in May 2026: a stale LINEAR_API_KEY
- * that passed presence-check but failed at the Linear API, leaving the
- * Astro build green with empty data. Override (e.g. to ship an empty
- * roadmap on purpose) by running `npm run prebuild && wrangler deploy`
- * directly without the deploy.mjs wrapper.
+ * Graceful degrade (network error, rate limit, or GitHub outage):
+ *   - Writes an empty roadmap (with a diagnostic `note`) and exits 0, same
+ *     as the old Linear version's default mode. This script isn't wired
+ *     into `prebuild`/deploy (see CLAUDE.md) — a human eyeballs staging
+ *     before promoting to prod, which is the actual gate against shipping
+ *     an empty roadmap, not a build-time strict mode. Run by hand via
+ *     `npm run gen-roadmap` when you want fresh data baked into a build.
  *
- * Bucketing rule (label-free, state-driven):
- *   - state.type === "completed"           → shipped
- *   - state.type === "started"             → in-progress
- *   - state.type === "backlog" + milestone → planned
- *   - state.type === "backlog" + no msone  → backlog
+ * Bucketing rule (label-driven, no separate gate):
+ *   - `roadmap:shipped`     → shipped
+ *   - `roadmap:in-progress` → in-progress
+ *   - `roadmap:planned`     → planned
+ *   - `roadmap:backlog`     → backlog
+ *   An issue with none of these four labels is not a roadmap item and is
+ *   never fetched (each bucket is its own label-scoped API call).
  *
- * Each item also reports its `projectMilestone.name` (e.g. "v1.5") so the UI
- * can group cards under a version header when one exists. Items without a
- * milestone fall into "Later" within their bucket.
+ * Each item also reports its GitHub milestone's `title` (e.g. "v1.9") so the
+ * UI can group cards under a version header when one exists. Items without
+ * a milestone fall into "Later" within their bucket.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ROADMAP_GITHUB_REPO, ROADMAP_BUCKET_LABELS } from "../src/lib/roadmap-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 const OUT_PATH   = path.join(__dirname, "..", "site", "src", "data", "roadmap.json");
 
-const QUERY = /* GraphQL */ `
-  query Roadmap($cursor: String) {
-    issues(
-      first: 100,
-      after: $cursor,
-      filter: { labels: { name: { eq: "roadmap-visible" } } }
-    ) {
-      nodes {
-        identifier
-        title
-        description
-        url
-        state { name type }
-        labels { nodes { name } }
-        projectMilestone { name sortOrder targetDate }
-        priority
-        createdAt
-        updatedAt
-      }
-      pageInfo { hasNextPage endCursor }
-    }
-  }
-`;
+const REPO = ROADMAP_GITHUB_REPO;
+const BUCKET_LABELS = ROADMAP_BUCKET_LABELS;
+const PER_PAGE = 100;
 
-async function fetchAllIssues(apiKey) {
-  let cursor = null;
+function parseNextLink(linkHeader) {
+  if (!linkHeader) return null;
+  for (const part of linkHeader.split(",")) {
+    const m = part.match(/<([^>]+)>;\s*rel="next"/);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+async function fetchIssuesForLabel(label, token) {
+  const headers = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "opchain-dev-gen-roadmap",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   const all = [];
-  while (true) {
-    const res = await fetch("https://api.linear.app/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: apiKey },
-      body: JSON.stringify({ query: QUERY, variables: { cursor } }),
-    });
+  let nextUrl =
+    `https://api.github.com/repos/${REPO}/issues` +
+    `?labels=${encodeURIComponent(label)}&state=all&per_page=${PER_PAGE}`;
+
+  while (nextUrl) {
+    const res = await fetch(nextUrl, { headers });
     if (!res.ok) {
-      throw new Error(`Linear API ${res.status}: ${await res.text().catch(() => "")}`);
+      throw new Error(`GitHub API ${res.status} for label "${label}": ${await res.text().catch(() => "")}`);
     }
-    const data = await res.json();
-    if (data.errors?.length) {
-      throw new Error(`Linear API errors: ${data.errors.map((e) => e.message).join("; ")}`);
-    }
-    const page = data.data?.issues;
-    if (!page) break;
-    all.push(...(page.nodes || []));
-    if (!page.pageInfo?.hasNextPage) break;
-    cursor = page.pageInfo.endCursor;
+    const page = await res.json();
+    all.push(...page);
+    nextUrl = parseNextLink(res.headers.get("Link"));
   }
-  return all;
+  // The issues endpoint also returns pull requests; those never carry
+  // roadmap:* labels in practice, but filter defensively.
+  return all.filter((issue) => !issue.pull_request);
 }
 
-function bucketOf(issue) {
-  const t = issue.state?.type;
-  if (t === "completed")  return "shipped";
-  if (t === "started")    return "in-progress";
-  if (t === "backlog" && issue.projectMilestone) return "planned";
-  return "backlog";
+function firstLine(body) {
+  return (body || "").split("\n")[0].trim().slice(0, 240);
 }
 
-function shape(issue) {
+function parseDeliverables(body) {
+  const items = [];
+  for (const line of (body || "").split("\n")) {
+    const m = line.match(/^\s*[-*]\s+(.+)$/);
+    if (m) items.push(m[1].trim());
+  }
+  return items;
+}
+
+function shape(issue, bucket) {
   return {
-    id: issue.identifier,
+    id: String(issue.number),
     title: issue.title,
-    blurb: (issue.description || "").split("\n")[0].slice(0, 240),
-    url: issue.url,
-    bucket: bucketOf(issue),
-    milestone: issue.projectMilestone?.name || null,
-    milestoneSort: issue.projectMilestone?.sortOrder ?? null,
-    targetDate: issue.projectMilestone?.targetDate || null,
-    labels: (issue.labels?.nodes || []).map((l) => l.name),
-    priority: issue.priority || 0,
-    updatedAt: issue.updatedAt,
+    blurb: firstLine(issue.body),
+    deliverables: parseDeliverables(issue.body),
+    url: issue.html_url,
+    bucket,
+    milestone: issue.milestone?.title || null,
+    milestoneSort: issue.milestone?.number ?? null,
+    targetDate: issue.milestone?.due_on || null,
+    labels: (issue.labels || [])
+      .map((l) => (typeof l === "string" ? l : l.name))
+      .filter((name) => !BUCKET_LABELS[name]),
+    updatedAt: issue.updated_at,
   };
 }
 
@@ -128,12 +125,12 @@ function emptyRoadmap(note) {
 function groupByBucket(items) {
   const out = { shipped: [], "in-progress": [], planned: [], backlog: [] };
   for (const it of items) out[it.bucket].push(it);
-  // Sort: shipped → newest first; in-progress + planned → milestone sort then priority;
-  // backlog → most recently updated first.
+  // Sort: shipped → newest first; in-progress + planned → milestone sort
+  // then issue number; backlog → most recently updated first.
   out.shipped.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
   const milestoneRank = (it) => it.milestoneSort ?? Number.POSITIVE_INFINITY;
-  out["in-progress"].sort((a, b) => milestoneRank(a) - milestoneRank(b) || a.priority - b.priority);
-  out.planned.sort((a, b) => milestoneRank(a) - milestoneRank(b) || a.priority - b.priority);
+  out["in-progress"].sort((a, b) => milestoneRank(a) - milestoneRank(b) || Number(a.id) - Number(b.id));
+  out.planned.sort((a, b) => milestoneRank(a) - milestoneRank(b) || Number(a.id) - Number(b.id));
   out.backlog.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
   return out;
 }
@@ -163,73 +160,21 @@ function writeRoadmap(payload) {
 }
 
 async function main() {
-  const strict = process.env.OPCHAIN_REQUIRE_LINEAR === "1";
-  const apiKey = process.env.LINEAR_API_KEY;
-  if (!apiKey) {
-    // Deploy mode: refuse to ship an empty roadmap. scripts/deploy.mjs
-    // sets OPCHAIN_REQUIRE_LINEAR=1 before invoking prebuild; any path
-    // that bypasses the wrapper (e.g. someone running `npm run prebuild
-    // && wrangler deploy` by hand) still gets caught here.
-    if (strict) {
-      console.error(
-        "[gen-roadmap] aborting — OPCHAIN_REQUIRE_LINEAR=1 and LINEAR_API_KEY is missing.\n" +
-          "  Set LINEAR_API_KEY in .dev.vars (preferred) or export it in this shell,\n" +
-          "  then re-run. Use scripts/deploy.mjs (npm run deploy / deploy:staging) to get\n" +
-          "  the full preflight.",
-      );
-      process.exit(1);
-    }
-    // No key + not in deploy mode = clean empty state for local dev /
-    // contributors / CI. The JSON's `note` stays null so the UI doesn't
-    // surface anything user-visible. Fetch errors below DO set a note —
-    // that's a real diagnostic.
-    const empty = emptyRoadmap(null);
-    writeRoadmap(empty);
-    console.log(
-      "[gen-roadmap] no LINEAR_API_KEY — wrote empty roadmap to",
-      OUT_PATH,
-      "(set the env var to surface live roadmap items)",
-    );
-    return;
-  }
-  let issues;
+  const token = process.env.GITHUB_TOKEN || null;
+  let items;
   try {
-    issues = await fetchAllIssues(apiKey);
-  } catch (e) {
-    if (strict) {
-      console.error(
-        `[gen-roadmap] aborting — Linear fetch failed under OPCHAIN_REQUIRE_LINEAR=1:\n` +
-          `    ${e.message}\n\n` +
-          `  Common causes:\n` +
-          `    • LINEAR_API_KEY is set but invalid/expired — mint a fresh key at\n` +
-          `      https://linear.app/settings/api and update .dev.vars.\n` +
-          `    • The key has no read access to the team owning the\n` +
-          `      \`roadmap-visible\`-labelled issues.\n` +
-          `    • Linear is rate-limiting the key — wait a minute and retry.\n` +
-          `    • Network connectivity issue — verify api.linear.app is reachable.\n`,
-      );
-      process.exit(1);
-    }
-    const empty = emptyRoadmap(`Linear fetch failed: ${e.message}`);
-    writeRoadmap(empty);
-    console.warn("[gen-roadmap] Linear fetch failed —", e.message, "— wrote empty roadmap (build continues)");
-    return;
-  }
-  const items = issues.map(shape);
-  if (items.length === 0 && strict) {
-    console.error(
-      `[gen-roadmap] aborting — 0 Linear issues match \`roadmap-visible\` under OPCHAIN_REQUIRE_LINEAR=1.\n` +
-        `\n` +
-        `  Verify in Linear:\n` +
-        `    • The label name is exactly \`roadmap-visible\` (case-sensitive,\n` +
-        `      lowercase, hyphenated). The GraphQL filter is an exact match.\n` +
-        `    • At least one issue has this label applied.\n` +
-        `    • The API key has read access to the team owning those issues.\n` +
-        `\n` +
-        `  If shipping an empty roadmap is intentional, bypass the wrapper:\n` +
-        `    npm run prebuild && npx wrangler deploy\n`,
+    const perLabel = await Promise.all(
+      Object.entries(BUCKET_LABELS).map(async ([label, bucket]) => {
+        const issues = await fetchIssuesForLabel(label, token);
+        return issues.map((issue) => shape(issue, bucket));
+      }),
     );
-    process.exit(1);
+    items = perLabel.flat();
+  } catch (e) {
+    const empty = emptyRoadmap(`GitHub fetch failed: ${e.message}`);
+    writeRoadmap(empty);
+    console.warn("[gen-roadmap] GitHub fetch failed —", e.message, "— wrote empty roadmap (build continues)");
+    return;
   }
   const payload = {
     generated_at: new Date().toISOString(),
