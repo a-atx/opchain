@@ -4,7 +4,7 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:42:00Z",
-  "updated_at": "2026-08-26T15:49:15.609Z",
+  "updated_at": "2026-08-27T20:18:11.917Z",
   "phase": "design-iteration",
   "step": "v1.5-gtm-surfaces-shipped-and-live",
   "status": "complete",
@@ -149,7 +149,7 @@
   },
   "blockers": [],
   "next_actions": [
-    "Site surface pass 2026-08-25 (docs/plans/2026-08-25-site-surface-pass.md): worst UX offenders are /dashboard's foreign token vocabulary (light theme ~unreadable), undefined --dim var in 5 files, three divergent danger reds, missing aria-live on 5 status regions, and focus-trap/dialog gaps in WelcomePopup + CaptureModal. Fix as the D5/D6 sweep.",
+    "Surface-pass D5 (aria-live ×5) + D6 (token debt, /dashboard vocabulary) sweeps are runbook Phase E items — docs/runbooks/oss-split-execution-handoff.md.",
     "No ux-engineer work pending — all v1.5 GTM/site surfaces shipped + live (/ai-recipes, /blog +RSS, /for-agencies, newsletter, /compare AI row, /pipeline-builder AI branch, per-skill OG cards) and the /changelog Option C v2 layout shipped + promoted in the v1.5 release cut.",
     "Open polish backlog (non-blocking): wire the header version chip status-dot to live /api/health; add a /sitemap route (Resources dropdown omits it until it exists)."
   ],

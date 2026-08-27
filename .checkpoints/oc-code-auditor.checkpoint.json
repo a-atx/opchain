@@ -4,18 +4,17 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-04T00:00:00Z",
-  "updated_at": "2026-08-22T08:18:58.198Z",
+  "updated_at": "2026-08-27T20:18:11.917Z",
   "phase": "audit",
-  "step": "oss-readiness-audit-2026-08-22",
-  "status": "in_progress",
-  "progress_summary": "2026-08-22 OSS-readiness audit at c440c7b (7 lenses, adversarially verified): 142 findings (24 HIGH), grade D+ for contributor-repo readiness. Product tree secret-free and all-permissive; gaps are packaging (no LICENSE in artifacts), metadata (no SPDX/license fields), governance (no SECURITY.md/CoC/CODEOWNERS/DCO; PVR + Dependabot alerts disabled), and hosted-service data handling (POST /mcp checkpoints without TTL/auth/rate-limit; stale privacy page). Report: docs/audits/2026-08-22-oss-readiness-audit.md; plan: docs/plans/2026-08-22-oss-split-licensing-compliance.md.",
+  "step": "oss-readiness-audit-closed-out",
+  "status": "complete",
+  "progress_summary": "2026-08-22 OSS-readiness audit (grade D+, 142 findings) closed out 2026-08-26: licensing/artifact/governance/security-intake findings remediated through PRs #416–#452 (readiness now ~B for the repo surfaces). Open residue is tracked in docs/runbooks/oss-split-execution-handoff.md Phase B (privacy) and Phase E (hosted-MCP data handling, token debt, aria-live) — not in this checkpoint.",
   "blockers": [],
   "next_actions": [
+    "Re-audit after the repo split lands (runbook Phase C) — scope: the new opchain-skills repo + consume-PR seams.",
     "OSS-readiness audit 2026-08-22 (grade D+): triage the 24 HIGH findings in docs/audits/2026-08-22-oss-readiness-audit.md — the must-fix set is in docs/plans/2026-08-22-oss-split-licensing-compliance.md §4.1 (SECURITY.md + PVR, LICENSE in every artifact, SHA-pin Actions, Dependabot alerts, releases+attestations) and §4.3 (POST /mcp checkpoint TTL/size/rate-limit/session isolation; stale privacy page; leads stored forever).",
     "Fix PX-01/PX-02 in src/index.js + site/src/pages/privacy.astro before pointing any enterprise at opchain.dev/mcp (see docs/plans/2026-08-22-oss-split-licensing-compliance.md §4.3).",
-    "Triage the ~20 remaining MEDIUM/LOW findings from this audit (none block; see workflow journal).",
-    "Pre-existing and NOT from this changeset: 14 critical / 41 high from the 2026-07-04 portability audit are still open — that loop predates this work and remains open.",
-    "Wire `test:gate` into package.json + CI so the gate suite runs on every PR."
+    "Triage the ~20 remaining MEDIUM/LOW findings from this audit (none block; see workflow journal)."
   ],
   "eval_scores": [
     {

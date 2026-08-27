@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-08-22T09:18:58.144Z",
+  "updated_at": "2026-08-27T20:18:11.917Z",
   "phase": "oss-split-planning",
-  "step": "relicense-pr-416-open",
-  "status": "in_progress",
-  "progress_summary": "2026-08-22: repo-split runbook drafted (docs/plans/2026-08-22-oss-split-licensing-compliance.md §2) — invert the mirror with git filter-repo (~80 product commits, tags v1.8.0–v1.8.2 kept, leak scan clean), force-push over asfbay-bit/opchain-skills, protect + DCO, site consumes a tag-pinned submodule behind a skills symlink. Nothing executed; blocked on D1–D3.",
+  "step": "handed-off-to-runbook",
+  "status": "complete",
+  "progress_summary": "OSS-split workstream COMPLETE in this session lineage (2026-08-22 → 2026-08-26): analysis + decisions D1–D4, Apache-2.0 relicense (#416), LICENSE-in-artifacts (#422), site truth sweep (#441), security→GitHub incidents (#442), governance pack (#440), seam PRs S1–S5 (#445/#447/#448), prod deployed at 24b97be. Remaining execution (staging review → flip → consume PR → v1.8.3) is handed off to docs/runbooks/oss-split-execution-handoff.md (PR #452); human gates marked there.",
   "progress_table": [
     {
       "id": "pr-183",
@@ -91,9 +91,7 @@
   },
   "blockers": [],
   "next_actions": [
-    "PR #416 (docs + Apache-2.0 relicense) is open — review + merge. After merge: seam PRs S1–S5 (plan §2.3), governance pack (§5 step 3), then the extraction (§2.4). Reserve the 'opchain' npm + PyPI names and the @opchain npm scope.",
-    "Before extraction: brew install git-filter-repo gitleaks; commit split/product-paths.txt from docs/plans/2026-08-22-oss-split-licensing-compliance.md §2.2; land S6 (license + governance pack) so the rewritten history carries it.",
-    "Mirror retirement is step 7 of docs/plans/2026-08-22-oss-split-licensing-compliance.md §5 — keep mirror-public.yml + MIRROR_TOKEN until the consume PR is verified, then revoke the PAT (UI) and drop stale CLOUDFLARE_* secrets."
+    "Execute docs/runbooks/oss-split-execution-handoff.md Phase A onward (Codex or any agent; human gates marked ⛔). Do not re-analyze — decisions D1–D4 are settled."
   ],
   "skill_state": {
     "current_branch": "main (no active feature branch)",
