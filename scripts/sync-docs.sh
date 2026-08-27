@@ -4,7 +4,7 @@
 # its terms (tests/license-artifacts.test.js gates this).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$ROOT/skills"
+SRC="${OPCHAIN_SKILLS_DIR:-$ROOT/skills}"
 DEST="${OPCHAIN_DOCS_DIR:-$ROOT/public/docs}"
 mkdir -p "$DEST"
 for d in "$SRC"/*/; do

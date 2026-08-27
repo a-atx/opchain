@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { existsSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import worker from "../src/index.js";
 
 function makeKv() {
@@ -50,16 +53,17 @@ describe("POST /mcp", () => {
     expect(body.result.serverInfo.version).toBe("test"); // __OPCHAIN_VERSION__ define
   });
 
-  it("list_skills returns the full generated catalog (all 29 skills)", async () => {
+  it("list_skills returns the full generated catalog (every skills/ directory)", async () => {
     const res = await post(rpc("tools/call", { name: "list_skills" }));
     const body = await res.json();
     const parsed = JSON.parse(body.result.content[0].text);
-    // 18 v1.4-era skills + 4 v1.5 AI-native skills (oc-claude-api,
-    // oc-rag-forge, oc-agent-forge, oc-prompt-ops) + 2 v1.6 instrumentation
-    // skills (oc-cost-ops, oc-telemetry-ops) + 3 v1.7 "Seams & Signals"
-    // skills (oc-signal-forge, oc-modularize-ops, oc-fleet-ops) + 2 v1.8
-    // PR-documentation mesh skills (oc-docs-forge, oc-repo-ops).
-    expect(parsed.skills.length).toBe(29);
+    // Count derives from the real tree so adding the 30th skill doesn't need
+    // this literal touched (a hard-coded 29 was S2 audit finding F05/F17).
+    const skillsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "skills");
+    const expected = readdirSync(skillsDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && existsSync(join(skillsDir, e.name, "SKILL.md"))).length;
+    expect(expected).toBeGreaterThanOrEqual(29);
+    expect(parsed.skills.length).toBe(expected);
     expect(parsed.skills.map((s) => s.id)).toContain("oc-release-ops");
     expect(parsed.skills.map((s) => s.id)).toContain("oc-claude-api");
     expect(parsed.skills.map((s) => s.id)).toContain("oc-cost-ops");

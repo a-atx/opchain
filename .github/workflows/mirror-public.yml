@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=()
-          for f in skills LICENSE NOTICE mirror/README.md mirror/CONTRIBUTING.md mirror/.github/ISSUE_TEMPLATE \
+          for f in skills LICENSE NOTICE mirror/README.md mirror/CONTRIBUTING.md mirror/SECURITY.md mirror/.github/ISSUE_TEMPLATE \
                    plugins/opchain/.claude-plugin/plugin.json plugins/opchain/hooks/hooks.json \
                    plugins/opchain/hooks/pre-commit-gate.cjs .claude-plugin/marketplace.json; do
             if [[ ! -e "$f" ]]; then
@@ -57,12 +57,14 @@ jobs:
           cp NOTICE "$STAGE/NOTICE"
           cp mirror/README.md "$STAGE/README.md"
           cp mirror/CONTRIBUTING.md "$STAGE/CONTRIBUTING.md"
+          cp mirror/SECURITY.md "$STAGE/SECURITY.md"
           cp -R mirror/.github/ISSUE_TEMPLATE "$STAGE/.github/ISSUE_TEMPLATE"
           # Plugin + marketplace. Without these the public repo is skills-only:
           # `/plugin marketplace add` finds nothing and the gates — the entire
-          # point of the plugin — never reach a user. `-L` dereferences
-          # plugins/opchain/skills, which is a symlink to the source tree here
-          # and must become a real directory in the published snapshot.
+          # point of the plugin — never reach a user. plugins/opchain/skills is
+          # a real directory since seam S5 (materialised by
+          # scripts/sync-plugin-skills.mjs, drift-gated in pretest); `-L` stays
+          # as belt-and-braces for any future symlink.
           cp -RL plugins "$STAGE/plugins"
           cp -R .claude-plugin "$STAGE/.claude-plugin"
           echo "Staged tree:"

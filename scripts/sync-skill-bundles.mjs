@@ -16,7 +16,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SKILLS_DIR = join(REPO_ROOT, 'skills');
+const SKILLS_DIR = process.env.OPCHAIN_SKILLS_DIR ?? join(REPO_ROOT, 'skills');
 const ORCHESTRATOR_SRC = join(SKILLS_DIR, 'orchestrator.md');
 const PROTOCOL_SRC = join(SKILLS_DIR, 'oc-checkpoint-protocol', 'SKILL.md');
 // The skill whose SKILL.md IS the protocol source — it must not bundle a copy of
