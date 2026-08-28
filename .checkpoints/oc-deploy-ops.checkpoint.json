@@ -4,38 +4,47 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-08-27T23:49:17.485Z",
-  "updated_at": "2026-08-27T23:49:17.486Z",
-  "phase": "staging",
-  "step": "pr-454-branch-preview-deployed",
-  "status": "complete",
-  "progress_summary": "PR #454 branch commit f2e88ee deployed to staging.opchain.dev as Cloudflare Worker version edbe031d-e8c2-4064-aa5e-32484b1d7ba3. Scoped code/security gates found no new CRITICAL or HIGH findings; 461 unit tests, Astro check, runtime dependency audit, smoke suite, DOM inspection, and visual inspection passed.",
+  "updated_at": "2026-08-28T01:29:30.517Z",
+  "phase": "audit",
+  "step": "v1.8.3-staging-awaiting-high-risk-confirmation",
+  "status": "blocked",
+  "progress_summary": "Fresh pre-deploy code and security audits covered origin/main f4895e7 against live staging/prod 57ef163: 0 CRITICAL and 3 unique HIGH findings. The historical-workflow and weak release-tag-gate findings are being remediated on codex/v1.8.3-release-reconciliation; unauthenticated MCP checkpoint state is deferred debt. Deploy Ops permits ≤3 HIGH findings only after explicit user confirmation, so no staging mutation has occurred. Runtime dependency audits are clean; site audit residue is development-only LHCI tooling.",
   "next_actions": [
-    "Review the v2.0 workflow surface on staging and merge PR #454 when approved.",
-    "After merge, redeploy staging from main before considering production.",
-    "Require explicit user confirmation before any production deployment."
+    "Merge the release-reconciliation PR and rerun both audits at the resulting origin/main SHA.",
+    "Obtain explicit user confirmation to proceed with staging while the public MCP checkpoint HIGH remains unresolved.",
+    "Deploy that exact origin/main SHA to staging, then run Phase A automated and visual review.",
+    "Require separate explicit human approval plus all runbook prerequisites before production."
   ],
   "skill_state": {
     "current_env": "staging",
-    "staging_version": "f2e88ee",
-    "cloudflare_version_id": "edbe031d-e8c2-4064-aa5e-32484b1d7ba3",
+    "staging_version": "57ef163",
+    "target_version": "pending release-reconciliation merge",
+    "cloudflare_version_id": null,
     "staging_url": "https://staging.opchain.dev",
-    "branch_preview": true,
-    "source_pr": 454,
+    "branch_preview": false,
+    "source_pr": null,
     "audit_gate": {
       "critical": 0,
-      "high": 0,
-      "scope": "origin/main...f2e88ee docs/site delta",
-      "result": "pass"
+      "high": 3,
+      "scope": "f4895e7 code/security audit plus live 57ef163 posture",
+      "result": "warn-confirmation-required",
+      "remediated_on_branch": [
+        "historical tag executes historical publisher workflow",
+        "release tag was not bound to its catalog or matching remote commit"
+      ],
+      "deferred": [
+        "unauthenticated MCP checkpoint read/write with predictable default session and no TTL/size/rate limits"
+      ]
     },
     "smoke_results": {
-      "health": "pass",
-      "home": "pass",
-      "zip": "pass",
-      "license": "pass",
-      "redirect": "pass",
-      "headers": "pass",
-      "content": "pass",
-      "visual": "pass"
+      "health": "not_run",
+      "home": "not_run",
+      "zip": "not_run",
+      "license": "not_run",
+      "redirect": "not_run",
+      "headers": "not_run",
+      "content": "not_run",
+      "visual": "not_run"
     },
     "rollback_available": true
   }

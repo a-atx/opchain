@@ -126,10 +126,12 @@ jobs:
             printf -- '- `/oc-release plan` reads `git log <last-release-tag>..HEAD`; with no tag it falls back to scraping the changelog.\n'
             printf -- '- No `git checkout` / bisect / release diff for these versions.\n'
             printf '\n### Fixing it\n\n'
-            printf 'Tag each release at the commit that landed its changelog entry, then push.\n'
-            printf 'The monotonicity guard in `publish-mcp-registry.yml` makes a backfill safe —\n'
-            printf 'only the newest tag publishes, so historical tags will not walk the registry\n'
-            printf 'pointer backwards.\n\n'
+            printf 'Tag each release at the commit that landed its changelog entry. Before pushing\n'
+            printf 'historical tags, disable `Publish to MCP Registry`: a tag event executes the\n'
+            printf 'workflow stored at that historical commit, which may predate the monotonicity\n'
+            printf 'guard and publisher pin. Push the backfill, verify no publisher run started,\n'
+            printf 're-enable the workflow, then manually dispatch the hardened default-branch\n'
+            printf 'workflow for the newest release.\n\n'
             printf '_Auto-opened by `.github/workflows/release-ledger.yml`. New releases are already blocked from shipping untagged by `scripts/check-release-tag.mjs` on the deploy path; this issue tracks the historical backlog. Close it once backfilled — the next daily run reopens it if drift returns._\n'
           } > body.md
 

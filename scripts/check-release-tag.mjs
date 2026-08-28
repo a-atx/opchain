@@ -184,14 +184,80 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
     };
   }
 
-  const onOrigin = git(["ls-remote", "--tags", "origin", `refs/tags/${tag}`], cwd);
-  if (onOrigin !== null && onOrigin === "") {
+  // Bind the tag to the release it names. Existence + ancestry alone is too
+  // weak: a mistakenly placed v1.8.3 tag on any old ancestor would otherwise
+  // unlock production. Compare every tagged skill version with the current
+  // lockstep catalog, including the skill count so a partial tree cannot pass.
+  const taggedVersionsText = git(
+    ["grep", "-h", "-E", "^version:[[:space:]]*[^[:space:]]+", tag, "--", "skills/*/SKILL.md"],
+    cwd,
+  );
+  if (taggedVersionsText === null) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "tag-catalog-unreadable",
+      errors: [`could not read the lockstep catalog from ${tag}; refusing to trust an unverified tag tree.`],
+    };
+  }
+
+  const taggedVersions = taggedVersionsText
+    .split("\n")
+    .map((line) => line.match(/^version:\s*(\S+)\s*$/)?.[1])
+    .filter(Boolean);
+  const mismatchedVersions = [...new Set(taggedVersions.filter((tagged) => tagged !== version))];
+  if (taggedVersions.length !== count || mismatchedVersions.length > 0) {
+    const detail = mismatchedVersions.length > 0
+      ? `found ${mismatchedVersions.join(", ")} instead of ${version}`
+      : `found ${taggedVersions.length} tagged skills but ${count} in the current catalog`;
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "tag-version-mismatch",
+      errors: [`${tag} does not contain the complete ${version} catalog (${detail}).`],
+    };
+  }
+
+  const onOrigin = git(
+    ["ls-remote", "--tags", "origin", `refs/tags/${tag}`, `refs/tags/${tag}^{}`],
+    cwd,
+  );
+  if (onOrigin === null) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "remote-unverifiable",
+      errors: [`could not verify ${tag} on origin — remote lookup failed, so the release ledger is unprovable.`],
+    };
+  }
+  if (onOrigin === "") {
     return {
       ok: false,
       version,
       tag,
       reason: "unpushed-tag",
       errors: [`${tag} exists locally but was never pushed — publish-mcp-registry never fired for it.`],
+    };
+  }
+
+  const localCommit = git(["rev-parse", `${tag}^{commit}`], cwd);
+  const remoteRefs = new Map(
+    onOrigin.split("\n").map((line) => {
+      const [sha, ref] = line.trim().split(/\s+/, 2);
+      return [ref, sha];
+    }),
+  );
+  const remoteCommit = remoteRefs.get(`refs/tags/${tag}^{}`) ?? remoteRefs.get(`refs/tags/${tag}`);
+  if (!localCommit || !remoteCommit || localCommit !== remoteCommit) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "remote-tag-mismatch",
+      errors: [`local ${tag} does not resolve to the same commit as origin — refusing an ambiguous release tag.`],
     };
   }
 

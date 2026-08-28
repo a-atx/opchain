@@ -34,19 +34,34 @@ function skillsTree(versions) {
  * ran against the real repo and broke in CI, where the checkout is shallow and
  * has no tags at all.
  */
-function fakeGit({ tags = [], remoteTags = null, isRepo = true, reachable = true } = {}) {
+function fakeGit({
+  tags = [],
+  remoteTags = null,
+  isRepo = true,
+  reachable = true,
+  taggedVersions = ["1.8.2"],
+  localCommit = "b".repeat(40),
+  remoteCommit = localCommit,
+} = {}) {
   return (args) => {
     const [cmd] = args;
     if (cmd === "rev-parse" && args.includes("--git-dir")) return isRepo ? ".git" : null;
+    if (cmd === "rev-parse" && args[1]?.endsWith("^{commit}")) return localCommit;
     if (cmd === "rev-parse") {
       const ref = args[args.length - 1].replace("refs/tags/", "");
       return tags.includes(ref) ? "a".repeat(40) : null;
     }
     if (cmd === "merge-base") return reachable ? "" : null;
+    if (cmd === "grep") return taggedVersions === null
+      ? null
+      : taggedVersions.map((version) => `version: ${version}`).join("\n");
     if (cmd === "ls-remote") {
       if (remoteTags === null) return null; // network down — unknowable, not empty
-      const ref = args[args.length - 1].replace("refs/tags/", "");
-      return remoteTags.includes(ref) ? `${"a".repeat(40)}\trefs/tags/${ref}` : "";
+      const refArg = args.find((arg) => arg.startsWith("refs/tags/") && !arg.endsWith("^{}"));
+      const ref = refArg.replace("refs/tags/", "");
+      return remoteTags.includes(ref)
+        ? `${"a".repeat(40)}\trefs/tags/${ref}\n${remoteCommit}\trefs/tags/${ref}^{}`
+        : "";
     }
     if (cmd === "fetch") return "";
     return null;
@@ -113,6 +128,30 @@ describe("checkReleaseTag", () => {
     expect(r.reason).toBe("unreachable-tag");
   });
 
+  it("REFUSES a reachable tag whose tree contains an older catalog", () => {
+    const r = withTree({ "oc-git-ops": "1.8.3" }, {
+      git: fakeGit({
+        tags: ["v1.8.3"],
+        remoteTags: ["v1.8.3"],
+        taggedVersions: ["1.8.2"],
+      }),
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe("tag-version-mismatch");
+  });
+
+  it("REFUSES a tag with fewer skills than the current catalog", () => {
+    const r = withTree({ a: "1.8.3", b: "1.8.3" }, {
+      git: fakeGit({
+        tags: ["v1.8.3"],
+        remoteTags: ["v1.8.3"],
+        taggedVersions: ["1.8.3"],
+      }),
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe("tag-version-mismatch");
+  });
+
   it("REFUSES a tag that exists locally but was never pushed", () => {
     const r = withTree({ "oc-git-ops": "1.8.2" }, {
       git: fakeGit({ tags: ["v1.8.2"], remoteTags: [] }),
@@ -121,13 +160,27 @@ describe("checkReleaseTag", () => {
     expect(r.reason).toBe("unpushed-tag");
   });
 
-  it("does NOT refuse on an unreachable remote — unknowable is not absent", () => {
-    // remoteTags: null models `git ls-remote` failing (offline, auth). Treating
-    // that as "the tag is missing" would block every deploy on a flaky network.
+  it("REFUSES when origin cannot be verified", () => {
+    // The guard claims to fail closed. A flaky network is not proof that the
+    // tag was pushed, so production waits for an authoritative remote lookup.
     const r = withTree({ "oc-git-ops": "1.8.2" }, {
       git: fakeGit({ tags: ["v1.8.2"], remoteTags: null }),
     });
-    expect(r.ok).toBe(true);
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe("remote-unverifiable");
+  });
+
+  it("REFUSES when local and origin tags resolve to different commits", () => {
+    const r = withTree({ "oc-git-ops": "1.8.2" }, {
+      git: fakeGit({
+        tags: ["v1.8.2"],
+        remoteTags: ["v1.8.2"],
+        localCommit: "b".repeat(40),
+        remoteCommit: "c".repeat(40),
+      }),
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe("remote-tag-mismatch");
   });
 
   it("REFUSES a half-applied bump rather than guessing the release", () => {

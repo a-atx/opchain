@@ -3,16 +3,17 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-27T18:53:31.000Z",
+  "updated_at": "2026-08-28T01:29:30.517Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "codex/roadmap-email-privacy",
-  "progress_summary": "Pre-PR readiness PASS for the focused roadmap email-privacy fix: five intended tracked files, generated OG output restored, catalogs synchronized, Docs Forge packet current, and Bug Check fresh.",
+  "step": "codex/v1.8.3-release-reconciliation",
+  "progress_summary": "Pre-PR readiness PASS for the focused v1.8.3 release reconciliation: intended runbook/workflow/gate/test/checkpoint changes only; generated OG churn restored; 477 tests, build, production dependency audits, YAML parse, checkpoint validation, Docs Forge, and Bug Check pass. Deploy audit warnings remain separate gates and are accurately recorded rather than treated as PR-readiness failures.",
   "context_primer": {
     "key_decisions": [
       "Docs Forge packet is current for this branch and includes the required Documentation section.",
-      "Build-generated OG image churn was restored so it cannot leak into the focused privacy PR."
+      "Build-generated OG image churn was restored so it cannot leak into the focused reconciliation PR.",
+      "The production/tag HIGHs are remediated in this branch; the public MCP checkpoint HIGH still requires Deploy Ops confirmation or mitigation."
     ],
     "generated_files": [
       ".checkpoints/oc-repo-ops.checkpoint.json"
@@ -21,14 +22,17 @@
   "skill_state": {
     "verdict": "PASS",
     "blocking_findings": [],
-    "warnings": [],
+    "warnings": [
+      "Site development-only LHCI dependency chain retains seven high advisory nodes; production dependency audit is clean.",
+      "Deploy Ops requires explicit confirmation for the remaining audit HIGH before staging."
+    ],
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
-    "verified_for_sha": "codex/roadmap-email-privacy (pre-commit; base 5c5ae9d)",
+    "verified_for_sha": "codex/v1.8.3-release-reconciliation (pre-commit; base f4895e7)",
     "last_verify": {
-      "at": "2026-08-27T18:53:31.000Z",
-      "branch": "codex/roadmap-email-privacy",
+      "at": "2026-08-28T01:29:30.517Z",
+      "branch": "codex/v1.8.3-release-reconciliation",
       "verdict": "PASS",
       "blocking_findings": []
     }
