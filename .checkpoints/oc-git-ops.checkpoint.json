@@ -4,15 +4,15 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-08-28T02:32:10.000Z",
+  "updated_at": "2026-08-28T02:52:43.000Z",
   "phase": "release-reconciliation",
-  "step": "release-seal-pr-ready",
+  "step": "human-checklist-pr-ready",
   "status": "in_progress",
-  "progress_summary": "PR #461 is squash-merged at 97abdc1. A post-merge adversarial audit found that the catalog version alone still allowed the unsafe same-version ancestor 438ab5f, so codex/v1.8.3-exact-tag-gate now adds a versioned release seal and signed exact-tag verification at c1610a856455fb690024b4e92389cf46044d1de0. Docs Forge, Repo Ops, Bug Check, 491 tests, build, production audits, and the corrective code audit pass. The focused follow-up is ready for its one-at-a-time PR; no tag or deployment exists.",
+  "progress_summary": "PR #462 is squash-merged at 09de3425155a7f1fca6051e27e78e6233907034e with all four checks green. Exact-SHA validation passed, but the post-merge code/process audit found one stale human-only checklist line. codex/v1.8.3-human-checklist-gate closes that MEDIUM at fa5e628; Docs Forge, Repo Ops, Bug Check, 491 tests, build, audits, and independent verification pass. The one-line follow-up is PR-ready; no tag or deployment exists.",
   "progress_table": [
     {
       "id": "v1.8.3-release-reconciliation",
-      "label": "Sealed v1.8.3 tag baseline + fail-closed signed-tag gate",
+      "label": "Sealed v1.8.3 baseline + fully aligned human checklist",
       "status": "in_progress"
     },
     {
@@ -97,13 +97,13 @@
   },
   "blockers": [],
   "next_actions": [
-    "Open the focused release-seal PR through GitHub Computer Control and keep it draft until every required check is green.",
+    "Open the focused human-checklist PR through GitHub Computer Control and keep it draft until every required check is green.",
     "Mark the follow-up ready and squash-merge only after the one-PR gate is satisfied.",
     "Fetch the merge and rerun both pre-deploy audits at the exact resulting origin/main SHA before staging.",
     "Do not create or push v1.8.3 until the signed-tag human gate after same-SHA staging review."
   ],
   "skill_state": {
-    "current_branch": "codex/v1.8.3-exact-tag-gate",
+    "current_branch": "codex/v1.8.3-human-checklist-gate",
     "open_prs": [
       {
         "number": 232,
@@ -372,7 +372,7 @@
       }
     ],
     "open_prs+": null,
-    "last_pr_number": 461,
-    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/461"
+    "last_pr_number": 462,
+    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/462"
   }
 }
