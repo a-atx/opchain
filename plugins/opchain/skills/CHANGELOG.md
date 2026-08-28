@@ -47,8 +47,12 @@ that did not exist, and nothing checked whether it happened.
   to tag an unmerged HEAD, a semver that disagrees with the lockstep catalog, or
   a tag that already exists (a published tag is never moved; cut the next patch).
 - **`scripts/check-release-tag.mjs`** — asserts the lockstep catalog version has
-  a tag that is an ancestor of HEAD and present on origin. Fails closed: a split
-  catalog, an unreadable catalog, or no git is a refusal, never a pass.
+  a signed tag that is an ancestor of HEAD, present as the same raw tag object on
+  origin, and carries the reviewed `release-seal.json` baseline. The seal binds
+  the catalog to the exact publisher-workflow digest and `server.json` registry
+  payload; `--local` verifies both before a tag push can trigger OIDC publishing.
+  Fails closed: a split catalog, stale seal, invalid signature, unreadable
+  catalog, remote mismatch, or no git is a refusal, never a pass.
 - **`npm run deploy` enforces it.** A production deploy is refused when the
   catalog version moved somewhere no tag follows. Scope is narrow on purpose —
   the guard reads the lockstep catalog version, so blog and hotfix deploys never

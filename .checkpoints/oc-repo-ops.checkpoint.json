@@ -3,17 +3,18 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T01:29:30.517Z",
+  "updated_at": "2026-08-28T02:32:10.000Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "codex/v1.8.3-release-reconciliation",
-  "progress_summary": "Pre-PR readiness PASS for the focused v1.8.3 release reconciliation: intended runbook/workflow/gate/test/checkpoint changes only; generated OG churn restored; 477 tests, build, production dependency audits, YAML parse, checkpoint validation, Docs Forge, and Bug Check pass. Deploy audit warnings remain separate gates and are accurately recorded rather than treated as PR-readiness failures.",
+  "step": "codex/v1.8.3-exact-tag-gate",
+  "progress_summary": "Pre-PR readiness PASS for the focused v1.8.3 release-seal follow-up. The branch contains the seal, fail-closed signed-tag gate, 30 focused release-gate tests, synchronized plugin mirrors, and current operator documentation. Full validation passed with 491 tests, a 76-page build, clean production dependency audits, clean code and secret scans, and no generated OG image churn.",
   "context_primer": {
     "key_decisions": [
-      "Docs Forge packet is current for this branch and includes the required Documentation section.",
-      "Build-generated OG image churn was restored so it cannot leak into the focused reconciliation PR.",
-      "The production/tag HIGHs are remediated in this branch; the public MCP checkpoint HIGH still requires Deploy Ops confirmation or mitigation."
+      "Docs Forge packet is current for c1610a856455fb690024b4e92389cf46044d1de0 and contains the required Documentation section.",
+      "The real repository seal digests match the committed publisher workflow and server.json payload.",
+      "Build-generated OG image churn was restored and is excluded from the focused PR.",
+      "The remaining public MCP checkpoint HIGH is a Deploy Ops confirmation gate, not a PR-readiness failure."
     ],
     "generated_files": [
       ".checkpoints/oc-repo-ops.checkpoint.json"
@@ -23,16 +24,16 @@
     "verdict": "PASS",
     "blocking_findings": [],
     "warnings": [
-      "Site development-only LHCI dependency chain retains seven high advisory nodes; production dependency audit is clean.",
-      "Deploy Ops requires explicit confirmation for the remaining audit HIGH before staging."
+      "Site development-only LHCI dependency chain retains seven high advisory nodes; both production dependency audits are clean.",
+      "Deploy Ops requires explicit confirmation for the remaining unauthenticated MCP checkpoint HIGH before staging."
     ],
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
-    "verified_for_sha": "codex/v1.8.3-release-reconciliation (pre-commit; base f4895e7)",
+    "verified_for_sha": "c1610a856455fb690024b4e92389cf46044d1de0",
     "last_verify": {
-      "at": "2026-08-28T01:29:30.517Z",
-      "branch": "codex/v1.8.3-release-reconciliation",
+      "at": "2026-08-28T02:32:10.000Z",
+      "branch": "codex/v1.8.3-exact-tag-gate",
       "verdict": "PASS",
       "blocking_findings": []
     }

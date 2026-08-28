@@ -70,7 +70,8 @@ shipped before anything merges.
 | P3 | Plugin manifest | `plugins/opchain/.claude-plugin/plugin.json` | `version` |
 | P4 | Marketplace manifests | `.claude-plugin/marketplace.json` (both copies) | plugin `version`; post-split also the SHA-pinned enterprise entry's `ref`/`sha` |
 | P5 | MCP registry listing | `server.json` | `version` (the publish workflow re-syncs from the tag, but don't ship a stale file) |
-| P6 | Git tag | — | `vN.N.N`, signed + annotated (`git tag -s`); pushing it triggers `publish-mcp-registry.yml` |
+| P6 | Release baseline seal | `release-seal.json` | `catalogVersion` → the new semver, `generation` → 1, `publisherWorkflowSha256` → the exact publisher workflow blob, and `serverJsonSha256` → the MCP registry payload; increment generation only when intentionally replacing that version's untagged baseline |
+| P7 | Git tag | — | `vN.N.N`, signed + annotated (`git tag -s`); pushing it triggers `publish-mcp-registry.yml` |
 
 `skills.json`'s `catalogVersion` is **derived** from P1 at build time
 (`src/lib/discovery.js` reads `skills[0].version`) — no hand edit, but verify
@@ -155,9 +156,11 @@ release is the **deploy**, not the merge. The order is fixed:
 
 1. **Decide scope** per [GOVERNANCE.md](GOVERNANCE.md) (creator vote + weighted
    community vote). Record the outcome in the roadmap issue.
-2. **Product half:** one PR — P1–P5 bumped together, changelog entry written.
+2. **Product half:** one PR — P1–P6 bumped together, changelog entry written.
    CI green (including lockstep + catalog validation), review per CODEOWNERS,
-   squash-merge with `Signed-off-by` preserved. Then push the signed tag (P6).
+   squash-merge with `Signed-off-by` preserved. Create the signed tag (P7), run
+   `node scripts/check-release-tag.mjs --local`, and only then push it. Re-run
+   without `--local` to prove origin holds the same signed tag object.
 3. **Site half:** one PR — the applicable L-surfaces, forward surfaces, counts
    sweep, changelog entry/aging. **This PR must not claim vN before the vN tag
    exists** (step 2 first, always). Run the §6 audit prompt on it. Merge only

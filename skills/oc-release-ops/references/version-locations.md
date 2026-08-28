@@ -15,6 +15,7 @@ diverge.
 | Path | What | Pattern |
 |---|---|---|
 | `skills/<id>/SKILL.md` (every directory) | Frontmatter `version:` field | `version: 1.3.0` |
+| `release-seal.json` | Reviewed baseline + publisher/payload digests | `"catalogVersion": "1.3.0"`, `"publisherWorkflowSha256": "…"`, `"serverJsonSha256": "…"` |
 | `site/src/pages/styleguide.astro` | Top-of-page badge | `v1.3.0` |
 | `site/src/pages/index.astro` | Homepage release-pill href + label | `href="/changelog#v1.3"` `<span>v1.3</span>` |
 | `site/src/components/Header.astro` | Menu-bar release chip href + label | `CURRENT_RELEASE = "v1.3"` `CURRENT_RELEASE_HREF = "/changelog#v1-3"` |

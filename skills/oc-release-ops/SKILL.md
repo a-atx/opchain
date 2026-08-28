@@ -195,6 +195,11 @@ Atomic version bump across the catalog.
 - `skills/*/SKILL.md` frontmatter `version:` field, in lockstep with the
   release version. (v1.2 precedent: every skill version equals the release
   version.)
+- `release-seal.json` `catalogVersion`, preserving its schema and resetting
+  `generation` to 1; increment only when intentionally replacing that version's
+  untagged reviewed baseline. Refresh `publisherWorkflowSha256` from the exact
+  `.github/workflows/publish-mcp-registry.yml` blob that the tag will execute,
+  and `serverJsonSha256` from the exact MCP registry payload it will publish.
 - `site/src/pages/styleguide.astro` badge (e.g. `v1.2.0` → `v1.3.0`).
 - `site/src/pages/index.astro` release-pill `href` and label
   (e.g. `v1.2 → v1.3`).
