@@ -1,0 +1,142 @@
+name: Release ledger
+
+# Daily check: does every shipped release on /changelog have a git tag?
+#
+# The 2026-08-26 audit found thirteen shipped releases and three tags — v1.0
+# through v1.7 all shipped untagged. Nothing noticed for four months, because
+# nothing was looking. `plugins/opchain/commands/oc-release.md` even instructs
+# the assistant that "a changelog entry with no tag is a broken ledger — report
+# it rather than continuing past it", but an instruction nobody executes is not
+# a check.
+#
+# What an untagged release actually costs:
+#   * publish-mcp-registry.yml fires `on: push: tags: v*` — no tag, no registry
+#     republish for that version.
+#   * `/oc-release plan` reads `git log <last-release-tag>..HEAD` and has to fall
+#     back to scraping changelog.astro.
+#   * No `git checkout v1.6.0`, no diff between two releases, no bisect.
+#
+# This is the BACKSTOP, not the gate. The gate is scripts/check-release-tag.mjs,
+# called from scripts/deploy.mjs, which refuses to ship an untagged release in
+# the first place. This workflow catches what the gate cannot: drift that
+# already happened, and releases tagged locally but never pushed.
+#
+# Pattern (and most of the shell) is lifted from deploy-lag.yml: one tracking
+# issue, updated in place, closed when the ledger is clean.
+
+on:
+  schedule:
+    # 20 minutes after the deploy-lag run, same reasoning on the off-hour.
+    - cron: "23 14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: release-ledger
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Every shipped release has a tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history + every tag, or the comparison is meaningless.
+          fetch-depth: 0
+          fetch-tags: true
+          ref: main
+
+      - name: Compare changelog entries to tags
+        id: ledger
+        run: |
+          set -euo pipefail
+
+          # Shipped releases are the card ids on the changelog page. The
+          # "coming next" card is excluded — it is a plan, not a release.
+          # Card ids are hyphenated (v1-8-2); tags are dotted (v1.8.2).
+          next_id="$(grep -oE 'hero-card--next[^>]*id="(v[0-9-]+)"' site/src/pages/changelog.astro \
+                      | grep -oE 'v[0-9-]+' | head -n1 || true)"
+
+          shipped="$(grep -oE 'id="v[0-9]+-[0-9]+(-[0-9]+)?"' site/src/pages/changelog.astro \
+                      | sed 's/id="//; s/"//' | sort -u)"
+
+          missing=""
+          total=0
+          for id in $shipped; do
+            [ -n "$next_id" ] && [ "$id" = "$next_id" ] && continue
+            total=$((total + 1))
+            line="v$(printf '%s' "$id" | sed 's/^v//' | tr '-' '.')"
+            # A minor-line card (v1-8) is satisfied by any patch tag on that
+            # line (v1.8.0); a patch card (v1-8-2) needs its exact tag.
+            if ! git tag -l "${line}" "${line}.*" | grep -q .; then
+              missing="${missing}${line}"$'\n'
+            fi
+          done
+
+          count="$(printf '%s' "$missing" | grep -c . || true)"
+          echo "total=${total}"  >> "$GITHUB_OUTPUT"
+          echo "count=${count}"  >> "$GITHUB_OUTPUT"
+          {
+            echo "missing<<EOF"
+            printf '%s' "$missing"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "checked ${total} shipped release(s); ${count} without a tag"
+          [ "$count" -gt 0 ] && printf 'missing:\n%s\n' "$missing" || true
+
+      - name: Open, update, or close the tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_TITLE: "Release ledger: shipped releases with no git tag"
+          COUNT: ${{ steps.ledger.outputs.count }}
+          TOTAL: ${{ steps.ledger.outputs.total }}
+          MISSING: ${{ steps.ledger.outputs.missing }}
+        run: |
+          set -euo pipefail
+
+          existing="$(gh issue list \
+            --state open \
+            --search "in:title \"${ISSUE_TITLE}\"" \
+            --json number,title \
+            --jq "[.[] | select(.title == \"${ISSUE_TITLE}\")][0].number" 2>/dev/null || true)"
+
+          if [ "${COUNT}" = "0" ]; then
+            if [ -n "${existing}" ] && [ "${existing}" != "null" ]; then
+              echo "ledger is clean — closing #${existing}"
+              gh issue close "${existing}" \
+                --comment "Ledger is clean: all ${TOTAL} shipped releases have tags."
+            else
+              echo "ledger is clean, nothing open"
+            fi
+            exit 0
+          fi
+
+          {
+            printf '**%s of %s shipped releases have no git tag.**\n\n' "${COUNT}" "${TOTAL}"
+            printf 'Missing tags:\n\n'
+            printf '%s\n' "${MISSING}" | grep . | sed 's/^/- `/; s/$/`/'
+            printf '\n### Why this matters\n\n'
+            printf -- '- `publish-mcp-registry.yml` triggers on `v*` tags — these versions never republished the registry pointer.\n'
+            printf -- '- `/oc-release plan` reads `git log <last-release-tag>..HEAD`; with no tag it falls back to scraping the changelog.\n'
+            printf -- '- No `git checkout` / bisect / release diff for these versions.\n'
+            printf '\n### Fixing it\n\n'
+            printf 'Tag each release at the commit that landed its changelog entry, then push.\n'
+            printf 'The monotonicity guard in `publish-mcp-registry.yml` makes a backfill safe —\n'
+            printf 'only the newest tag publishes, so historical tags will not walk the registry\n'
+            printf 'pointer backwards.\n\n'
+            printf '_Auto-opened by `.github/workflows/release-ledger.yml`. New releases are already blocked from shipping untagged by `scripts/check-release-tag.mjs` on the deploy path; this issue tracks the historical backlog. Close it once backfilled — the next daily run reopens it if drift returns._\n'
+          } > body.md
+
+          if [ -n "${existing}" ] && [ "${existing}" != "null" ]; then
+            echo "updating existing issue #${existing}"
+            gh issue edit "${existing}" --body-file body.md
+          else
+            echo "opening new tracking issue"
+            gh issue create --title "${ISSUE_TITLE}" --body-file body.md
+          fi

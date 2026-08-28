@@ -4,9 +4,9 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-08-27T20:16:51.398Z",
-  "phase": "launch",
-  "step": "pr-454-open-awaiting-review",
+  "updated_at": "2026-08-28T00:24:27.027Z",
+  "phase": "build",
+  "step": "git-ops-per-release-built",
   "status": "in_progress",
   "progress_summary": "The v2.0 plan and /changelog now specify oc-hindsight and oc-evolve as governed multi-agent workflows; draft PR #454 is open and awaiting CI/review.",
   "progress_table": [
@@ -78,7 +78,8 @@
   "blockers": [],
   "next_actions": [
     "Review and merge PR #454 after CI passes.",
-    "After merge, deploy and smoke-test staging before any production approval."
+    "After merge, deploy and smoke-test staging before any production approval.",
+    "v1.8.3 release-ledger work is in PRs #458 (product) and #459 (site); see docs/plans/2026-08-26-git-ops-per-release.md."
   ],
   "skill_state": {
     "feature": {
