@@ -3,14 +3,17 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T00:08:37.458Z",
+  "updated_at": "2026-08-28T01:29:30.517Z",
   "skill": "oc-release-ops",
-  "phase": "ship-pr-open",
-  "step": "v1.8.3-pr-457-green",
+  "phase": "release-reconciliation",
+  "step": "v1.8.3-safe-tag-pr-precommit",
   "status": "in_progress",
-  "progress_summary": "v1.8.3 \"Open seams, closed ledger\" — first Apache-2.0 release, and the release-ledger fix. Catalog bumped 1.8.2→1.8.3 across 29 skills + plugin mirror, styleguide badge, server.json; /changelog card + skills/CHANGELOG.md entry cover all 42 commits that were live in prod under the v1.8.2 label (Apache-2.0, seams S1–S5, roadmap→GitHub Issues, security incidents, a11y, 60→6 Dependabot alerts, Astro 7). New: scripts/check-release-tag.mjs + deploy.mjs prod guard, /oc-git-release verb, registry monotonicity guard, release-ledger.yml backstop. Gates green: 473 tests, astro check 0/0, 76 pages, 13/13 hooks.",
+  "progress_summary": "v1.8.3 surfaces are lockstep at origin/main f4895e7 and 477 tests/build pass, but no tag exists. Phase 0 found rev 4's historical tag command unsafe because GitHub would execute the pre-pin workflow at 438ab5f. A focused reconciliation now requires a hardened descendant tag target, binds the production gate to the tagged catalog and matching remote commit, fails closed on remote lookup, and makes historical backfill instructions disable publishing first. Staging awaits the deploy skill's explicit HIGH-risk confirmation; signing, staging eyeball, credentials, vote-history choice, production, and flip remain human gates.",
   "context_primer": {
     "key_decisions": [
+      "Never tag 438ab5f: tag-push workflows are loaded from the tagged commit, where mcp-publisher is still mutable and unchecked under id-token:write.",
+      "The v1.8.3 release SHA must be one reviewed origin/main descendant containing #458, #459, #460, and this reconciliation; staging, signed tag, and production must use that same SHA.",
+      "Historical tag backfills require publisher automation disabled, followed by a manual hardened default-branch dispatch for the newest version.",
       "Semver v1.8.0 minor, theme 'Documentation & repo hygiene' from the changelog Coming Next card.",
       "Both 2026-07-10 blog posts publish with the release PR (draft flags removed) rather than via the flip bot.",
       "Coming Next panel now hosts the v1.9 distribution theme vote; Planned keeps v1.10/v1.11.",
@@ -26,16 +29,17 @@
     ]
   },
   "next_actions": [
-    "After merge: /oc-git-release 1.8.3 (or git tag -a v1.8.3 && git push origin v1.8.3). npm run deploy is BLOCKED until this happens — that is the new guard working.",
-    "Then npm run deploy:staging from main, eyeball /changelog + /install, then npm run deploy. Deploys are laptop-only (wrangler login).",
-    "Then backfill the 10 historical tags (v1.0-v1.7) — pre-approved, and safe only once the publish-mcp-registry monotonicity guard from #457 is on main."
+    "Commit, push, and merge the focused release-reconciliation PR after its CI and review gates pass.",
+    "With explicit confirmation for the two audit HIGHs, deploy the resulting origin/main SHA to staging and run the Phase A automated and visual checks.",
+    "At the human gates: approve staging, push a signed v1.8.3 tag on that exact hardened SHA, decide vote-history migration vs reset, verify roadmap credentials, then authorize production.",
+    "Never backfill a historical tag while Publish to MCP Registry is enabled; historical events execute historical workflow code."
   ],
   "pm_refs": [],
   "skill_state": {
     "current_release": {
-      "semver": "1.8.2",
-      "theme": "Enforcement that ships",
-      "phase": "ship-pr-open",
+      "semver": "1.8.3",
+      "theme": "Open seams, closed ledger",
+      "phase": "release-reconciliation",
       "release_ticket_id": null,
       "started_at": "2026-07-24T00:00:00Z"
     },

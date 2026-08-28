@@ -4,12 +4,17 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-08-28T00:24:21.928Z",
-  "phase": "oss-split-planning",
-  "step": "v1.8.3-release-tag-verb-added",
+  "updated_at": "2026-08-28T01:29:30.517Z",
+  "phase": "release-reconciliation",
+  "step": "codex-v1.8.3-release-reconciliation-pre-pr",
   "status": "in_progress",
-  "progress_summary": "Draft PR #454 is open for the v2.0 two-workflow plan and changelog surface; its branch preview has passed staging smoke and visual review. The OSS-split merge wave is also complete through runbook rev 3 (#452). Production remains gated on merge, a staging-from-main review, and explicit user approval.",
+  "progress_summary": "Phase 0 reconciled origin/main f4895e7, merged PRs #458/#459/#460, missing v1.8.3 tag, and lagging staging/prod 57ef163. Branch codex/v1.8.3-release-reconciliation contains the minimal safe-tag runbook correction plus a fail-closed release-tag gate. Docs Forge, Repo Ops, Bug Check, full tests, build, audits, and generated-artifact cleanup have run. Next is a signed-off human-authored commit, push, and one focused PR; no tag or deploy occurs before the explicit gates.",
   "progress_table": [
+    {
+      "id": "v1.8.3-release-reconciliation",
+      "label": "Safe tag target + fail-closed production release gate",
+      "status": "in_progress"
+    },
     {
       "id": "pr-183",
       "label": "PR #183 — v1.4 install upgrade flow + main-CI repairs",
@@ -92,14 +97,13 @@
   },
   "blockers": [],
   "next_actions": [
-    "Review and merge PR #454 after CI passes.",
-    "After merge, redeploy staging from main before considering production.",
-    "Execute docs/runbooks/oss-split-execution-handoff.md Phase A: sync staging to main, human eyeball, then prod ship (prereqs: ROADMAP_GITHUB_TOKEN secret on prod, vote-KV migrate-vs-reset decision, npm run gen-roadmap before deploy).",
-    "Phase C (the flip) on user go: manifest PR, freeze, filter-repo extraction, force-push over opchain-skills, ruleset+DCO, consume PR — the runbook is authoritative over plan §2.4-§2.5 where they disagree.",
-    "Phase B compliance pass (/privacy + /security scope + unsubscribe copy) can run while waiting on gates."
+    "Commit with Aidan Elsesser <admin@opchain.dev> as author, DCO sign-off, Codex co-author trailer, and the passing Bug Check footer.",
+    "Push codex/v1.8.3-release-reconciliation and open one focused PR with the Docs Forge Documentation section and audit evidence.",
+    "Wait for CI/review and squash-merge before selecting the final release SHA.",
+    "Do not create or push v1.8.3 until the signed-tag human gate after same-SHA staging review."
   ],
   "skill_state": {
-    "current_branch": "codex/v2-workflow-skills",
+    "current_branch": "codex/v1.8.3-release-reconciliation",
     "open_prs": [
       {
         "number": 232,
