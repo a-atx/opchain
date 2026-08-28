@@ -115,7 +115,7 @@ Two-PR flow. **Product half:** bump 29× `SKILL.md version:` + `skills/CHANGELOG
 ## Human-only checklist (Aidan)
 
 - [ ] Phase A eyeball + "ship prod"; Phase C5 "flip now"; C7 eyeball; D eyeball
-- [ ] Phase A: after the reconciliation lands, choose the single reviewed `origin/main` release SHA containing #458, #459, and #460; verify the pinned publisher workflow at that exact object; eyeball staging at that SHA; then push the **signed** `v1.8.3` tag (`git tag -s`) — never tag the pre-hardening #458 merge commit
+- [ ] Phase A: after the reconciliation lands, choose the single reviewed `origin/main` release SHA containing #458, #459, #460, and the merged 1.8.3 release seal; verify that SHA's `release-seal.json` says catalog `1.8.3` and matches the SHA-256 of both its pinned publisher workflow and `server.json`; deploy and eyeball staging at that exact SHA; then `⛔ HUMAN` — create the **signed** tag with `git tag -s v1.8.3 <release-sha>`, run `node scripts/check-release-tag.mjs --local`, push the tag only after that passes, and run `node scripts/check-release-tag.mjs` again to verify the identical raw tag object and peeled commit on origin — never tag `438ab5f` or another pre-seal commit
 - [ ] Phase A: mint the roadmap PAT and `wrangler secret put ROADMAP_GITHUB_TOKEN` on production (and verify staging); decide vote-history KV migration vs reset
 - [ ] Install the DCO App on `opchain-skills` (C5); revoke the `MIRROR_TOKEN` PAT (C8)
 - [ ] Cloudflare WAF skip rule → the expression in [cloudflare-challenge.md](cloudflare-challenge.md)
