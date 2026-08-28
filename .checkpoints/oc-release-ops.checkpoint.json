@@ -3,43 +3,35 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T01:34:25.820Z",
+  "updated_at": "2026-08-28T02:32:10.000Z",
   "skill": "oc-release-ops",
-  "phase": "release-pr-open",
-  "step": "v1.8.3-safe-tag-pr-461-draft",
+  "phase": "release-pr-prep",
+  "step": "v1.8.3-sealed-tag-baseline",
   "status": "in_progress",
-  "progress_summary": "v1.8.3 surfaces are lockstep and draft PR #461 now carries the safe-tag reconciliation at 2d3d234. It requires a hardened descendant tag target, binds the production gate to the complete tagged catalog and matching origin commit, fails closed on remote lookup, and disables publisher automation during historical backfills. The PR awaits CI/review. Staging awaits a post-merge exact-SHA re-audit and Deploy Ops confirmation; signing, staging eyeball, credentials, vote-history choice, production, and flip remain human gates.",
+  "progress_summary": "The follow-up release baseline is sealed at c1610a856455fb690024b4e92389cf46044d1de0. The seal binds catalog v1.8.3 generation 1 to the exact hardened publisher workflow and MCP registry payload; the gate requires an annotated signed tag, successful local pre-push verification, and byte-identical raw tag-object plus peeled-commit agreement with origin. The branch is fully audited and ready for its one-at-a-time PR. No v1.8.3 tag or deployment exists.",
   "context_primer": {
     "key_decisions": [
-      "Never tag 438ab5f: tag-push workflows are loaded from the tagged commit, where mcp-publisher is still mutable and unchecked under id-token:write.",
-      "The v1.8.3 release SHA must be one reviewed origin/main descendant containing #458, #459, #460, and this reconciliation; staging, signed tag, and production must use that same SHA.",
-      "Historical tag backfills require publisher automation disabled, followed by a manual hardened default-branch dispatch for the newest version.",
-      "Semver v1.8.0 minor, theme 'Documentation & repo hygiene' from the changelog Coming Next card.",
-      "Both 2026-07-10 blog posts publish with the release PR (draft flags removed) rather than via the flip bot.",
-      "Coming Next panel now hosts the v1.9 distribution theme vote; Planned keeps v1.10/v1.11.",
-      "server.json bumped to 1.8.0 in the PR; the v1.8.0 tag re-syncs and publishes to the MCP registry.",
-      "PM release ticket deferred: Linear MCP unauthenticated in this session (pm_deferred_actions)."
+      "Never tag 438ab5f: it has the claimed catalog version but predates the hardened publisher workflow and release seal.",
+      "A copied or stale seal fails because the workflow and server.json hashes are recomputed at the verified commit.",
+      "Later content-only descendants may ship when their sealed generation is an ancestor, but an unreachable, differently signed, or differently peeled remote tag fails closed.",
+      "The signed tag remains a human gate after the same-SHA staging review; production and the Phase C flip remain separately gated."
     ],
     "generated_files": [
-      "skills/CHANGELOG.md",
-      "site/src/blog/2026-07-10-v1-8-documentation-and-repo-hygiene.md",
-      "site/src/blog/2026-07-10-the-docs-bot-doesnt-grade-its-own-homework.md",
-      "site/public/og/blog/2026-07-10-v1-8-documentation-and-repo-hygiene.png",
-      "site/public/og/blog/2026-07-10-the-docs-bot-doesnt-grade-its-own-homework.png"
+      "release-seal.json"
     ]
   },
   "next_actions": [
-    "Review draft PR #461 and merge it only after all required checks pass.",
-    "With explicit confirmation for the two audit HIGHs, deploy the resulting origin/main SHA to staging and run the Phase A automated and visual checks.",
-    "At the human gates: approve staging, push a signed v1.8.3 tag on that exact hardened SHA, decide vote-history migration vs reset, verify roadmap credentials, then authorize production.",
-    "Never backfill a historical tag while Publish to MCP Registry is enabled; historical events execute historical workflow code."
+    "Open the focused release-seal PR, wait for every required check, and squash-merge only when green.",
+    "Fetch the exact merge SHA and rerun code, security, release-gate, test, and build validation.",
+    "Obtain explicit confirmation before staging while the unauthenticated public MCP checkpoint HIGH remains deferred.",
+    "Keep signed tag creation, staging eyeball, credentials, vote-history choice, production, and the Phase C flip at their human gates."
   ],
   "pm_refs": [],
   "skill_state": {
     "current_release": {
       "semver": "1.8.3",
       "theme": "Open seams, closed ledger",
-      "phase": "release-reconciliation",
+      "phase": "sealed-tag-baseline-pr",
       "release_ticket_id": null,
       "started_at": "2026-07-24T00:00:00Z"
     },
@@ -65,6 +57,18 @@
         "shipped_at": "2026-06-25"
       }
     ],
+    "release_seal": {
+      "schema_version": 1,
+      "catalog_version": "1.8.3",
+      "generation": 1,
+      "verified_for_sha": "c1610a856455fb690024b4e92389cf46044d1de0"
+    },
+    "tag": {
+      "name": "v1.8.3",
+      "local": false,
+      "origin": false,
+      "required_type": "annotated-and-signed"
+    },
     "pm_deferred_actions": [
       {
         "skill": "oc-release-ops",

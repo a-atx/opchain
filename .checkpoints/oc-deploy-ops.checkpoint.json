@@ -4,33 +4,33 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-08-27T23:49:17.485Z",
-  "updated_at": "2026-08-28T01:29:30.517Z",
+  "updated_at": "2026-08-28T02:32:10.000Z",
   "phase": "audit",
-  "step": "v1.8.3-staging-awaiting-high-risk-confirmation",
+  "step": "v1.8.3-followup-pr-before-staging",
   "status": "blocked",
-  "progress_summary": "Fresh pre-deploy code and security audits covered origin/main f4895e7 against live staging/prod 57ef163: 0 CRITICAL and 3 unique HIGH findings. The historical-workflow and weak release-tag-gate findings are being remediated on codex/v1.8.3-release-reconciliation; unauthenticated MCP checkpoint state is deferred debt. Deploy Ops permits ≤3 HIGH findings only after explicit user confirmation, so no staging mutation has occurred. Runtime dependency audits are clean; site audit residue is development-only LHCI tooling.",
+  "progress_summary": "The corrective branch c1610a856455fb690024b4e92389cf46044d1de0 has a clean code audit and remediates both release-path HIGH findings with a versioned seal and signed exact-tag verification. One unique HIGH remains: unauthenticated public MCP checkpoint state with a predictable default session and no TTL, size, or rate limits. Deploy Ops requires explicit user confirmation before any staging mutation, and the exact merged origin/main SHA must be re-audited first. No deployment has occurred.",
   "next_actions": [
-    "Merge the release-reconciliation PR and rerun both audits at the resulting origin/main SHA.",
+    "Merge the focused release-seal PR and rerun both audits at the exact resulting origin/main SHA.",
     "Obtain explicit user confirmation to proceed with staging while the public MCP checkpoint HIGH remains unresolved.",
-    "Deploy that exact origin/main SHA to staging, then run Phase A automated and visual review.",
-    "Require separate explicit human approval plus all runbook prerequisites before production."
+    "Deploy that exact origin/main SHA to staging, then run Phase A automated and visual checks.",
+    "Require separate explicit human approval plus every runbook prerequisite before production."
   ],
   "skill_state": {
     "current_env": "staging",
     "staging_version": "57ef163",
-    "target_version": "pending release-reconciliation merge",
+    "target_version": "pending release-seal PR merge",
     "cloudflare_version_id": null,
     "staging_url": "https://staging.opchain.dev",
     "branch_preview": false,
     "source_pr": null,
     "audit_gate": {
       "critical": 0,
-      "high": 3,
-      "scope": "f4895e7 code/security audit plus live 57ef163 posture",
+      "high": 1,
+      "scope": "c1610a856455fb690024b4e92389cf46044d1de0 branch audit; exact merged SHA pending",
       "result": "warn-confirmation-required",
       "remediated_on_branch": [
         "historical tag executes historical publisher workflow",
-        "release tag was not bound to its catalog or matching remote commit"
+        "release tag was not bound to its catalog or matching remote tag object and commit"
       ],
       "deferred": [
         "unauthenticated MCP checkpoint read/write with predictable default session and no TTL/size/rate limits"
