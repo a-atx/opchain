@@ -25,8 +25,16 @@ function skillsTree(versions) {
   return dir;
 }
 
-/** A fake git that answers from a table, so tests never touch a real repo. */
-function fakeGit({ tags = [], remoteTags = null, isRepo = true } = {}) {
+/**
+ * A fake git that answers from a table, so tests never touch a real repo.
+ *
+ * `reachable` models `merge-base --is-ancestor`, which signals through the exit
+ * code: "" for yes, null for no. Faking this matters — the first version of the
+ * checker called spawnSync directly for the ancestry test, so these cases quietly
+ * ran against the real repo and broke in CI, where the checkout is shallow and
+ * has no tags at all.
+ */
+function fakeGit({ tags = [], remoteTags = null, isRepo = true, reachable = true } = {}) {
   return (args) => {
     const [cmd] = args;
     if (cmd === "rev-parse" && args.includes("--git-dir")) return isRepo ? ".git" : null;
@@ -34,6 +42,7 @@ function fakeGit({ tags = [], remoteTags = null, isRepo = true } = {}) {
       const ref = args[args.length - 1].replace("refs/tags/", "");
       return tags.includes(ref) ? "a".repeat(40) : null;
     }
+    if (cmd === "merge-base") return reachable ? "" : null;
     if (cmd === "ls-remote") {
       if (remoteTags === null) return null; // network down — unknowable, not empty
       const ref = args[args.length - 1].replace("refs/tags/", "");
@@ -78,10 +87,8 @@ describe("checkReleaseTag", () => {
   };
 
   it("passes when the tag exists, is reachable, and is on origin", () => {
-    // `merge-base --is-ancestor` runs against the real repo, where v1.8.2 is an
-    // ancestor of HEAD — the same condition the guard asserts in production.
     const r = withTree({ "oc-git-ops": "1.8.2" }, {
-      git: fakeGit({ tags: ["v1.8.2"], remoteTags: ["v1.8.2"] }),
+      git: fakeGit({ tags: ["v1.8.2"], remoteTags: ["v1.8.2"], reachable: true }),
     });
     expect(r).toMatchObject({ ok: true, version: "1.8.2", tag: "v1.8.2", reason: "tagged" });
   });
@@ -93,6 +100,17 @@ describe("checkReleaseTag", () => {
     expect(r.ok).toBe(false);
     expect(r.reason).toBe("missing-tag");
     expect(r.errors.join(" ")).toContain("no v1.8.3 tag exists");
+  });
+
+  it("REFUSES a tag that exists but does not describe HEAD", () => {
+    // A tag on an unrelated branch satisfies "exists" and means nothing. This is
+    // also the shape CI produces on a shallow checkout, which is how the
+    // spawnSync leak in the first implementation was found.
+    const r = withTree({ "oc-git-ops": "1.8.2" }, {
+      git: fakeGit({ tags: ["v1.8.2"], remoteTags: ["v1.8.2"], reachable: false }),
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe("unreachable-tag");
   });
 
   it("REFUSES a tag that exists locally but was never pushed", () => {

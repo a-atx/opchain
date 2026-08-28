@@ -166,8 +166,14 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
 
   // The tag must describe code that is actually in what we are shipping.
   // A tag on an unrelated branch would satisfy "exists" and mean nothing.
-  const reachable =
-    spawnSync("git", ["merge-base", "--is-ancestor", tag, "HEAD"], { cwd }).status === 0;
+  //
+  // Routed through the injected `git` rather than spawnSync so it is testable.
+  // The first cut called spawnSync directly here, which made the "unit" tests
+  // secretly depend on the real repo's tag graph: they passed locally and failed
+  // in CI, where actions/checkout is shallow and carries no tags.
+  // `--is-ancestor` communicates through the exit code, so success is "" (exit 0,
+  // no stdout) and failure is null — distinguishable, since "" !== null.
+  const reachable = git(["merge-base", "--is-ancestor", tag, "HEAD"], cwd) !== null;
   if (!reachable) {
     return {
       ok: false,
