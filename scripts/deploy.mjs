@@ -29,6 +29,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkReleaseTag, remediation } from "./check-release-tag.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT  = path.resolve(path.dirname(__filename), "..");
@@ -153,7 +154,65 @@ function assertStagingFromMain() {
   console.log(`[deploy:${TARGET}] ✓ HEAD is reachable from origin/main`);
 }
 
+/**
+ * A production deploy must not publish a release the ledger has no tag for.
+ *
+ * The 2026-08-26 audit: thirteen shipped releases on /changelog, three tags in
+ * git. v1.0 through v1.7 all went out untagged, so publish-mcp-registry (which
+ * fires `on: push: tags: v*`) never republished the registry pointer for any of
+ * them, and `/oc-release plan` lost its `git log <last-tag>..HEAD` input.
+ *
+ * oc-release-ops has always SAID it hands the tag to oc-git-ops. Prose does not
+ * hold an edge — orchestrator.md §3 says so itself, and oc-git-ops did not even
+ * have a tag verb until v1.8.3. This is where the edge actually holds.
+ *
+ * Scope is deliberately narrow: the guard fires only when the lockstep catalog
+ * version has moved somewhere no tag follows, i.e. when this deploy would
+ * publish a NEW release. Blog deploys, hotfixes, and content pushes never touch
+ * the catalog version and never see this check. A guard that fired on every prod
+ * deploy would be disabled inside a month, which is the failure mode the commit
+ * gate's rule 3 exists to prevent.
+ *
+ * Staging is exempt on purpose: you deploy staging to eyeball a release BEFORE
+ * committing to it, and tagging an unreviewed build is backwards.
+ *
+ * Escape hatch is deliberate and loud: OPCHAIN_ALLOW_UNTAGGED_RELEASE=1.
+ */
+function assertReleaseTagged() {
+  if (STAGING) return;
+
+  if (process.env.OPCHAIN_ALLOW_UNTAGGED_RELEASE === "1") {
+    console.warn(
+      `[deploy:${TARGET}] \u26a0 OPCHAIN_ALLOW_UNTAGGED_RELEASE=1 — skipping the ` +
+        `release-tag check. If the catalog version moved, this ships a release ` +
+        `with no tag and publish-mcp-registry will not fire for it.`,
+    );
+    return;
+  }
+
+  const result = checkReleaseTag({ cwd: REPO_ROOT });
+  if (result.ok) {
+    console.log(`[deploy:${TARGET}] \u2713 release ${result.tag} is tagged and pushed`);
+    return;
+  }
+
+  const fix = remediation(result);
+  console.error(
+    `\n[deploy:${TARGET}] \u2717 REFUSING: the release ledger is incomplete.\n` +
+      `\n    ${result.errors.join("\n    ")}\n` +
+      `\nA production deploy publishes this catalog version to every consumer of` +
+      `\n/skills.json. Shipping it untagged means no bisect point, no release diff,` +
+      `\nand no MCP-registry republish (that workflow triggers on \`v*\` tags).` +
+      `\n(This is the 2026-08-26 ledger audit — see docs/plans/2026-08-26-git-ops-per-release.md.)\n` +
+      (fix ? `\n${fix}` : "") +
+      `\nIf you genuinely mean to ship untagged, say so out loud:` +
+      `\n    OPCHAIN_ALLOW_UNTAGGED_RELEASE=1 npm run deploy\n`,
+  );
+  process.exit(1);
+}
+
 assertStagingFromMain();
+assertReleaseTagged();
 
 const { loaded, source } = loadDevVars();
 if (source) {

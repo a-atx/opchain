@@ -1,7 +1,7 @@
 ---
 name: oc-release-ops
 displayName: OC · Release Ops
-version: 1.8.2
+version: 1.8.3
 license: Apache-2.0
 shortDesc: Plan, draft, bump, announce, ship a release. Closes the loop from sprints to /changelog to oc-git-ops to oc-deploy-ops.
 phases: [build]
@@ -270,6 +270,12 @@ End-of-pipeline handoff.
      chaining).
    - Run `/oc-git-sync v<semver>` with the bump commit. oc-git-ops opens / merges
      the release PR.
+   - **After the PR merges, run `/oc-git-release <semver>`.** This is the step
+     that was missing until v1.8.3: the tag, and the push that fires
+     `publish-mcp-registry.yml`. Ten releases (v1.0–v1.7) shipped without it
+     because this handoff named no verb and oc-git-ops had none to name.
+     `npm run deploy` now refuses a release whose catalog version has no tag, so
+     skipping this step blocks the deploy rather than silently shipping.
 4. Hand off to `oc-deploy-ops`:
    - Invoke oc-deploy-ops.
    - Run `/oc-deploy staging` first; user eyeballs.
@@ -292,6 +298,7 @@ Runs in order; aborts on the first failure:
 | `/changelog` has the new release entry | grep for `rel-tag.*v<semver>` |
 | Release-PR docs packet current | oc-docs-forge `/oc-docs verify` — checkpoint `verified_for_sha` matches HEAD, PR body fragment has `## Documentation` |
 | Repo is PR-ready | oc-repo-ops `/oc-repo verify` — verdict PASS |
+| Release is tagged and pushed | `node scripts/check-release-tag.mjs` — the same check `npm run deploy` runs, so the gate you run and the gate that blocks you cannot disagree |
 | All skill versions match the release version | parse every SKILL.md frontmatter |
 | Styleguide badge matches | parse `site/src/pages/styleguide.astro` |
 
@@ -457,8 +464,11 @@ the PM write fails; flush is reconciliation only.
    the catalog is semver-stamped. Don't couple them.
 5. **Compatibility is a contract.** Every release explicitly states
    "back-compatible with X.Y" or lists migration steps. Silence is a bug.
-6. **Hand off, don't ship.** oc-release-ops produces artefacts; oc-git-ops merges,
-   oc-deploy-ops ships. Three skills, one pipeline.
+6. **Hand off, don't ship.** oc-release-ops produces artefacts; oc-git-ops merges
+   and tags, oc-deploy-ops ships. Three skills, one pipeline — and the seams
+   between them are held by machinery, not by this sentence. `/oc-release verify`
+   and `npm run deploy` both call `scripts/check-release-tag.mjs`; a release that
+   skips the oc-git-ops tag cannot reach production.
 7. **Reversibility until prod.** Every step before `/oc-deploy` is reversible.
    After prod, fix forward with a new release.
 8. **Dogfood the cadence.** opchain itself uses oc-release-ops for its own

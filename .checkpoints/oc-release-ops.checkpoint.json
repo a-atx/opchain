@@ -3,12 +3,12 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-01T05:14:17Z",
+  "updated_at": "2026-08-28T00:08:37.458Z",
   "skill": "oc-release-ops",
   "phase": "ship-pr-open",
-  "step": "surfaces-pr-open",
+  "step": "v1.8.3-pr-457-green",
   "status": "in_progress",
-  "progress_summary": "v1.8.2 (Enforcement that ships): the skills catalog landed on main via #410 (94de0c1, 2026-07-27), which deliberately deferred the release surfaces. Those surfaces sat unmerged on claude/opchain-checkpoints-telemetry-5103ec and are now landing via a PR from claude/opchain-plugin-install-0bc345 (squash of that branch @ c14936d): the Claude Code plugin (plugins/opchain — commit-gate/session-state/next-suggestion hooks, 8 slash commands, skills symlink), .claude-plugin/marketplace.json, skills/CHANGELOG.md [1.8.2] entry, site /changelog entry + /install plugin front door, server.json 1.8.2, mirror-public.yml shipping plugins/ + .claude-plugin/ (cp -RL), deploy.mjs staging-from-main guard, and a CI test:hooks step. Gates at PR time: vitest 450/450, test:hooks both suites green (13/13 suggestion), checkpoint:validate 12 valid.",
+  "progress_summary": "v1.8.3 \"Open seams, closed ledger\" — first Apache-2.0 release, and the release-ledger fix. Catalog bumped 1.8.2→1.8.3 across 29 skills + plugin mirror, styleguide badge, server.json; /changelog card + skills/CHANGELOG.md entry cover all 42 commits that were live in prod under the v1.8.2 label (Apache-2.0, seams S1–S5, roadmap→GitHub Issues, security incidents, a11y, 60→6 Dependabot alerts, Astro 7). New: scripts/check-release-tag.mjs + deploy.mjs prod guard, /oc-git-release verb, registry monotonicity guard, release-ledger.yml backstop. Gates green: 473 tests, astro check 0/0, 76 pages, 13/13 hooks.",
   "context_primer": {
     "key_decisions": [
       "Semver v1.8.0 minor, theme 'Documentation & repo hygiene' from the changelog Coming Next card.",
@@ -26,10 +26,9 @@
     ]
   },
   "next_actions": [
-    "Merge the surfaces PR on green CI; verify the mirror-public run pushed plugins/ + .claude-plugin/ to asfbay-bit/opchain-skills, then smoke-test /plugin marketplace add asfbay-bit/opchain-skills + /plugin install opchain.",
-    "Tag v1.8.2 on the merge commit — publish-mcp-registry syncs the MCP registry from server.json 1.8.2.",
-    "From main: npm run deploy:staging, eyeball /changelog + /install + /architecture, then npm run deploy; close the deploy-lag issue if open.",
-    "Flush pm_deferred_actions via /oc-release announce --retry-pm once Linear MCP is authenticated."
+    "After merge: /oc-git-release 1.8.3 (or git tag -a v1.8.3 && git push origin v1.8.3). npm run deploy is BLOCKED until this happens — that is the new guard working.",
+    "Then npm run deploy:staging from main, eyeball /changelog + /install, then npm run deploy. Deploys are laptop-only (wrangler login).",
+    "Then backfill the 10 historical tags (v1.0-v1.7) — pre-approved, and safe only once the publish-mcp-registry monotonicity guard from #457 is on main."
   ],
   "pm_refs": [],
   "skill_state": {
