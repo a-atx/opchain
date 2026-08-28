@@ -3,12 +3,12 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T02:32:10.000Z",
+  "updated_at": "2026-08-28T02:52:43.000Z",
   "skill": "oc-release-ops",
   "phase": "release-pr-prep",
-  "step": "v1.8.3-sealed-tag-baseline",
+  "step": "v1.8.3-human-checklist-pr",
   "status": "in_progress",
-  "progress_summary": "The follow-up release baseline is sealed at c1610a856455fb690024b4e92389cf46044d1de0. The seal binds catalog v1.8.3 generation 1 to the exact hardened publisher workflow and MCP registry payload; the gate requires an annotated signed tag, successful local pre-push verification, and byte-identical raw tag-object plus peeled-commit agreement with origin. The branch is fully audited and ready for its one-at-a-time PR. No v1.8.3 tag or deployment exists.",
+  "progress_summary": "PR #462 merged the sealed release baseline at 09de3425155a7f1fca6051e27e78e6233907034e and exact-SHA tests, build, seal digests, code audit, and security audit passed. A post-merge process audit found one stale condensed checklist line; fa5e628 updates it to require the merged seal, exact workflow/server digests, same-SHA staging, local gate before push, and remote gate afterward. That focused fix is PR-ready. No v1.8.3 tag or deployment exists.",
   "context_primer": {
     "key_decisions": [
       "Never tag 438ab5f: it has the claimed catalog version but predates the hardened publisher workflow and release seal.",
@@ -21,8 +21,8 @@
     ]
   },
   "next_actions": [
-    "Open the focused release-seal PR, wait for every required check, and squash-merge only when green.",
-    "Fetch the exact merge SHA and rerun code, security, release-gate, test, and build validation.",
+    "Open the focused human-checklist PR, wait for every required check, and squash-merge only when green.",
+    "Fetch the exact resulting main SHA and confirm the docs-only merge preserves the clean code and security verdicts.",
     "Obtain explicit confirmation before staging while the unauthenticated public MCP checkpoint HIGH remains deferred.",
     "Keep signed tag creation, staging eyeball, credentials, vote-history choice, production, and the Phase C flip at their human gates."
   ],
@@ -31,7 +31,7 @@
     "current_release": {
       "semver": "1.8.3",
       "theme": "Open seams, closed ledger",
-      "phase": "sealed-tag-baseline-pr",
+      "phase": "human-checklist-pr",
       "release_ticket_id": null,
       "started_at": "2026-07-24T00:00:00Z"
     },
@@ -61,7 +61,7 @@
       "schema_version": 1,
       "catalog_version": "1.8.3",
       "generation": 1,
-      "verified_for_sha": "c1610a856455fb690024b4e92389cf46044d1de0"
+      "verified_for_sha": "09de3425155a7f1fca6051e27e78e6233907034e"
     },
     "tag": {
       "name": "v1.8.3",

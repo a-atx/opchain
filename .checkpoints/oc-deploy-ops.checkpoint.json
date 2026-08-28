@@ -4,13 +4,13 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-08-27T23:49:17.485Z",
-  "updated_at": "2026-08-28T02:32:10.000Z",
+  "updated_at": "2026-08-28T02:52:43.000Z",
   "phase": "audit",
-  "step": "v1.8.3-followup-pr-before-staging",
+  "step": "v1.8.3-human-checklist-pr-before-staging",
   "status": "blocked",
-  "progress_summary": "The corrective branch c1610a856455fb690024b4e92389cf46044d1de0 has a clean code audit and remediates both release-path HIGH findings with a versioned seal and signed exact-tag verification. One unique HIGH remains: unauthenticated public MCP checkpoint state with a predictable default session and no TTL, size, or rate limits. Deploy Ops requires explicit user confirmation before any staging mutation, and the exact merged origin/main SHA must be re-audited first. No deployment has occurred.",
+  "progress_summary": "Exact merged SHA 09de3425155a7f1fca6051e27e78e6233907034e passed code and security re-audit: both release-path HIGHs are mechanically remediated and one unique HIGH remains, unauthenticated public MCP checkpoint state with a predictable default session and no TTL, size, or rate limits. The proposed docs-only checklist fix closes the sole MEDIUM process drift. Deploy Ops still requires its merge plus explicit user confirmation before any staging mutation. No deployment has occurred.",
   "next_actions": [
-    "Merge the focused release-seal PR and rerun both audits at the exact resulting origin/main SHA.",
+    "Merge the focused human-checklist PR and verify the exact resulting origin/main SHA.",
     "Obtain explicit user confirmation to proceed with staging while the public MCP checkpoint HIGH remains unresolved.",
     "Deploy that exact origin/main SHA to staging, then run Phase A automated and visual checks.",
     "Require separate explicit human approval plus every runbook prerequisite before production."
@@ -18,7 +18,7 @@
   "skill_state": {
     "current_env": "staging",
     "staging_version": "57ef163",
-    "target_version": "pending release-seal PR merge",
+    "target_version": "pending human-checklist PR merge; sealed baseline 09de342",
     "cloudflare_version_id": null,
     "staging_url": "https://staging.opchain.dev",
     "branch_preview": false,
@@ -26,7 +26,7 @@
     "audit_gate": {
       "critical": 0,
       "high": 1,
-      "scope": "c1610a856455fb690024b4e92389cf46044d1de0 branch audit; exact merged SHA pending",
+      "scope": "exact 09de342 security audit plus proposed fa5e628 docs-only checklist fix",
       "result": "warn-confirmation-required",
       "remediated_on_branch": [
         "historical tag executes historical publisher workflow",

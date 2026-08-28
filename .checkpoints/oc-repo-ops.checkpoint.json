@@ -3,17 +3,17 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T02:32:10.000Z",
+  "updated_at": "2026-08-28T02:52:43.000Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "codex/v1.8.3-exact-tag-gate",
-  "progress_summary": "Pre-PR readiness PASS for the focused v1.8.3 release-seal follow-up. The branch contains the seal, fail-closed signed-tag gate, 30 focused release-gate tests, synchronized plugin mirrors, and current operator documentation. Full validation passed with 491 tests, a 76-page build, clean production dependency audits, clean code and secret scans, and no generated OG image churn.",
+  "step": "codex/v1.8.3-human-checklist-gate",
+  "progress_summary": "Pre-PR readiness PASS for the one-line Phase A human-checklist correction. Independent re-audit reports 0 CRITICAL, 0 HIGH, and 0 MEDIUM code/process blockers after the patch. The branch passed 491 tests, 30 focused release-gate cases, a 76-page build, catalog/mirror checks, clean production dependency audits, and generated OG cleanup.",
   "context_primer": {
     "key_decisions": [
-      "Docs Forge packet is current for c1610a856455fb690024b4e92389cf46044d1de0 and contains the required Documentation section.",
-      "The real repository seal digests match the committed publisher workflow and server.json payload.",
-      "Build-generated OG image churn was restored and is excluded from the focused PR.",
+      "Docs Forge packet is current for fa5e62808827d03e24fe0baf736e9f79cc3ca909 and contains the required Documentation section.",
+      "The one-line checklist change is aligned with authoritative Phase A line 49 and closes the post-merge MEDIUM drift.",
+      "Build-generated OG image churn was restored and is excluded from the focused docs PR.",
       "The remaining public MCP checkpoint HIGH is a Deploy Ops confirmation gate, not a PR-readiness failure."
     ],
     "generated_files": [
@@ -30,10 +30,10 @@
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
-    "verified_for_sha": "c1610a856455fb690024b4e92389cf46044d1de0",
+    "verified_for_sha": "fa5e62808827d03e24fe0baf736e9f79cc3ca909",
     "last_verify": {
-      "at": "2026-08-28T02:32:10.000Z",
-      "branch": "codex/v1.8.3-exact-tag-gate",
+      "at": "2026-08-28T02:52:43.000Z",
+      "branch": "codex/v1.8.3-human-checklist-gate",
       "verdict": "PASS",
       "blocking_findings": []
     }
