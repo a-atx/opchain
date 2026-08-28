@@ -251,7 +251,7 @@ const plannedReleaseGroups = [
         >
           <span class="hero-chevron" aria-hidden="true">▶</span>
           <span class="hero-badge">latest release</span>
-          <span class="hero-ver">v1.8.0 → v1.8.2 · Jul 10 – Jul 24, 2026</span>
+          <span class="hero-ver">v1.8.0 → v1.8.3 · Jul 10 – Aug 27, 2026</span>
           <span class="hero-title">Documentation &amp; repo hygiene</span>
           <span class="hero-desc">
             Every PR should leave behind usable documentation, not just merged
@@ -323,6 +323,66 @@ const plannedReleaseGroups = [
               declare the license — so a compliance scanner can establish the terms
               from whatever it actually downloaded.
             </p>
+          </div>
+        </div>
+      </article>
+      <!-- v1.8.3 — the release-ledger patch under the v1.8 line. Deep-linkable from #v1-8-3.
+           Licensing is deliberately NOT re-told here: the #apache-2 topical card above owns
+           that story (RELEASING.md §4 rule 4). This card links to it instead. -->
+      <article class="rel-card" id="v1-8-3" data-card>
+        <button class="rc-row" type="button" aria-expanded="false" aria-controls="v1-8-3-body" data-disclosure-toggle>
+          <span class="rc-toggle" aria-hidden="true">&#9654;</span>
+          <span class="rc-meta">
+            <span class="rc-head"><span class="ver-pill ver-pill--past">v1.8.3 patch</span><span class="rc-title">Open seams, closed ledger</span><span class="rc-date">Aug 27, 2026</span></span>
+            <span class="rc-summary">A release that skips its git tag can no longer reach production &mdash; plus the repository seams that let the skills tree ship on its own.</span>
+          </span>
+        </button>
+        <div class="card-body" id="v1-8-3-body" data-disclosure-body inert>
+          <div class="card-body-inner">
+            <div class="tag-row"><span class="tag">release ledger</span><span class="tag">OSS seams</span><span class="tag">60&rarr;6 alerts</span><span class="tag">29 skills</span></div>
+            <h3>The release ledger closes</h3>
+            <p>
+              An audit compared this page to <code>git tag</code> and found
+              <strong>thirteen shipped releases and three tags</strong>. v1.0 through
+              v1.7 all shipped untagged &mdash; and because the MCP-registry publisher
+              triggers on <code>v*</code> tags, ten releases never republished the
+              registry pointer.
+            </p>
+            <p>
+              The cause was structural. Release Ops handed off &ldquo;the merge /
+              tag&rdquo; to <a href="/skills/oc-git-ops">Git Ops</a> &mdash;
+              <strong>a skill with no tag verb</strong>. The handoff named a step that
+              did not exist, and nothing checked whether it happened.
+            </p>
+            <ul>
+              <li><strong><code>/oc-git-release</code></strong> gives Git Ops the tag it was always supposed to cut. It refuses an unmerged HEAD, a version that disagrees with the catalog, or a tag that already exists.</li>
+              <li><strong>The deploy refuses.</strong> A production deploy is blocked when the catalog version has moved somewhere no tag follows. It reads the lockstep skill version, so content deploys never trip it.</li>
+              <li><strong>One check, two callers.</strong> The release verify step and the deploy path run the same script, so the check you run and the check that blocks you cannot drift apart.</li>
+              <li><strong>A daily backstop</strong> tracks any shipped release still missing a tag &mdash; catching what the gate cannot, like a tag made locally and never pushed.</li>
+            </ul>
+            <h3>Repository seams</h3>
+            <p>
+              Five changes let the skills tree build and ship independently of the
+              site tooling: input-path overrides for every skills-tree reader, flag
+              validation split out of the product validator, internal identifiers
+              scrubbed from shipped text, the site building against a vendored skills
+              tree, and the plugin&rsquo;s skills directory materialised. Groundwork
+              for making the public repository the primary one.
+            </p>
+            <h3>Also in this patch</h3>
+            <ul>
+              <li>The roadmap on this page is sourced from <strong>GitHub Issues instead of Linear</strong>, with contact details kept out of public issues.</li>
+              <li>Vulnerability reports become security incidents rather than ordinary issues.</li>
+              <li>Scrollable code blocks on <a href="/install">/install</a> and elsewhere are keyboard-focusable.</li>
+              <li>Open dependency alerts cut from <strong>60 to 6</strong>, including a move to Astro 7.</li>
+              <li>Licensing moved to Apache-2.0 &mdash; see <a href="#apache-2">Apache-2.0, everywhere it ships</a> above.</li>
+            </ul>
+            <div class="compat-box">
+              <strong>Back-compatible with v1.8.2.</strong> All 29 skills lockstep-bump
+              to <code>1.8.3</code>. No checkpoint migration; no commands or routes
+              removed. The one behavioural change is that a production deploy now
+              refuses an untagged release &mdash; deliberate, and overridable out loud.
+            </div>
           </div>
         </div>
       </article>
