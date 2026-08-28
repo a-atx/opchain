@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-08-27T19:31:30Z",
+  "updated_at": "2026-08-27T20:16:51.398Z",
   "phase": "launch",
-  "step": "roadmap-v1-9-v2-series-awaiting-production-approval",
+  "step": "pr-454-open-awaiting-review",
   "status": "in_progress",
-  "progress_summary": "2026-08-27: v1.9 Assurance and governed delivery ops plus the v2.0-v2.3 sequence shipped through PR #451 (merge 4b1f720) and staging. Staging smoke/health, deployed-content assertions, a staging vote, and the dry-run request path passed. Production is paused at the runbook's fresh explicit-approval gate.",
+  "progress_summary": "The v2.0 plan and /changelog now specify oc-hindsight and oc-evolve as governed multi-agent workflows; draft PR #454 is open and awaiting CI/review.",
   "progress_table": [
     {
       "id": "discovery",
@@ -49,7 +49,8 @@
       "Calendar extends blog-overhaul-plan.md instead of rivaling it: §8 QA checklist retained as the per-post gate, S6 '~2/mo, no quota' principle preserved via an explicit slip-don't-fill rule; July runs M/W/F deliberately (launch-window backlog).",
       "Series ledger: 'Dogfooding opchain' grew to 5 parts (cost pair joined); July opens 'Seams & Signals in practice' (4 parts: modularize playbook, golden-fixture anatomy, fleet playbook, signal playbook).",
       "Hero rotation relies on newest-featured-wins in blog/index.astro — old featured flags don't need retiring.",
-      "Voice: house style per §3 (confident, technical, slightly irreverent, shows the seams) with humor dialed up on user request; every post keeps descriptions 120–160 chars and ≥2 internal links."
+      "Voice: house style per §3 (confident, technical, slightly irreverent, shows the seams) with humor dialed up on user request; every post keeps descriptions 120–160 chars and ≥2 internal links.",
+      "v1.9 adds four skills first (29→33); v2.0 then adds two workflow skills (33→35): oc-hindsight governs operational memory and oc-evolve governs behavior change; both isolate Planner/Generator/Evaluator contexts and end activation at a human gate."
     ],
     "generated_files": [
       "site/src/blog/2026-06-25-v1-6-the-instrumented-pipeline.md",
@@ -62,7 +63,9 @@
       "site/src/blog/2026-07-02-seo-for-robots-that-arent-googlebot.md",
       "site/src/blog/2026-07-03-we-deleted-our-deploy-pipeline-on-purpose.md",
       "docs/blog-content-calendar.md",
-      "docs/blog-overhaul-plan.md (status header + Wave 3 table updated)"
+      "docs/blog-overhaul-plan.md (status header + Wave 3 table updated)",
+      "docs/releases/2.0-plan.md",
+      "site/src/pages/changelog.astro"
     ],
     "user_preferences": [
       "Picks options when given clear choices; comfortable with 'go with defaults'.",
@@ -74,15 +77,8 @@
   },
   "blockers": [],
   "next_actions": [
-    "Site surface pass 2026-08-25 done (docs/plans/2026-08-25-site-surface-pass.md): top actions = (1) deploy main+#422 (prod ~1 month stale, off-main), (2) shared repo const site/src/lib/repo.ts, (3) /privacy overhaul + /security scope + security.txt Expires as one compliance PR, (4) release/counts module + pinned-surfaces test (~30 drifting strings), (5) kill four fabrications (npx opchain install, \"$7.41 measured\" over sample data, \"when v2 ships\", /orchestrator).",
-    "OSS split: all four decisions recorded; relicense to Apache-2.0 executed in PR #416 (https://github.com/asfbay-bit/opchain/pull/416). After merge: seam PRs S1–S5 → governance pack → extraction, per docs/plans/2026-08-22-oss-split-licensing-compliance.md §2/§5.",
-    "URGENT USER: prod is serving 90b90c2 (branch codex/checkpoint-audit-staging, forked pre-blog) — the blog is NOT live in production. Fix: cd .claude/worktrees/silly-tu-56b768 && npm run deploy (staging already validated ed2902b). Deploy-lag canary will nag until done.",
-    "2026-07-03 post DROPPED (owner call 07-04): moved to site/drafts/ drawer, permanently unpublished; calendar slot marked slipped.",
-    "Flips are automated from 07-04: scheduled agent (M/W/F mornings, America/Chicago) flips only a draft dated exactly that day, PRs, merges on green, notifies that a deploy is owed. Next flips: 07-06 monolith playbook, 07-08 golden-fixture anatomy.",
-    "Per-slot writing resumes Jul 10 ('From Compose guilt to a governed fleet').",
-    "v1.8 theme is being re-slated to 'Documentation and repo hygiene' (oc-docs-forge + oc-repo-ops) in uncommitted work on codex/1-7-release — snapshot pushed as tag wip/v1-8-docs-mesh-20260703. Rebase onto main when Codex is done (zero file overlap with blog work; fix stale '26 skills' subtitle). Jul 29 release-post slot inherits the theme.",
-    "/architecture Lighthouse fix (stable 0.89) deferred until after v1.8 lands (page churns then).",
-    "Voice calibration is locked (user: 'keep this level') — recorded in auto-memory feedback_blog_voice.md."
+    "Review and merge PR #454 after CI passes.",
+    "After merge, deploy and smoke-test staging before any production approval."
   ],
   "skill_state": {
     "feature": {
@@ -138,11 +134,28 @@
       "decision": "v1.9 Assurance and governed delivery ops; v2.0 The self-improving pipeline; voting for v2.1-v2.3",
       "recovered_plan": "docs/releases/2.0-plan.md (source worktree preserved unmodified)",
       "public_roadmap": {
-        "v1.9": ["#8 oc-qa-ops", "#9 oc-data-ops", "#10 oc-compliance-ops", "#11 oc-security-hardening"],
-        "v2.0": ["#12 The self-improving pipeline"],
-        "v2.1": ["#1 Marketplace + templates", "#4 Claude.ai web skill install", "#5 VS Code / Cursor extension"],
-        "v2.2": ["#2 Agency play", "#7 oc-monorepo-ops"],
-        "v2.3": ["#3 Pipeline depth", "#6 oc-discovery-ops"]
+        "v1.9": [
+          "#8 oc-qa-ops",
+          "#9 oc-data-ops",
+          "#10 oc-compliance-ops",
+          "#11 oc-security-hardening"
+        ],
+        "v2.0": [
+          "#12 The self-improving pipeline"
+        ],
+        "v2.1": [
+          "#1 Marketplace + templates",
+          "#4 Claude.ai web skill install",
+          "#5 VS Code / Cursor extension"
+        ],
+        "v2.2": [
+          "#2 Agency play",
+          "#7 oc-monorepo-ops"
+        ],
+        "v2.3": [
+          "#3 Pipeline depth",
+          "#6 oc-discovery-ops"
+        ]
       },
       "vote_policy": "v1.9 and v2.0 are selected/committed and render without vote controls; v2.1-v2.3 render 7 vote controls using preserved GitHub issue ids",
       "superseded": "v1.10 and v1.11 milestones closed after all issues were reassigned",
@@ -150,7 +163,21 @@
       "pr": "https://github.com/asfbay-bit/opchain/pull/451 merged as 4b1f7201c5aa76ba92d4888545df77bcb61f5e96 with Worker, site, Playwright, and Lighthouse CI green",
       "staging": "4b1f720 deployed; smoke and health green; deployed HTML verified exact 4/1/3/2/2 grouping and vote ids 1,4,5,2,7,3,6; staging vote #1 incremented; feature request returned STAGING-DRY-RUN",
       "staging_browser_note": "Safari loaded the cache-busted staging URL but its accessibility tree remained trapped in the Resources menu; no browser substitution was used because Safari was an explicit user constraint",
-      "production_gate": "awaiting a fresh explicit yes after the refreshed staging evidence; production has not been deployed"
+      "production_gate": "awaiting a fresh explicit yes after the refreshed staging evidence; production has not been deployed",
+      "v2_workflow_revision": {
+        "at": "2026-08-27",
+        "catalog": "33→35",
+        "skills": [
+          "oc-hindsight",
+          "oc-evolve"
+        ],
+        "hindsight_topology": "Planner/Curator → Lesson Generator → isolated Retrieval Evaluator → human promotion",
+        "evolve_topology": "Reflector/Planner → Rule Generator → isolated Adversarial Evaluator → human adoption",
+        "scorecard": "mechanical substrate, not a skill",
+        "roadmap_issue": "https://github.com/asfbay-bit/opchain-skills/issues/12 updated",
+        "site": "/changelog#v2-0 updated and visually verified",
+        "pr": "https://github.com/asfbay-bit/opchain/pull/454"
+      }
     },
     "roadmap_github_issues": {
       "doc": "docs/plans/2026-08-26-roadmap-github-issues.md",
