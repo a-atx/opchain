@@ -50,7 +50,7 @@
       "Series ledger: 'Dogfooding opchain' grew to 5 parts (cost pair joined); July opens 'Seams & Signals in practice' (4 parts: modularize playbook, golden-fixture anatomy, fleet playbook, signal playbook).",
       "Hero rotation relies on newest-featured-wins in blog/index.astro — old featured flags don't need retiring.",
       "Voice: house style per §3 (confident, technical, slightly irreverent, shows the seams) with humor dialed up on user request; every post keeps descriptions 120–160 chars and ≥2 internal links.",
-      "v2.0 now adds two workflow skills (29→31): oc-hindsight governs operational memory and oc-evolve governs behavior change; both isolate Planner/Generator/Evaluator contexts and end activation at a human gate."
+      "v1.9 adds four skills first (29→33); v2.0 then adds two workflow skills (33→35): oc-hindsight governs operational memory and oc-evolve governs behavior change; both isolate Planner/Generator/Evaluator contexts and end activation at a human gate."
     ],
     "generated_files": [
       "site/src/blog/2026-06-25-v1-6-the-instrumented-pipeline.md",
@@ -166,7 +166,7 @@
       "production_gate": "awaiting a fresh explicit yes after the refreshed staging evidence; production has not been deployed",
       "v2_workflow_revision": {
         "at": "2026-08-27",
-        "catalog": "29→31",
+        "catalog": "33→35",
         "skills": [
           "oc-hindsight",
           "oc-evolve"
