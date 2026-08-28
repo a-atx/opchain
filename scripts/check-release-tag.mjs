@@ -35,24 +35,59 @@
 // so it is blind to a patch release. The catalog version is full semver.
 //
 // Run:   node scripts/check-release-tag.mjs
-// Exit:  0 when the release is tagged (or when no new release is being made),
-//        1 when the catalog claims a version that git has no tag for.
+//        node scripts/check-release-tag.mjs --local   # signed pre-push gate
+// Exit:  0 when the release tag and seal are valid, 1 when any release-ledger
+//        or signature invariant is unprovable.
 
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
+const RELEASE_SEAL_PATH = "release-seal.json";
+const PUBLISHER_WORKFLOW_PATH = ".github/workflows/publish-mcp-registry.yml";
+const MCP_SERVER_PATH = "server.json";
 
 /** Run git, returning trimmed stdout, or null on any failure. Never throws. */
 function realGit(args, cwd) {
   try {
     const r = spawnSync("git", args, { cwd, encoding: "utf8" });
-    return r.status === 0 ? (r.stdout || "").trim() : null;
+    if (r.status !== 0) return null;
+    // Workflow digests seal exact blob bytes; do not discard their trailing
+    // newline. Other git probes are scalar/list values and remain trimmed.
+    return args[0] === "show" ? (r.stdout || "") : (r.stdout || "").trim();
   } catch {
     return null;
   }
+}
+
+/** Parse the small, versioned baseline marker that every release tag inherits. */
+function parseReleaseSeal(text, version) {
+  if (typeof text !== "string" || text.trim() === "") return null;
+  try {
+    const seal = JSON.parse(text);
+    const keys = Object.keys(seal).sort().join(",");
+    if (keys !== "catalogVersion,generation,publisherWorkflowSha256,schemaVersion,serverJsonSha256") return null;
+    if (seal.schemaVersion !== 1 || seal.catalogVersion !== version) return null;
+    if (!Number.isSafeInteger(seal.generation) || seal.generation < 1 || seal.generation > 9999) return null;
+    if (!/^[0-9a-f]{64}$/.test(seal.publisherWorkflowSha256)) return null;
+    if (!/^[0-9a-f]{64}$/.test(seal.serverJsonSha256)) return null;
+    return {
+      schemaVersion: seal.schemaVersion,
+      catalogVersion: seal.catalogVersion,
+      generation: seal.generation,
+      publisherWorkflowSha256: seal.publisherWorkflowSha256,
+      serverJsonSha256: seal.serverJsonSha256,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function sha256(text) {
+  return createHash("sha256").update(text).digest("hex");
 }
 
 /**
@@ -109,7 +144,13 @@ export function readCatalogVersion(skillsDir) {
  * catalog — is a refusal, never a pass. A gate whose error path is "allow" is
  * a formality; the commit gate learned that the expensive way (GATE-03).
  */
-export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(ROOT, "skills"), fetch = true } = {}) {
+export function checkReleaseTag({
+  cwd = ROOT,
+  git = realGit,
+  skillsDir = join(ROOT, "skills"),
+  fetch = true,
+  verifyRemote = true,
+} = {}) {
   const { version, disagreement, count } = readCatalogVersion(skillsDir);
 
   if (disagreement) {
@@ -153,8 +194,45 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
   // Best-effort: a stale local tag list would fail an honest deploy.
   if (fetch) git(["fetch", "origin", "--tags", "--quiet"], cwd);
 
+  // Validate the new release baseline before telling an operator to create the
+  // tag. Discovering a stale seal after a published tag exists would require a
+  // new version, because release tags are immutable.
+  const headSealText = git(["show", `HEAD:${RELEASE_SEAL_PATH}`], cwd);
+  const headSeal = parseReleaseSeal(headSealText, version);
+  if (!headSeal) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "release-seal-invalid",
+      errors: [
+        `${RELEASE_SEAL_PATH} at HEAD is missing, malformed, or does not name catalog ${version}.`,
+        "Update the release seal atomically with every catalog-version bump.",
+      ],
+    };
+  }
+
   const localTag = git(["rev-parse", "-q", "--verify", `refs/tags/${tag}`], cwd);
   if (!localTag) {
+    const headWorkflow = git(["show", `HEAD:${PUBLISHER_WORKFLOW_PATH}`], cwd);
+    const headServer = git(["show", `HEAD:${MCP_SERVER_PATH}`], cwd);
+    if (
+      headWorkflow === null ||
+      sha256(headWorkflow) !== headSeal.publisherWorkflowSha256 ||
+      headServer === null ||
+      sha256(headServer) !== headSeal.serverJsonSha256
+    ) {
+      return {
+        ok: false,
+        version,
+        tag,
+        reason: "release-seal-workflow-mismatch",
+        errors: [
+          `${RELEASE_SEAL_PATH} does not seal the publisher workflow and server.json at HEAD.`,
+          "Refresh both SHA-256 fields before creating the immutable release tag.",
+        ],
+      };
+    }
     return {
       ok: false,
       version,
@@ -164,15 +242,30 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
     };
   }
 
+  const tagType = git(["cat-file", "-t", `refs/tags/${tag}`], cwd);
+  if (tagType !== "tag") {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "unsigned-tag",
+      errors: [`${tag} is lightweight, not a signed annotated release tag.`],
+    };
+  }
+  if (git(["verify-tag", "--raw", tag], cwd) === null) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "invalid-tag-signature",
+      errors: [`${tag} does not have a valid signature trusted by this release environment.`],
+    };
+  }
+
   // The tag must describe code that is actually in what we are shipping.
   // A tag on an unrelated branch would satisfy "exists" and mean nothing.
-  //
-  // Routed through the injected `git` rather than spawnSync so it is testable.
-  // The first cut called spawnSync directly here, which made the "unit" tests
-  // secretly depend on the real repo's tag graph: they passed locally and failed
-  // in CI, where actions/checkout is shallow and carries no tags.
-  // `--is-ancestor` communicates through the exit code, so success is "" (exit 0,
-  // no stdout) and failure is null — distinguishable, since "" !== null.
+  // `--is-ancestor` communicates through the exit code, so success is "" (exit
+  // 0, no stdout) and failure is null — distinguishable because "" !== null.
   const reachable = git(["merge-base", "--is-ancestor", tag, "HEAD"], cwd) !== null;
   if (!reachable) {
     return {
@@ -181,6 +274,53 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
       tag,
       reason: "unreachable-tag",
       errors: [`${tag} exists but is not an ancestor of HEAD — it describes code you are not shipping.`],
+    };
+  }
+
+  // Version/count plus ancestry is still too weak. v1.8.3 was bumped before
+  // its publisher workflow was hardened, so the unsafe ancestor 438ab5f has a
+  // complete same-version catalog. The release seal marks the reviewed baseline
+  // for that catalog version. Later content descendants inherit it and still
+  // pass; older same-version ancestors and half-applied future bumps fail closed.
+  const tagSealText = git(["show", `${tag}:${RELEASE_SEAL_PATH}`], cwd);
+  const tagSeal = parseReleaseSeal(tagSealText, version);
+  if (!tagSeal) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "tag-release-seal-invalid",
+      errors: [`${tag} predates the reviewed ${version} release baseline or contains an invalid ${RELEASE_SEAL_PATH}.`],
+    };
+  }
+  if (JSON.stringify(tagSeal) !== JSON.stringify(headSeal)) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "tag-release-seal-mismatch",
+      errors: [`${tag} does not contain the release seal committed for the ${version} baseline.`],
+    };
+  }
+
+  const taggedWorkflow = git(["show", `${tag}:${PUBLISHER_WORKFLOW_PATH}`], cwd);
+  if (taggedWorkflow === null || sha256(taggedWorkflow) !== tagSeal.publisherWorkflowSha256) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "tag-publisher-workflow-mismatch",
+      errors: [`${tag} does not contain the publisher workflow sealed by the reviewed ${version} baseline.`],
+    };
+  }
+  const taggedServer = git(["show", `${tag}:${MCP_SERVER_PATH}`], cwd);
+  if (taggedServer === null || sha256(taggedServer) !== tagSeal.serverJsonSha256) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "tag-server-json-mismatch",
+      errors: [`${tag} does not contain the MCP registry payload sealed by the reviewed ${version} baseline.`],
     };
   }
 
@@ -220,6 +360,10 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
     };
   }
 
+  if (!verifyRemote) {
+    return { ok: true, version, tag, reason: "tagged-local", errors: [] };
+  }
+
   const onOrigin = git(
     ["ls-remote", "--tags", "origin", `refs/tags/${tag}`, `refs/tags/${tag}^{}`],
     cwd,
@@ -250,7 +394,17 @@ export function checkReleaseTag({ cwd = ROOT, git = realGit, skillsDir = join(RO
       return [ref, sha];
     }),
   );
+  const remoteObject = remoteRefs.get(`refs/tags/${tag}`);
   const remoteCommit = remoteRefs.get(`refs/tags/${tag}^{}`) ?? remoteRefs.get(`refs/tags/${tag}`);
+  if (!remoteObject || remoteObject !== localTag) {
+    return {
+      ok: false,
+      version,
+      tag,
+      reason: "remote-tag-object-mismatch",
+      errors: [`origin ${tag} is not the same signed tag object verified locally.`],
+    };
+  }
   if (!localCommit || !remoteCommit || localCommit !== remoteCommit) {
     return {
       ok: false,
@@ -272,7 +426,8 @@ export function remediation({ version, tag, reason }) {
   if (reason === "missing-tag") {
     return (
       `Tag the release before shipping it:\n` +
-      `    git tag -a ${tag} -m "release: ${tag}"\n` +
+      `    git tag -s ${tag} -m "release: ${tag}"\n` +
+      `    node scripts/check-release-tag.mjs --local\n` +
       `    git push origin ${tag}\n\n` +
       `Or run /oc-git-release ${version}, which does both and records the tag\n` +
       `in the oc-git-ops checkpoint.\n`
@@ -283,14 +438,16 @@ export function remediation({ version, tag, reason }) {
 
 // CLI
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = checkReleaseTag();
+  const localOnly = process.argv.includes("--local");
+  const result = checkReleaseTag({ verifyRemote: !localOnly });
   console.log("RELEASE TAG CHECK");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log(`  catalog version:  ${result.version ?? "(unreadable)"}`);
   console.log(`  expected tag:     ${result.tag ?? "(n/a)"}`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   if (result.ok) {
-    console.log(`✓ ${result.tag} exists, is an ancestor of HEAD, and is on origin`);
+    const suffix = localOnly ? "passes the signed local pre-push gate" : "matches the same signed tag object on origin";
+    console.log(`✓ ${result.tag} carries the reviewed release seal, is an ancestor of HEAD, and ${suffix}`);
     process.exit(0);
   }
   console.error(`✗ release-tag check failed:\n  - ${result.errors.join("\n  - ")}`);

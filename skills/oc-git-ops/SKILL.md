@@ -410,6 +410,8 @@ Refuse and explain, rather than tagging anyway, if:
   is worse than no tag — it points at code nobody else has).
 - The lockstep catalog version in `skills/*/SKILL.md` does not equal `<semver>`.
   A tag that disagrees with the catalog is a second lie, not a fix.
+- `release-seal.json` is missing or names another catalog version. The seal is
+  the reviewed baseline an eventual tag must inherit.
 - A tag `v<semver>` already exists. Never move a published tag; cut the next
   patch instead. `publish-mcp-registry.yml` has already fired for the old one.
 
@@ -417,11 +419,16 @@ Refuse and explain, rather than tagging anyway, if:
 
 1. `git fetch origin main --tags`
 2. Verify the preconditions above.
-3. `git tag -a v<semver> -m "release: v<semver> — <theme>"` on the merge commit.
-4. `git push origin v<semver>` — this is what triggers
+3. `git tag -s v<semver> -m "release: v<semver> — <theme>"` on the reviewed
+   merge commit. This is a human gate: if the signing key is unavailable, stop
+   rather than substituting an unsigned or agent-authored tag.
+4. `node scripts/check-release-tag.mjs --local` — verify the seal, exact tagged
+   publisher-workflow and `server.json` payload digests, catalog, ancestry, and
+   tag signature **before** a push can trigger the OIDC publisher.
+5. `git push origin v<semver>` — this is what triggers
    `.github/workflows/publish-mcp-registry.yml`. An unpushed tag republishes
    nothing.
-5. Append to `oc-git-ops.checkpoint.json`:
+6. Append to `oc-git-ops.checkpoint.json`:
 
 ```json
 { "skill_state": { "releases": [
@@ -429,7 +436,9 @@ Refuse and explain, rather than tagging anyway, if:
 ] } }
 ```
 
-6. Verify with `node scripts/check-release-tag.mjs` (exit 0).
+7. Verify with `node scripts/check-release-tag.mjs` (exit 0). This remote gate
+   proves origin contains the same signed tag object, not merely a different tag
+   that peels to the same commit.
 
 ### This verb is not the enforcement
 
