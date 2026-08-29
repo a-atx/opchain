@@ -3,35 +3,45 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T02:52:43.000Z",
+  "updated_at": "2026-08-29T04:59:09.000Z",
   "skill": "oc-release-ops",
-  "phase": "release-pr-prep",
-  "step": "v1.8.3-human-checklist-pr",
-  "status": "in_progress",
-  "progress_summary": "PR #462 merged the sealed release baseline at 09de3425155a7f1fca6051e27e78e6233907034e and exact-SHA tests, build, seal digests, code audit, and security audit passed. A post-merge process audit found one stale condensed checklist line; fa5e628 updates it to require the merged seal, exact workflow/server digests, same-SHA staging, local gate before push, and remote gate afterward. That focused fix is PR-ready. No v1.8.3 tag or deployment exists.",
+  "phase": "release-tag",
+  "step": "phase-a-publisher-workflow-exception",
+  "status": "blocked",
+  "progress_summary": "Aidan created and pushed signed tag v1.8.3 at exact reviewed SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; local and origin tag objects match and both release-tag gates pass. GitHub run 33234878843 published the exact sealed v1.8.3 record during its Validate step, and the official registry now reports it active/latest, but the subsequent Publish step returned 400 duplicate-version and the workflow concluded failure. Phase A requires workflow success, so production remains blocked pending a narrowly documented HUMAN exception; do not rerun or mutate the tag.",
   "context_primer": {
     "key_decisions": [
       "Never tag 438ab5f: it has the claimed catalog version but predates the hardened publisher workflow and release seal.",
       "A copied or stale seal fails because the workflow and server.json hashes are recomputed at the verified commit.",
       "Later content-only descendants may ship when their sealed generation is an ancestor, but an unreachable, differently signed, or differently peeled remote tag fails closed.",
-      "The signed tag remains a human gate after the same-SHA staging review; production and the Phase C flip remain separately gated."
+      "The signed tag remains a human gate after the same-SHA staging review; production and the Phase C flip remain separately gated.",
+      "For v1.8.3, mcp-publisher v1.8.1 treated publish --dry-run as a real publish; the authoritative registry outcome succeeded, but the second publish made the workflow red. Any exception must be one-time, evidence-bound, documented, and explicitly accepted by Aidan."
     ],
     "generated_files": [
       "release-seal.json"
     ]
   },
+  "blockers": [
+    {
+      "id": "phase-a-publisher-workflow-exception",
+      "description": "The official registry contains v1.8.3 as active/latest with the exact sealed server metadata, but tag workflow run 33234878843 concluded failure because its Validate step published via mcp-publisher publish --dry-run and its Publish step then received 400 duplicate-version. Phase A requires workflow success, so production remains stopped pending an explicit documented disposition.",
+      "needs": "user_decision",
+      "proposed_resolution": "Land a narrowly scoped runbook exception keyed to run 33234878843 and the immutable tag evidence, then obtain Aidan's explicit acceptance. Do not rerun, move, delete, or replace v1.8.3."
+    }
+  ],
   "next_actions": [
-    "Open the focused human-checklist PR, wait for every required check, and squash-merge only when green.",
-    "Fetch the exact resulting main SHA and confirm the docs-only merge preserves the clean code and security verdicts.",
-    "Obtain explicit confirmation before staging while the unauthenticated public MCP checkpoint HIGH remains deferred.",
-    "Keep signed tag creation, staging eyeball, credentials, vote-history choice, production, and the Phase C flip at their human gates."
+    "Document the one-time v1.8.3 publisher outcome exception in a narrow PR and obtain Aidan's explicit acceptance.",
+    "Aidan sets ROADMAP_GITHUB_TOKEN in staging; production already has it.",
+    "Record that vote migration is skipped because the applicable OPC-170/173/174 legacy keys are absent; leave unrelated historical keys untouched.",
+    "Require explicit production acceptance of the deferred HIGH and separate production approval before regenerating roadmap data and deploying only 395fc314c836d5d9d8a76b64d85b8380ece3a68b; do not begin Phase C.",
+    "Before the next post-cut-over release tag push, replace publish --dry-run with the supported validation path and record that repaired workflow hash in the next version's new release seal."
   ],
   "pm_refs": [],
   "skill_state": {
     "current_release": {
       "semver": "1.8.3",
       "theme": "Open seams, closed ledger",
-      "phase": "human-checklist-pr",
+      "phase": "registry-published-workflow-exception",
       "release_ticket_id": null,
       "started_at": "2026-07-24T00:00:00Z"
     },
@@ -61,13 +71,46 @@
       "schema_version": 1,
       "catalog_version": "1.8.3",
       "generation": 1,
-      "verified_for_sha": "09de3425155a7f1fca6051e27e78e6233907034e"
+      "verified_for_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b"
     },
     "tag": {
       "name": "v1.8.3",
-      "local": false,
-      "origin": false,
-      "required_type": "annotated-and-signed"
+      "local": true,
+      "origin": true,
+      "required_type": "annotated-and-signed",
+      "object_sha": "5ba19cedb72a994dd32d4c4f53e5a962bd68b283",
+      "peeled_commit": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "signature": "valid",
+      "signer": "Aidan Elsesser <admin@opchain.dev>",
+      "signing_fingerprint": "0B62AC18DBF70E5D0A16572613F2AB1A91C4CDBD",
+      "local_gate": "pass",
+      "remote_gate": "pass"
+    },
+    "staging": {
+      "url": "https://staging.opchain.dev",
+      "git_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "cloudflare_version_id": "a8d3d1de-885e-466c-b762-ee2e946c8261",
+      "automated_review": "pass",
+      "computer_control_review": "pass — Safari",
+      "high_acceptance_scope": "staging-only",
+      "human_approved": true,
+      "human_approved_at": "2026-08-29T03:23:40.000Z",
+      "production_authorized": false
+    },
+    "publisher": {
+      "workflow_run_id": 33234878843,
+      "workflow_run_url": "https://github.com/asfbay-bit/opchain/actions/runs/33234878843",
+      "workflow_head_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "workflow_conclusion": "failure",
+      "validate_step": "success — published v1.8.3",
+      "publish_step": "failure — 400 duplicate version",
+      "registry_version_url": "https://registry.modelcontextprotocol.io/v0.1/servers/io.github.asfbay-bit%2Fopchain-skills/versions/1.8.3",
+      "registry_outcome": "published",
+      "registry_status": "active",
+      "registry_is_latest": true,
+      "registry_published_at": "2026-08-29T04:53:31.36821Z",
+      "registry_metadata_matches_server_json": true,
+      "disposition": "awaiting-documented-human-exception"
     },
     "pm_deferred_actions": [
       {

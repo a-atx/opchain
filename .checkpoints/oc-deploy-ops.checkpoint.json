@@ -4,48 +4,100 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-08-27T23:49:17.485Z",
-  "updated_at": "2026-08-28T02:52:43.000Z",
-  "phase": "audit",
-  "step": "v1.8.3-human-checklist-pr-before-staging",
+  "updated_at": "2026-08-29T04:59:09.000Z",
+  "phase": "staging",
+  "step": "phase-a-publisher-workflow-exception",
   "status": "blocked",
-  "progress_summary": "Exact merged SHA 09de3425155a7f1fca6051e27e78e6233907034e passed code and security re-audit: both release-path HIGHs are mechanically remediated and one unique HIGH remains, unauthenticated public MCP checkpoint state with a predictable default session and no TTL, size, or rate limits. The proposed docs-only checklist fix closes the sole MEDIUM process drift. Deploy Ops still requires its merge plus explicit user confirmation before any staging mutation. No deployment has occurred.",
+  "progress_summary": "Exact reviewed SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b remains healthy on staging, and signed v1.8.3 passes both local and origin tag gates. Registry publication landed as active/latest with exact sealed metadata, but workflow run 33234878843 concluded failure after its Validate step published and its Publish step received a duplicate-version response. The remaining HIGH is still accepted for staging only. Production is healthy at 57ef163 and untouched; deployment is blocked on a documented publisher exception, the missing staging roadmap secret, explicit production HIGH acceptance, and separate production approval.",
+  "blockers": [
+    {
+      "id": "phase-a-publisher-workflow-exception",
+      "description": "The official registry contains v1.8.3 as active/latest with exact sealed metadata, but tag workflow run 33234878843 concluded failure after a real publish in its Validate step and a duplicate-version failure in its Publish step.",
+      "blocking": "publisher-disposition",
+      "needs": "user_decision",
+      "proposed_resolution": "Land a one-time, evidence-bound runbook exception and obtain Aidan's explicit acceptance. Do not rerun or mutate v1.8.3."
+    }
+  ],
   "next_actions": [
-    "Merge the focused human-checklist PR and verify the exact resulting origin/main SHA.",
-    "Obtain explicit user confirmation to proceed with staging while the public MCP checkpoint HIGH remains unresolved.",
-    "Deploy that exact origin/main SHA to staging, then run Phase A automated and visual checks.",
-    "Require separate explicit human approval plus every runbook prerequisite before production."
+    "Document the v1.8.3 publisher exception in a narrow PR and obtain Aidan's explicit acceptance.",
+    "Aidan sets ROADMAP_GITHUB_TOKEN in staging; production already has it.",
+    "Record migration skipped because applicable legacy vote keys OPC-170/173/174 are absent; leave unrelated historical keys untouched.",
+    "Obtain explicit production acceptance of the deferred HIGH and separate production approval before regenerating roadmap data and deploying only SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; do not begin Phase C."
   ],
   "skill_state": {
     "current_env": "staging",
-    "staging_version": "57ef163",
-    "target_version": "pending human-checklist PR merge; sealed baseline 09de342",
-    "cloudflare_version_id": null,
+    "staging_version": "395fc31",
+    "target_version": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+    "cloudflare_version_id": "a8d3d1de-885e-466c-b762-ee2e946c8261",
+    "cloudflare_deployment_id": "ca34bb7a-1d7a-485a-be28-a0fe94589bec",
     "staging_url": "https://staging.opchain.dev",
     "branch_preview": false,
-    "source_pr": null,
+    "last_deploy": "2026-08-29T00:21:15.361984Z",
+    "source_pr": 465,
     "audit_gate": {
       "critical": 0,
       "high": 1,
-      "scope": "exact 09de342 security audit plus proposed fa5e628 docs-only checklist fix",
-      "result": "warn-confirmation-required",
+      "medium": 0,
+      "scope": "exact merged SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b post-merge code and security audits",
+      "result": "warn-confirmed-staging-only",
       "remediated_on_branch": [
         "historical tag executes historical publisher workflow",
-        "release tag was not bound to its catalog or matching remote tag object and commit"
+        "release tag was not bound to its catalog or matching remote tag object and commit",
+        "security private-advisory CTA contrast in dark/light rest and hover states (PR #465)"
       ],
       "deferred": [
         "unauthenticated MCP checkpoint read/write with predictable default session and no TTL/size/rate limits"
-      ]
+      ],
+      "confirmation": {
+        "high_accepted": true,
+        "scope": "staging-only",
+        "staging_eyeball_approved": true,
+        "staging_eyeball_approved_at": "2026-08-29T03:23:40.000Z",
+        "signed_tag_authorized": true,
+        "signed_tag_verified": true,
+        "production_authorized": false
+      }
     },
     "smoke_results": {
-      "health": "not_run",
-      "home": "not_run",
-      "zip": "not_run",
-      "license": "not_run",
-      "redirect": "not_run",
-      "headers": "not_run",
-      "content": "not_run",
-      "visual": "not_run"
+      "health": "pass — 200 application/json with ok:true and version 395fc31",
+      "home": "pass — 200 text/html",
+      "zip": "pass — /opchain-skills.zip reachable",
+      "license": "pass — /LICENSE serves Apache-2.0 text",
+      "redirect": "pass — legacy skill URL redirects to /skills/oc-code-auditor",
+      "headers": "pass — required homepage security headers present",
+      "content": "pass — all eight Phase A pages returned 200; security.txt is GitHub-first with Expires; skills.json reports Apache-2.0, catalog 1.8.3, and 29 skills; changelog has 7 unique vote targets and 12 roadmap items",
+      "visual": "pass — Safari Computer Control verified the /security private-advisory link in dark and light themes, the populated /changelog roadmap voting panel and expanded Apache-2.0 card, /showcase sample-labeled $7.41 copy, and the footer Apache-2.0 link; deployed CTA computed styles also passed rest/hover assertions"
     },
-    "rollback_available": true
+    "release_gate": {
+      "signed_tag": "pass",
+      "remote_tag_match": "pass",
+      "tag_object_sha": "5ba19cedb72a994dd32d4c4f53e5a962bd68b283",
+      "peeled_commit": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "publisher_workflow_run_id": 33234878843,
+      "publisher_workflow_conclusion": "failure",
+      "registry_publication": "pass — active/latest/exact",
+      "registry_published_at": "2026-08-29T04:53:31.36821Z",
+      "disposition": "blocked-awaiting-documented-human-exception"
+    },
+    "production_preflight": {
+      "current_version": "57ef163",
+      "roadmap_token_production": "present",
+      "roadmap_token_staging": "absent — HUMAN prerequisite",
+      "vote_migration": "skip recommended — applicable OPC-170/173/174 keys absent; unrelated historical keys left untouched",
+      "roadmap_regeneration_required": true,
+      "production_high_accepted": false,
+      "production_authorized": false
+    },
+    "rollback_available": true,
+    "rollback_target": {
+      "staging_version": "57ef163",
+      "cloudflare_version_id": "256b4f7d-8fb4-4eea-bf56-d299a4549405",
+      "reason": "Last known-good staging baseline; preferred over the immediate predecessor because 21b868e6-ac7a-4f8c-8db2-125f10113ac7 contains the security CTA contrast defect fixed by PR #465."
+    },
+    "immediate_predecessor": {
+      "staging_version": "9f135e5",
+      "cloudflare_version_id": "21b868e6-ac7a-4f8c-8db2-125f10113ac7",
+      "caveat": "Operationally available, but retains the known security CTA contrast defect fixed by PR #465."
+    }
   }
 }
