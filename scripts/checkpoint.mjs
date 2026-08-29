@@ -667,6 +667,22 @@ function driftTokens(all) {
   return toks;
 }
 
+/** Return the approved site release SHA when this checkout carries the site's
+ * monitoring baseline. The product repo intentionally does not: checkpoint
+ * remains product-owned after the split, while live deployment monitoring
+ * stays with opchain.dev. A missing baseline therefore means "not applicable",
+ * not drift. Malformed baselines still fail loudly for site checkouts. */
+function readApprovedReleaseBaseline(root = ROOT) {
+  const baselinePath = join(root, ".github", "monitoring", "release-baseline.json");
+  if (!existsSync(baselinePath)) return null;
+  const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
+  const expected = baseline?.release?.sourceShortSha;
+  if (!/^[0-9a-f]{7,12}$/.test(expected || "")) {
+    throw new Error("approved release baseline has no valid sourceShortSha");
+  }
+  return expected;
+}
+
 async function cmdDoctor(opts = {}) {
   const all = readAll();
   if (all.length === 0) { console.log("(no checkpoints found in .checkpoints/)"); return 0; }
@@ -732,24 +748,23 @@ async function cmdDoctor(opts = {}) {
   // docs/checkpoint/workflow-only commits may advance without a deploy.
   if (opts.online) {
     try {
-      const baselinePath = join(ROOT, ".github", "monitoring", "release-baseline.json");
-      const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
-      const expected = baseline?.release?.sourceShortSha;
-      if (!/^[0-9a-f]{7,12}$/.test(expected || "")) {
-        throw new Error("approved release baseline has no valid sourceShortSha");
-      }
-      // Cache-busting query string: the route is no-store at the origin, but
-      // a zone cache rule serving a stale HIT would fake a drift warning.
-      const res = await fetch(`https://opchain.dev/api/health?doctor=${Date.now()}`, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}${res.headers.get("cf-mitigated") === "challenge" ? " (Cloudflare challenge)" : ""}`);
-      const live = (await res.json()).version;
-      if (!/^[0-9a-f]{7,12}$/.test(String(live || ""))) {
-        throw new Error("health response has no valid version SHA");
-      }
-      if (!expected.startsWith(String(live)) && !String(live).startsWith(expected)) {
-        add("warn", "deploy", `live /api/health version=${live} != approved release baseline ${expected}`);
+      const expected = readApprovedReleaseBaseline();
+      if (expected == null) {
+        console.log("(online) skipped site health drift check: no opchain.dev release baseline in this checkout");
       } else {
-        console.log(`(online) live version ${live} matches approved release baseline ${expected}`);
+        // Cache-busting query string: the route is no-store at the origin, but
+        // a zone cache rule serving a stale HIT would fake a drift warning.
+        const res = await fetch(`https://opchain.dev/api/health?doctor=${Date.now()}`, { signal: AbortSignal.timeout(8000) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}${res.headers.get("cf-mitigated") === "challenge" ? " (Cloudflare challenge)" : ""}`);
+        const live = (await res.json()).version;
+        if (!/^[0-9a-f]{7,12}$/.test(String(live || ""))) {
+          throw new Error("health response has no valid version SHA");
+        }
+        if (!expected.startsWith(String(live)) && !String(live).startsWith(expected)) {
+          add("warn", "deploy", `live /api/health version=${live} != approved release baseline ${expected}`);
+        } else {
+          console.log(`(online) live version ${live} matches approved release baseline ${expected}`);
+        }
       }
     } catch (e) {
       add("warn", "deploy", `--online point-in-time health check unavailable: ${e.message}; run the authenticated Cloudflare control-plane monitor for deployment identity`);
@@ -944,7 +959,7 @@ function cmdReset(skill) {
 
 // Exported for tests. The CLI dispatch below only runs when invoked directly,
 // so importing this module (e.g. from vitest) is side-effect-free.
-export { validate, rankCheckpoint, pickNext, recommendedAction, actionText, harvestTokens, actionIsStale, firstFreshAction, budgetExceeded, SCHEMA_VERSION, ACCEPTED_SCHEMA_VERSIONS };
+export { validate, rankCheckpoint, pickNext, recommendedAction, actionText, harvestTokens, actionIsStale, firstFreshAction, budgetExceeded, readApprovedReleaseBaseline, SCHEMA_VERSION, ACCEPTED_SCHEMA_VERSIONS };
 
 // ───────────────────────────── arg parsing ──────────────────────────────────
 

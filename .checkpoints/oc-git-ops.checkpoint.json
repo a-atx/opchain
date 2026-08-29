@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-08-29T04:59:09.000Z",
-  "phase": "release-tag",
-  "step": "phase-a-publisher-workflow-exception",
-  "status": "blocked",
-  "progress_summary": "Signed v1.8.3 now exists locally and on origin as identical tag object 5ba19cedb72a994dd32d4c4f53e5a962bd68b283, peels to exact reviewed SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b, and passes both release-tag gates. Registry publication is active/latest/exact, but workflow run 33234878843 concluded failure because Validate published via publish --dry-run and Publish then received duplicate-version. Git Ops is blocked on a narrow documented exception and Aidan's explicit acceptance; production and Phase C remain separately gated.",
+  "updated_at": "2026-08-29T22:48:00.000Z",
+  "phase": "closeout",
+  "step": "closure-packet-gates-passed",
+  "status": "in_progress",
+  "progress_summary": "v1.8.3 production and git truth are reconciled through exact runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b and docs-only main descendant 5baa289ceeac5813f0a4392d6f63ed89cafa705f. Commit 9df7e0351ac8fc2676c6c6c8e9bf859a8340e484 implements the option-3 monitoring redesign; branch Canary run 33278930280 and Deploy lag run 33278931387 passed. The checkpoint/runbook/Phase C C0-C1 closure packet passed Docs Forge, Repo Ops, and Bug Check: 506 tests, full build, Astro zero errors, synchronized catalogs/bundles/plugin copy, clean staged secret scan, and no critical dependency advisory. Continuous monitoring remains redesign-validated-pending-merge. The staged packet is ready for a signed-off commit, normal push, and draft PR; no extraction, flip, merge, tag movement, or new runtime deployment has occurred.",
   "progress_table": [
     {
       "id": "v1.8.3-release-reconciliation",
@@ -28,7 +28,27 @@
     {
       "id": "v1.8.3-publisher-disposition",
       "label": "Registry publication outcome and publisher workflow disposition",
-      "status": "blocked"
+      "status": "complete"
+    },
+    {
+      "id": "phase-a-production-shipped",
+      "label": "Exact-SHA v1.8.3 production deploy and verification",
+      "status": "complete"
+    },
+    {
+      "id": "monitoring-redesign-branch-validation",
+      "label": "Canary and Deploy lag authenticated control-plane branch validation",
+      "status": "complete"
+    },
+    {
+      "id": "phase-c-c0-c1-preparation",
+      "label": "Phase C prerequisites, fixture scrub, and product manifest",
+      "status": "complete"
+    },
+    {
+      "id": "v1.8.3-closeout-pr",
+      "label": "Draft checkpoint/runbook closeout PR",
+      "status": "in_progress"
     },
     {
       "id": "pr-183",
@@ -110,22 +130,14 @@
       "Merges directly with single `merge` command after CI is mostly green; LHCI failures are treated as informational by default."
     ]
   },
-  "blockers": [
-    {
-      "id": "phase-a-publisher-workflow-exception",
-      "description": "Registry v1.8.3 is active/latest/exact, but workflow run 33234878843 concluded failure after Validate published and Publish received duplicate-version.",
-      "blocking": "v1.8.3-publisher-disposition",
-      "needs": "user_decision",
-      "proposed_resolution": "Land a narrow, evidence-bound runbook exception and obtain Aidan's explicit acceptance; do not rerun or mutate the signed tag."
-    }
-  ],
+  "blockers": [],
   "next_actions": [
-    "Document the one-time v1.8.3 publisher outcome exception in a narrow PR and obtain Aidan's explicit acceptance.",
-    "Keep production at the separate roadmap-secret, deferred-HIGH, and explicit approval gates.",
-    "Do not begin Phase C until the exception and Phase A production gates are resolved."
+    "Commit and push the checkpoint/runbook/Phase C preparation packet with DCO and Codex co-author trailers; the chained Bug Check, Docs Forge, and Repo Ops gates already passed.",
+    "Open a draft PR to main that states redesign-validated-pending-merge, does not claim continuous monitoring healthy, and says Phase C stops at C1 human review/freeze.",
+    "Do not merge the closeout PR. Do not perform Phase C extraction or C5; the repository flip still requires Aidan to say exactly 'flip now'."
   ],
   "skill_state": {
-    "current_branch": "codex/v1-8-3-publisher-exception (from origin/main 395fc314c836d5d9d8a76b64d85b8380ece3a68b)",
+    "current_branch": "codex/v1.8.3-phase-a-closeout (from origin/main 5baa289ceeac5813f0a4392d6f63ed89cafa705f; runtime release remains 395fc314c836d5d9d8a76b64d85b8380ece3a68b)",
     "open_prs": [
       {
         "number": 232,
@@ -364,7 +376,11 @@
     "oss_split": {
       "plan": "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
       "recommended": "A — invert the mirror; opchain-skills = source of truth; site consumes tag-pinned submodule + skills symlink",
-      "extraction_tool": "git filter-repo (not installed; brew 2.47.0)",
+      "extraction_tool": "git-filter-repo 2.47.0 installed; no extraction run",
+      "leak_scanner": "gitleaks 8.30.1 installed; no rewritten-history scan run",
+      "manifest": "split/product-paths.txt prepared for human review",
+      "pm_fixture": ".opchain/pm.yaml scrubbed of maintainer UUIDs and ADEV release-plan data",
+      "stale_drafts_closed": [385, 363],
       "product_commits": "~76–82 of 543",
       "tags_carried": [
         "v1.8.0",
@@ -395,9 +411,11 @@
     ],
     "open_prs+": null,
     "release_reconciliation": {
-      "merged_prs": [461, 462, 463, 465],
+      "merged_prs": [461, 462, 463, 465, 466],
       "release_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
-      "staging_version_id": "a8d3d1de-885e-466c-b762-ee2e946c8261",
+      "staging_review_version_id": "a8d3d1de-885e-466c-b762-ee2e946c8261",
+      "current_staging_version_id": "c52b3bd6-4eee-4e50-a8c3-e21569b998d6",
+      "current_staging_deployment_id": "8d709a57-181b-4ed7-90cc-ddf773ca14f4",
       "staging_human_approved": true,
       "staging_human_approved_at": "2026-08-29T03:23:40.000Z",
       "tag_local": true,
@@ -421,10 +439,48 @@
         "metadata_matches_server_json": true,
         "published_at": "2026-08-29T04:53:31.36821Z"
       },
-      "publisher_disposition": "awaiting-documented-human-exception",
-      "production_authorized": false
+      "publisher_disposition": "accepted-one-time-outcome-exception",
+      "publisher_exception_pr": 466,
+      "publisher_exception_merge_sha": "5baa289ceeac5813f0a4392d6f63ed89cafa705f",
+      "publisher_exception_accepted_at": "2026-08-29T12:05:05.000Z",
+      "production_authorized": true,
+      "production_authorized_at": "2026-08-29T14:44:56.000Z",
+      "production_authorized_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "production_deployment": {
+        "git_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+        "health_version": "395fc31",
+        "deployment_id": "7abc8570-6fcb-4942-b44e-8ef822f84b05",
+        "version_id": "780e85e2-7022-44fa-82f3-e5eaeb2b82a1",
+        "traffic_percent": 100,
+        "rollback_used": false
+      },
+      "continuous_monitoring": {
+        "status": "redesign-validated-pending-merge",
+        "canary_run_id": 33278930280,
+        "deploy_lag_run_id": 33278931387,
+        "default_branch_scheduled_activation": "pending closeout PR merge"
+      },
+      "phase_c": {
+        "authorized": true,
+        "scope": "reversible C0/C1 preparation only",
+        "status": "c0-complete-c1-manifest-prepared-human-review-pending",
+        "hard_stop": "No extraction or flip; C5 requires Aidan to say exactly 'flip now'."
+      }
     },
-    "last_pr_number": 465,
-    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/465"
+    "closure_packet": {
+      "status": "gates-passed-ready-to-commit",
+      "docs_forge": "PASS",
+      "repo_ops": "PASS",
+      "bug_check": "PASS with warnings",
+      "tests": "38 files, 506 tests passed",
+      "build": "PASS",
+      "astro_check": "0 errors, 49 hints",
+      "root_audit": "0 vulnerabilities",
+      "site_audit": "0 critical; 7 high, 1 moderate, 2 low pre-existing advisories",
+      "secret_scan": "PASS — gitleaks staged scan",
+      "pr_mode": "draft; do not merge"
+    },
+    "last_pr_number": 466,
+    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/466"
   }
 }

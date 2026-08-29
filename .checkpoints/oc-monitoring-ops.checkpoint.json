@@ -2,27 +2,138 @@
   "protocol_version": "1.1",
   "skill": "oc-monitoring-ops",
   "project": "opchain.dev",
-  "project_dir": "/Users/aidanelsesser/repos/opchain/.claude/worktrees/opchain-coordination-gaps-8bf890",
+  "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-20T03:50:45.264Z",
-  "updated_at": "2026-07-20T03:50:45.266Z",
-  "phase": "audit",
-  "step": "coordination-gap-observability-assessment",
+  "updated_at": "2026-08-29T22:39:06.000Z",
+  "phase": "observe",
+  "step": "redesign-validated-pending-merge",
   "status": "in_progress",
-  "progress_summary": "Invoked in assessment mode (not setup) alongside oc-app-architect to validate a six-part user RCA on opchain's coordination layer. Findings relevant to monitoring-ops: opchain's own observability of its pipeline is non-functional. oc-telemetry-ops advertises telemetry_handle.enabled=true since 2026-06-26 with sink .checkpoints/usage.sqlite, but nothing has ever called telemetry.mjs record (only caller is the package.json alias) and the sqlite store has never been created — 24 days of enabled-with-no-store, undetected. No oc-monitoring-ops checkpoint had ever existed in this repo before this write; oc-security-auditor has never run in repo history. checkpoint.mjs doctor detects 23 drift warnings including a 27-day-stale orchestrator, but doctor is not run by CI and nothing alarms on its output. Deploy/release audit gates are markdown tables with no executable enforcement.",
+  "progress_summary": "The v1.8.3 runtime is healthy at exact SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b, and the option-3 monitoring redesign has passed branch validation. Canary run 33278930280 authenticated to Cloudflare and verified the exact production and staging deployments, versions, domains, script settings, observability, and release-baseline ancestry. Deploy lag run 33278931387 found zero deploy-relevant changes and six explicitly non-deploying docs/checkpoint/workflow/test changes between the live release baseline and origin/main. This is not continuous-monitoring closure yet: scheduled default-branch workflows remain the old GitHub-curl implementation until the closeout PR is human-merged, and the redesigned branch runs intentionally skipped issue mutation. Bot Fight Mode remains enabled, no WAF exception exists, and public custom-domain machine traffic including /mcp may still be challenged.",
+  "progress_table": [
+    { "id": "live-runtime", "label": "Exact-SHA production health and control-plane verification", "status": "complete" },
+    { "id": "canary-redesign", "label": "Authenticated Cloudflare Canary branch validation", "status": "complete" },
+    { "id": "deploy-lag-redesign", "label": "Release-baseline Deploy lag branch validation", "status": "complete" },
+    { "id": "default-branch-activation", "label": "Merged default-branch scheduled workflow activation", "status": "not_started" },
+    { "id": "post-merge-scheduled-evidence", "label": "Successful scheduled Canary and Deploy lag evidence", "status": "not_started" }
+  ],
+  "blockers": [
+    {
+      "id": "default-branch-monitoring-activation",
+      "description": "Branch dispatch validates the redesigned code, but GitHub schedules execute the workflow on the default branch. Continuous monitoring cannot be called healthy before the closeout PR is human-merged and successful default-branch scheduled evidence exists.",
+      "blocking": "default-branch-activation",
+      "needs": "user_decision",
+      "proposed_resolution": "Human reviews and merges the draft closeout PR; then observe successful scheduled Canary and Deploy lag runs. This task must not merge the PR."
+    }
+  ],
   "next_actions": [
-    "Add `checkpoint doctor --fail-on-warnings` (or a drift-budget threshold) to ci.yml — doctor already detects the 27-day orchestrator drift, but nothing runs it, so drift is discoverable and never discovered.",
-    "Fix the oc-telemetry-ops liveness lie: either wire an actual `telemetry.mjs record` call site, or make `/oc-telemetry status` fail loudly when enabled=true and the sink is absent. Enabled-with-no-store must not read as healthy.",
-    "Treat 'monitoring the pipeline' as a first-class surface: the same enabled-but-silent failure that hit telemetry is the T0 gap in opchain's own observability of opchain.",
-    "Re-run /oc-monitor audit after the coordination-gaps patch lands to score the ecosystem's self-observability (currently ungraded — this skill had never run here)."
+    "Open the draft closeout PR with status redesign-validated-pending-merge and the exact branch-run URLs.",
+    "After human merge, capture successful default-branch scheduled Canary and Deploy lag run IDs before changing continuous_monitoring_status to healthy.",
+    "Keep Cloudflare Free-plan Bot Fight Mode enabled. Do not claim a WAF Skip exception, enable workers.dev, or upgrade the plan without new authority.",
+    "Retain CLOUDFLARE_ACCOUNT_ID and rotate CLOUDFLARE_API_TOKEN to a dedicated least-privilege read credential during Phase C8; do not delete monitoring credentials with the mirror token."
   ],
   "context_primer": {
     "key_decisions": [
-      "This invocation was assessment-only; no instrumentation, alerts, SLOs, or runbooks were created for opchain.dev.",
-      "The user's proposed 'post-merge auto-stamp workflow' fix was found to be a previously-shipped-and-removed anti-pattern (commit 66107d1, 2026-06-22).",
-      "SUPERSEDED by adversarial review: client-side hooks are NOT the answer either. `git -c core.hooksPath=/dev/null commit` bypasses a blocking .githooks/pre-commit while a sibling probe still reads ARMED (verified, git 2.50.1). All 6 adversarial verifiers converged instead on a required read-only CI status check on PR head — the only surface that is not per-clone, per-worktree, per-agent, or flag-defeatable, and the only one that reaches the second (Codex) agent.",
-      "Binding strength is a property of the SURFACE, not the wording. A tool description is re-presented every model call; a callee SKILL.md is read once and decays. This is why oc-git-ops:223's imperative mandate never fires."
+      "The monitoring redesign uses authenticated Cloudflare control-plane APIs rather than public GitHub-hosted curl traffic challenged by Bot Fight Mode.",
+      "Equivalent evidence includes exact deployment/version identity, 100% traffic, version fingerprint, custom-domain certificate/service state, ASSETS binding, and observability settings; it does not prove public machine reachability.",
+      "Deploy lag compares origin/main to the immutable v1.8.3 release baseline using deploy-relevant-diff semantics, including deletions, so docs/checkpoint-only descendants do not trigger a false drift incident.",
+      "Branch dispatches do not mutate monitoring issues and report redesign-validated-pending-merge.",
+      "The earlier telemetry and checkpoint-doctor observability gaps remain separate follow-up work."
     ],
-    "generated_files": ["docs/plans/coordination-gaps-overhaul.md"],
-    "user_preferences": []
+    "generated_files": [
+      ".github/monitoring/release-baseline.json",
+      ".github/scripts/cloudflare-monitor.mjs",
+      ".github/workflows/canary.yml",
+      ".github/workflows/deploy-lag.yml",
+      "tests/cloudflare-monitor.test.js",
+      "docs/runbooks/oss-split-execution-handoff.md"
+    ],
+    "user_preferences": [
+      "Keep Bot Fight Mode enabled.",
+      "Use option 3: redesign monitoring away from GitHub-hosted public curl probes.",
+      "Include reversible Phase C preparation but preserve the exact C5 flip-now human gate."
+    ]
+  },
+  "skill_state": {
+    "tier": "T0",
+    "tools": {
+      "logging": "Cloudflare Workers observability plus request-correlated structured JSON logging",
+      "error_tracking": "Cloudflare live logs only; no external error aggregator found",
+      "uptime": "authenticated Cloudflare control-plane Canary redesign validated on branch; default-branch scheduled activation pending merge",
+      "alerting": "GitHub issue reconciliation exists on the default branch path; branch validation intentionally skipped issue mutation"
+    },
+    "last_health_check": {
+      "at": "2026-08-29T15:03:02.000Z",
+      "status": "ok",
+      "samples": 5,
+      "http_status": 200,
+      "average_latency_ms": 1587.345,
+      "max_latency_ms": 1723.252,
+      "service": "opchain-dev",
+      "version": "395fc31",
+      "exact_runtime_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b"
+    },
+    "tls": {
+      "subject": "CN=opchain.dev",
+      "issuer": "Google Trust Services WE1",
+      "not_after": "2026-11-18T23:02:36Z",
+      "expiry_30_day_gate": "pass"
+    },
+    "production_deployment": {
+      "deployment_id": "7abc8570-6fcb-4942-b44e-8ef822f84b05",
+      "version_id": "780e85e2-7022-44fa-82f3-e5eaeb2b82a1",
+      "git_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "health_version": "395fc31",
+      "traffic_percent": 100
+    },
+    "staging_deployment": {
+      "deployment_id": "8d709a57-181b-4ed7-90cc-ddf773ca14f4",
+      "version_id": "c52b3bd6-4eee-4e50-a8c3-e21569b998d6",
+      "git_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "health_version": "395fc31",
+      "traffic_percent": 100
+    },
+    "live_log_probe": {
+      "version_filtered": true,
+      "observed_requests": 3,
+      "outcomes": ["ok", "ok", "ok"],
+      "exceptions": 0,
+      "error_logs": 0
+    },
+    "operational_status": "healthy",
+    "continuous_monitoring_status": "redesign-validated-pending-merge",
+    "scheduled_canary": {
+      "previous_default_branch_failure_run_id": 33272073249,
+      "previous_failure_cause": "HTTP 403 managed challenges on both production and staging public health probes",
+      "branch_validation_run_id": 33278930280,
+      "branch_validation_url": "https://github.com/asfbay-bit/opchain/actions/runs/33278930280",
+      "branch_head_sha": "9df7e0351ac8fc2676c6c6c8e9bf859a8340e484",
+      "branch_validation_conclusion": "success",
+      "default_branch_activation": "pending merge"
+    },
+    "deploy_lag_monitor": {
+      "previous_default_branch_failure_run_id": 33266202606,
+      "previous_failure_cause": "HTTP 403 managed challenge prevented public health-version comparison",
+      "branch_validation_run_id": 33278931387,
+      "branch_validation_url": "https://github.com/asfbay-bit/opchain/actions/runs/33278931387",
+      "branch_head_sha": "9df7e0351ac8fc2676c6c8e9bf859a8340e484",
+      "branch_validation_conclusion": "success",
+      "deploy_relevant_changes": 0,
+      "explicitly_non_deploying_changes": 6,
+      "has_changes": false,
+      "default_branch_activation": "pending merge"
+    },
+    "assurance_limits": [
+      "No WAF exception exists; Free-plan Bot Fight Mode remains enabled.",
+      "Authenticated control-plane evidence verifies deployment state, not public custom-domain machine reachability.",
+      "Public machine traffic, including /mcp, may still receive a managed challenge.",
+      "No external uptime provider, external error aggregator, or independent alert channel is configured."
+    ],
+    "active_incidents_observed": 0,
+    "runbook_count": 1,
+    "rollback_used": false,
+    "phase_c": {
+      "monitor_credentials": "retain CLOUDFLARE_ACCOUNT_ID and rotate CLOUDFLARE_API_TOKEN to least privilege during C8",
+      "mirror_token": "separate credential; retire only after C7 is fully green"
+    }
   }
 }

@@ -4,6 +4,8 @@ _Operator instructions for an autonomous agent (written for Codex; any competent
 
 _Rev 5 on 2026-08-29 records the evidence-bound v1.8.3 publisher exception discovered during execution: the pinned publisher's `publish --dry-run` performed the real publish, so the following publish failed as a duplicate even though the official registry outcome succeeded. This is a one-version adjudication, not a generic waiver for failed workflows._
 
+_Rev 6 on 2026-08-29 records the option-3 monitoring redesign and the user's Phase C authorization. Branch Canary run [33278930280](https://github.com/asfbay-bit/opchain/actions/runs/33278930280) and Deploy lag run [33278931387](https://github.com/asfbay-bit/opchain/actions/runs/33278931387) validate the authenticated Cloudflare control-plane design, but scheduled default-branch activation remains pending the closeout PR merge. Phase C may proceed through its documented gates; this closeout deliberately stops at the C1 HUMAN manifest review/freeze gate. It does not satisfy C5's exact `flip now` confirmation or authorize a merge, force-push, tag movement, extraction, or new runtime SHA._
+
 ## Decisions — already made, do not re-ask
 
 | # | Decision | Value |
@@ -35,6 +37,8 @@ gh api repos/asfbay-bit/opchain-skills --jq '{pushed_at, default_branch, open_is
 ```
 
 Current v1.8.3 closeout state (verified 2026-08-29): production and staging both report `395fc31` to normal local health traffic. Production deployment `7abc8570-6fcb-4942-b44e-8ef822f84b05` routes 100% to version `780e85e2-7022-44fa-82f3-e5eaeb2b82a1`; staging deployment `8d709a57-181b-4ed7-90cc-ddf773ca14f4` routes 100% to version `c52b3bd6-4eee-4e50-a8c3-e21569b998d6`. Both versions carry the approved script fingerprint. The reviewed runtime SHA remains `395fc314c836d5d9d8a76b64d85b8380ece3a68b`; signed local/origin tag `v1.8.3` object `5ba19cedb72a994dd32d4c4f53e5a962bd68b283` peels to it; and official registry 1.8.3 is active/latest/exact under the accepted one-time publisher disposition. Later `origin/main` is a docs/checkpoint-only descendant, so follow the release-baseline carveout rather than restaging or redeploying it. Reality previously diverged from rev 4's intended ordering: **#459 (the v1.8.3 site half) merged before the tag. Do not replay or revert it.** If `opchain-skills` has *commits* newer than the last mirror run or open *PRs*, **stop — the cut-over plan assumed a disposable snapshot repo; re-assess with Aidan.** Open **issues** on `opchain-skills` are expected: the roadmap files community issues there (12 as of writing — see the roadmap plan doc). They survive the flip (a force-push rewrites git history, not issues), but re-read that doc before C5.
+
+Monitoring closeout state: the old default-branch Canary run `33272073249` and Deploy lag run `33266202606` failed because GitHub-hosted public `/api/health` traffic received Cloudflare managed challenges. Free-plan Bot Fight Mode remains enabled and no narrow WAF Skip exception exists. The option-3 workflows instead authenticate to Cloudflare and validate deployment/version/domain/settings state against `.github/monitoring/release-baseline.json`; Deploy lag uses deploy-relevant-diff semantics, including deletions, so the six intentional docs/checkpoint/workflow/test changes after live `395fc31` do not create false drift. Branch runs `33278930280` and `33278931387` passed at head `9df7e0351ac8fc2676c6c6c8e9bf859a8340e484`, but they intentionally skipped issue mutation and do **not** make scheduled monitoring healthy. Call the state `redesign-validated-pending-merge` until the closeout PR is human-merged and successful default-branch scheduled runs are captured. Assurance limit: control-plane evidence verifies what Cloudflare deployed; it does not prove that public custom-domain machine traffic, including `/mcp`, avoids Bot Fight Mode challenges.
 
 ## Phase A — Staging review → prod ship
 
@@ -70,7 +74,11 @@ Rewrite `site/src/pages/privacy.astro` so every claim matches `src/index.js` at 
 
 ## Phase C — The flip (plan §2.4–§2.5 as amended by S1–S5 and this doc; §5 is the rollback table)
 
+Closeout-branch boundary: the user authorized Phase C, and this branch performs the reversible C0 prerequisites plus prepares C1 for review. Stop at C1's HUMAN manifest review/freeze gate. Do not begin C2 extraction, disable the mirror, push rewritten history or tags, merge a PR, or deploy another runtime SHA from this closeout. C5 separately requires Aidan to say exactly `flip now`.
+
 **C0 — Prereqs.** `brew install git-filter-repo gitleaks`. Close stale drafts #385/#363 if still open. **`publish-mcp-registry.yml` hardening: DONE in the rev-4 PR** (mcp-publisher pinned to an exact version with `sha256sum -c` verification; `actions/checkout` SHA-pinned) — verify it is still pinned before any `v*` tag push or the extraction, since that workflow runs with `id-token: write` and moves into the product repo at the flip. **Scrub `.opchain/pm.yaml`** in the same PR (plan §2.2 requires it to enter the product repo as a fixture: strip the Linear team/project UUIDs and the ADEV ticket plan). The freeze (below) waits until C1's manifest exists, because the freeze scope IS the manifest.
+
+C0 closeout evidence: `git-filter-repo` 2.47.0 and `gitleaks` 8.30.1 are installed; stale drafts #385 and #363 were verified not to touch product paths and closed; the publisher workflow remains version-pinned, checksum-verified, and SHA-pins checkout; `.opchain/pm.yaml` is a neutral fixture; and real `LICENSE`/`NOTICE` copies now live inside `plugins/opchain/` and `mcp/`. These file changes are pending the closeout PR merge.
 
 **C1 — Manifest.** Create `split/product-paths.txt` in the monorepo from plan §2.2, re-derived against the current tree. Beyond the plan's table:
 - New seam scripts: `sync-plugin-skills.mjs` and `lint-internal-refs.mjs` are product-pure and **move**; `check-skill-flags.mjs` imports the site flag registry and **stays**.
@@ -78,6 +86,8 @@ Rewrite `site/src/pages/privacy.astro` so every claim matches `src/index.js` at 
 - `scripts/lib/frontmatter.mjs` is **dual-homed**: it goes in the manifest (the product's validators and `mcp/local-server.mjs` need it at runtime) **and stays in the site repo** — C6 must NOT `git rm` it, because `check-skill-flags.mjs:14` imports it. Same for `scripts/install-git-drivers.mjs` (extraction copies it; the site keeps its own).
 - Governance files: add root `SECURITY.md`, `CODE_OF_CONDUCT.md`, `TRADEMARKS.md`, `NOTICE`, `LICENSES/` explicitly. **CONTRIBUTING.md precedence:** the root file wins; therefore C2 must NOT rename `mirror/CONTRIBUTING.md` (collision — two sources mapping to one destination makes filter-repo refuse or pick arbitrarily); same logic for `mirror/SECURITY.md` (root `SECURITY.md` supersedes it — exclude the mirror copy from the manifest).
 PR the manifest for `⛔ HUMAN` review — the filter run is one-shot. **Then** `⛔ HUMAN` — Aidan announces the freeze on *every path in `split/product-paths.txt`* (not just the six directories; the manifest moves ~25 scripts/tests too). Freeze holds until the consume PR merges.
+
+C1 closeout evidence: `split/product-paths.txt` is prepared on the closeout branch with no duplicate or missing paths and no projected rename collision. The process manifest intentionally stays in the site repo rather than selecting itself; `docs/governance/GOVERNANCE.md` and `docs/governance/RELEASING.md` also stay site-side and are copied/adapted during C4. The product-owned checkpoint CLI treats a missing site monitoring baseline as not applicable, so extraction does not introduce a false `doctor --online` warning. The extracted repo still needs a sanitized product `.gitignore` in C4 before product commands run. Human review and the path freeze remain pending; C2 has not started.
 
 **C2 — Extraction** (fresh clone, never the working repo): plan §2.4 steps 2–4 verbatim (`git clone --no-local --single-branch --branch main`, record `EXTRACT_SHA`, optional `--mailmap`), then:
 ```
@@ -128,6 +138,8 @@ Two-PR flow. **Product half:** before any new tag, replace the publisher's `publ
 - [ ] Phase C5 "flip now"; C7 eyeball; Phase D eyeball
 - [ ] Install the DCO App on `opchain-skills` (C5); revoke the `MIRROR_TOKEN` PAT (C8)
 - [x] Monitoring disposition: keep Free-plan Bot Fight Mode enabled, use the authenticated control-plane redesign, and retain the documented residual risk for public machine traffic; no WAF Skip exception exists
+- [x] Phase C authorization accepted; reversible C0 prerequisites complete and C1 manifest prepared on the closeout branch
+- [ ] Phase C C1: HUMAN manifest review and path-freeze announcement before any extraction
 - [ ] Triage the ~6 open Dependabot alerts; decide the Astro 7 PR (#444)
 - [ ] Trademark clearance search (OPENCHAIN Reg. 5242152 / OPTCHAIN Reg. 7397498) **before any public announcement** of the contributor repo — full picture incl. the OP Labs "OP CHAIN" ITU blocker in [docs/legal/2026-08-25-opchain-trademark-knockout.md](../legal/2026-08-25-opchain-trademark-knockout.md)
 - [ ] Defensive namespace grabs while they're free (verified 2026-08-25): npm `opchain` **and** `opchain-skills`, the `@opchain` npm org scope, PyPI `opchain`, domain `opchain.io`, `opchain.bsky.social` — and keep an eye on **opchain.ai** (unknown party, "Launching Soon" email-capture lander)
