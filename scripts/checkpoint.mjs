@@ -15,7 +15,8 @@
  *                                     when every queued action is stale).
  *   doctor [--online] [--fail-on-warnings]
  *                                     Cross-check checkpoints against ground truth
- *                                     (git, filesystem, optionally /api/health) and
+ *                                     (git, filesystem, optionally the approved
+ *                                     deployment baseline + /api/health) and
  *                                     report drift. Exit 1 on hard inconsistencies;
  *                                     --fail-on-warnings also exits 1 on warnings.
  *   list                              List every checkpoint file with a one-line status.
@@ -726,21 +727,32 @@ async function cmdDoctor(opts = {}) {
     }
   }
 
-  // Drift 5 (F1/F3, optional): deployed version vs local HEAD via /api/health.
+  // Drift 5 (F1/F3, optional): point-in-time health response vs the approved
+  // release baseline. Raw local/main equality is deliberately not the contract:
+  // docs/checkpoint/workflow-only commits may advance without a deploy.
   if (opts.online) {
     try {
-      const head = execSync("git rev-parse --short HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
+      const baselinePath = join(ROOT, ".github", "monitoring", "release-baseline.json");
+      const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
+      const expected = baseline?.release?.sourceShortSha;
+      if (!/^[0-9a-f]{7,12}$/.test(expected || "")) {
+        throw new Error("approved release baseline has no valid sourceShortSha");
+      }
       // Cache-busting query string: the route is no-store at the origin, but
       // a zone cache rule serving a stale HIT would fake a drift warning.
       const res = await fetch(`https://opchain.dev/api/health?doctor=${Date.now()}`, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}${res.headers.get("cf-mitigated") === "challenge" ? " (Cloudflare challenge)" : ""}`);
       const live = (await res.json()).version;
-      if (live && head && !head.startsWith(String(live)) && !String(live).startsWith(head)) {
-        add("warn", "deploy", `live /api/health version=${live} != local HEAD ${head} — production may be behind main`);
+      if (!/^[0-9a-f]{7,12}$/.test(String(live || ""))) {
+        throw new Error("health response has no valid version SHA");
+      }
+      if (!expected.startsWith(String(live)) && !String(live).startsWith(expected)) {
+        add("warn", "deploy", `live /api/health version=${live} != approved release baseline ${expected}`);
       } else {
-        console.log(`(online) live version ${live} matches local HEAD ${head}`);
+        console.log(`(online) live version ${live} matches approved release baseline ${expected}`);
       }
     } catch (e) {
-      add("warn", "deploy", `--online check skipped: ${e.message}`);
+      add("warn", "deploy", `--online point-in-time health check unavailable: ${e.message}; run the authenticated Cloudflare control-plane monitor for deployment identity`);
     }
   }
 
@@ -758,7 +770,7 @@ async function cmdDoctor(opts = {}) {
   console.log(`${errs.length} error(s), ${warns.length} warning(s).`);
   const failOnWarn = Boolean(opts.failOnWarnings) && warns.length > 0;
   if (failOnWarn) console.log("Failing on warnings (--fail-on-warnings).");
-  if (!opts.online) console.log("Tip: `checkpoint doctor --online` also checks the deployed /api/health version.");
+  if (!opts.online) console.log("Tip: `checkpoint doctor --online` also compares a point-in-time /api/health response to the approved release baseline.");
   return (errs.length > 0 || failOnWarn) ? 1 : 0;
 }
 

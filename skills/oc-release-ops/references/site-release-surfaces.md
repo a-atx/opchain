@@ -20,8 +20,9 @@ prod.** So release-coupled surfaces fall into two groups:
 - **Live-claim surfaces** — "what's currently shipped/live." These assert prod
   state. Flip them at the **deploy moment** (the release-cut step, coupled with
   `npm run deploy`), exactly as the v1.5 cut did in PR #311. Flipping them in a
-  pre-deploy PR makes the site lie until the deploy lands, and trips the
-  deploy-lag canary (`.github/workflows/deploy-lag.yml`).
+  pre-deploy PR makes the site lie until the deploy lands and creates a
+  deploy-relevant difference from the approved release baseline checked by
+  `.github/workflows/deploy-lag.yml`.
 
 When `oc-release-ops` runs the cut: update forward surfaces in the release PR,
 then flip live-claim surfaces in the same PR **only if it deploys immediately
@@ -105,4 +106,9 @@ surface still references a superseded release once `CURRENT_RELEASE` has moved.
    coupled changelog tests, in the PR that is deployed immediately after merge.
 3. `npm run deploy:staging` → eyeball the rolled-forward surfaces on
    `staging.opchain.dev` → `npm run deploy`.
-4. Run the straggler check; close the deploy-lag issue if open.
+4. Run the straggler check. After smoke evidence passes, refresh
+   `.github/monitoring/release-baseline.json` with the exact Cloudflare
+   deployment/version ids, traffic, and script fingerprint; run the
+   control-plane + deploy-diff checks locally; and merge the reviewed baseline
+   update. The default-branch deploy-lag workflow reconciles its issue — do not
+   close it manually before the baseline gates pass.
