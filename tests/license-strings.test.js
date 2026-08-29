@@ -15,6 +15,10 @@ describe("Apache-2.0 relicense surfaces", () => {
     expect(read("LICENSE")).toMatch(/Apache License\s*\n\s*Version 2\.0, January 2004/);
     expect(read("LICENSES/Apache-2.0.txt")).toMatch(/Version 2\.0, January 2004/);
     expect(read("NOTICE")).toContain("Aidan Elsesser and the opchain contributors");
+    for (const dir of ["plugins/opchain", "mcp"]) {
+      expect(read(`${dir}/LICENSE`), `${dir} license copy`).toBe(read("LICENSE"));
+      expect(read(`${dir}/NOTICE`), `${dir} notice copy`).toBe(read("NOTICE"));
+    }
   });
 
   it("manifests declare Apache-2.0", () => {

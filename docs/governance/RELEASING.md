@@ -32,8 +32,8 @@ Every release-coupled surface is one of two kinds:
 - **Live-claim surfaces** — assert what's *currently shipped* (header version
   chip, "vN · shipped" bars, the open changelog hero). These flip **only in the
   release-cut PR, merged only when the deploy follows immediately.** Flipping
-  them early makes the site lie until the deploy lands and trips the deploy-lag
-  canary.
+  them early makes the site lie until the deploy lands and creates a
+  deploy-relevant difference from the approved release baseline.
 
 **Feature PRs never touch live-claim surfaces.** Not to "help," not to fix a
 typo in the version string, not as a drive-by. If you think a live-claim
@@ -165,13 +165,21 @@ release is the **deploy**, not the merge. The order is fixed:
    sweep, changelog entry/aging. **This PR must not claim vN before the vN tag
    exists** (step 2 first, always). Run the §6 audit prompt on it. Merge only
    when the deploy follows in the same sitting.
-4. **Deploy:** from a pulled `origin/main` checkout —
+4. **Deploy:** from the exact reviewed release checkout (normally pulled
+   `origin/main`) —
    `npm run gen-roadmap && npm run deploy:staging` → automated smoke
    (`npm run smoke:staging`) → **human eyeballs staging at the exact SHA that
    will ship** → `npm run gen-roadmap && npm run deploy` →
-   `npm run smoke:prod` → verify `/api/health` `version` equals the main short
-   SHA (cache-busted) and `/skills.json` `catalogVersion` equals the new
-   semver → close the open deploy-lag issue.
+   `npm run smoke:prod` → verify `/api/health` `version` equals the exact
+   deployed runtime SHA (cache-busted) and `/skills.json` `catalogVersion`
+   equals the new semver. Then update
+   `.github/monitoring/release-baseline.json` with the observed production and
+   staging deployment/version ids, 100% traffic, and script fingerprints; run
+   the control-plane and deploy-diff checks locally; and merge that reviewed
+   baseline update. Do not manually close a deploy-lag issue before those gates
+   pass — the default-branch workflow reconciles it from the approved baseline.
+   See [the Cloudflare challenge runbook](../runbooks/cloudflare-challenge.md)
+   for the control-plane assurance limit.
 5. **If the release is abandoned mid-review:** close the site-half PR
    unmerged. Because of the ordering, there is nothing live to roll back.
 

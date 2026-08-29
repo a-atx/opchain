@@ -1,4 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   validate,
   rankCheckpoint,
@@ -9,9 +12,28 @@ import {
   actionIsStale,
   firstFreshAction,
   budgetExceeded,
+  readApprovedReleaseBaseline,
   SCHEMA_VERSION,
   ACCEPTED_SCHEMA_VERSIONS,
 } from "../scripts/checkpoint.mjs";
+
+describe("approved release baseline seam", () => {
+  it("is optional in the extracted product checkout but validates when present", () => {
+    const root = mkdtempSync(join(tmpdir(), "opchain-checkpoint-baseline-"));
+    try {
+      expect(readApprovedReleaseBaseline(root)).toBeNull();
+      const dir = join(root, ".github", "monitoring");
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(
+        join(dir, "release-baseline.json"),
+        JSON.stringify({ release: { sourceShortSha: "395fc31" } }),
+      );
+      expect(readApprovedReleaseBaseline(root)).toBe("395fc31");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
 
 // A minimal, fully-valid in_progress checkpoint to clone per-test.
 function base(overrides = {}) {

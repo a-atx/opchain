@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "status": "approved-release-baseline",
+  "release": {
+    "tag": "v1.8.3",
+    "tagObject": "5ba19cedb72a994dd32d4c4f53e5a962bd68b283",
+    "sourceSha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+    "sourceShortSha": "395fc31"
+  },
+  "environments": {
+    "production": {
+      "worker": "opchain-dev",
+      "hostname": "opchain.dev",
+      "domainEnvironment": "production",
+      "deploymentId": "7abc8570-6fcb-4942-b44e-8ef822f84b05",
+      "versionId": "780e85e2-7022-44fa-82f3-e5eaeb2b82a1",
+      "trafficPercentage": 100,
+      "scriptEtag": "2f5fd4b60c834bc8440ae78fbaee0afdd8f85d7f3bd99f916832155690b52393",
+      "handlers": ["fetch"],
+      "bindings": ["ASSETS"],
+      "observabilityEnabled": true
+    },
+    "staging": {
+      "worker": "opchain-staging",
+      "hostname": "staging.opchain.dev",
+      "domainEnvironment": "production",
+      "deploymentId": "8d709a57-181b-4ed7-90cc-ddf773ca14f4",
+      "versionId": "c52b3bd6-4eee-4e50-a8c3-e21569b998d6",
+      "trafficPercentage": 100,
+      "scriptEtag": "2f5fd4b60c834bc8440ae78fbaee0afdd8f85d7f3bd99f916832155690b52393",
+      "handlers": ["fetch"],
+      "bindings": ["ASSETS"],
+      "observabilityEnabled": true
+    }
+  },
+  "deployLag": {
+    "semantics": "approved-release-baseline-with-deploy-relevant-diff",
+    "nonDeployPathPrefixes": [
+      ".checkpoints/",
+      ".claude/",
+      ".github/",
+      ".opchain/",
+      "checklists/",
+      "docs/",
+      "previews/",
+      "reports/",
+      "site/drafts/",
+      "site/tests/",
+      "specs/",
+      "split/",
+      "sprints/",
+      "tests/"
+    ],
+    "nonDeployPaths": [
+      ".env.example",
+      ".gitattributes",
+      ".gitignore",
+      "CLAUDE.md",
+      "CODE_OF_CONDUCT.md",
+      "CONTRIBUTING.md",
+      "README.md",
+      "SECURITY.md",
+      "TRADEMARKS.md",
+      "lighthouserc.cjs",
+      "lighthouserc.prod.cjs",
+      "scripts/checkpoint.mjs",
+      "vitest.config.js"
+    ]
+  },
+  "pointInTimeEvidence": {
+    "healthVersion": "395fc31",
+    "continuousCustomDomainProbe": false
+  }
+}

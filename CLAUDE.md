@@ -13,7 +13,7 @@ Deploys are **manual**, run from a developer laptop with `wrangler login` alread
 - **Version stamp:** `build.mjs` injects `__OPCHAIN_VERSION__` via esbuild `define`, sourced from `OPCHAIN_VERSION` env var or `git rev-parse --short HEAD`. Surfaced in `GET /api/health` (`version` JSON field + `X-Opchain-Version` response header on that route).
 - **Staging must come from `main`.** `npm run deploy:staging` should always run with `main` checked out and `git pull`'d, so `staging.opchain.dev` is a faithful preview of what production is about to become. Deploying staging from a feature branch leaves it on a SHA that isn't reachable from `main` and silently breaks the "I just looked at staging, it's safe to ship" gate. (The 2026-05-13 deploy gap was compounded by exactly this — staging was on `7303ab6`, a branch SHA not on main, while prod was 6 days stale.) Since v1.8.2 this is enforced by `scripts/deploy.mjs`, which refuses a staging deploy when HEAD isn't reachable from `origin/main`; the loud escape hatch is `OPCHAIN_ALLOW_OFF_MAIN_STAGING=1`.
 - **Releases must be tagged before they ship.** `npm run deploy` (production only) refuses when the lockstep catalog version in `skills/*/SKILL.md` has moved somewhere no git tag follows. This closes the release→git-ops edge: `oc-release-ops` always *said* it handed the tag to `oc-git-ops`, but oc-git-ops had no tag verb until v1.8.3, and a 2026-08-26 audit found 13 shipped releases against 3 tags — v1.0–v1.7 all shipped untagged, so `publish-mcp-registry.yml` (which fires on `v*` tags) never republished for any of them. Run `/oc-git-release <semver>` after the release PR merges, or `git tag -a v<semver> && git push origin v<semver>` by hand. The check is `npm run check-release-tag`; `/oc-release verify` calls the same script. Staging is exempt (you review before you tag). Loud escape hatch: `OPCHAIN_ALLOW_UNTAGGED_RELEASE=1`. A daily `release-ledger.yml` backstop tracks any shipped release still missing a tag. Full rationale: `docs/plans/2026-08-26-git-ops-per-release.md`.
-- **Deploy-lag guardrail:** `.github/workflows/deploy-lag.yml` runs daily and opens a single tracking issue when the live `version` from `/api/health` falls behind `main` HEAD. Close the issue after you deploy; the next run reopens it if drift persists. It also **fails loudly** (rather than silently skipping) if `opchain.dev` serves a Cloudflare "Just a moment…" challenge instead of JSON — that interstitial blocks the canary *and* the `/mcp` endpoint Codex uses. See `docs/runbooks/cloudflare-challenge.md` for the WAF/Bots fix.
+- **Monitoring + deploy-lag guardrail:** GitHub-hosted `/api/health` probes are selectively challenged by Free-plan Bot Fight Mode, which cannot be bypassed with a WAF Skip rule. `.github/workflows/canary.yml` therefore verifies the approved production/staging deployments, versions, 100% traffic, script fingerprints/bindings, domains, and observability through Cloudflare's authenticated control plane. `.github/workflows/deploy-lag.yml` runs daily against `.github/monitoring/release-baseline.json` and opens one issue only when paths after the approved runtime SHA are deploy-relevant; docs/checkpoint/workflow-only descendants do not create false lag. A green run does not prove public `/api/health` or `/mcp` reachability. See `docs/runbooks/cloudflare-challenge.md` for the assurance boundary and baseline-refresh procedure.
 
 ### Deploy flow
 
@@ -39,7 +39,7 @@ feature branch ─► PR ─► CI green (tests only) ─► merge to main
 - `npm run deploy:staging` → `node scripts/deploy.mjs --staging` → `wrangler deploy --env staging`
 - `npm run deploy` → `node scripts/deploy.mjs` → `wrangler deploy` (production)
 - The wrapper loads `.dev.vars` into the build env and inlines the `PUBLIC_POSTHOG_*` analytics vars. It **no longer requires `LINEAR_API_KEY`**: `POST /api/feedback` still uses it for bug/improvement/security tickets, but the `/changelog` roadmap itself is sourced from GitHub Issues (`scripts/gen-roadmap.mjs` → `site/src/data/roadmap.json`, read via `loadRoadmap()`), not Linear. `gen-roadmap` reads are anonymous (public repo), so nothing there can block a deploy either. `gen-roadmap` isn't wired into `prebuild` — run it by hand (`npm run gen-roadmap`) before a deploy when you want fresh roadmap data baked in; see `docs/plans/2026-08-26-roadmap-github-issues.md`.
-- After each deploy, sanity-check by hand: `curl -sS https://staging.opchain.dev/api/health` and confirm `version` matches your local commit SHA. The route (and every `/api/*` response) is `Cache-Control: no-store`, so this check can't read a stale edge-cached version; the deploy-lag canary and `scripts/smoke.sh` additionally append a cache-busting query string in case a zone-level cache rule ever overrides origin headers (that bit us on 2026-07-10: `cf-cache-status: HIT` served a pre-deploy `version` on staging).
+- After each deploy, sanity-check locally: `curl -sS https://staging.opchain.dev/api/health` and confirm `version` matches the exact reviewed commit SHA. The route (and every `/api/*` response) is `Cache-Control: no-store`; `scripts/smoke.sh` also appends a cache-busting query string in case a zone-level cache rule overrides origin headers (that happened on 2026-07-10). A particular machine client may still receive a Bot Fight challenge. After staging and production evidence is complete, refresh `.github/monitoring/release-baseline.json` with the exact deployment/version ids and fingerprints, then run the control-plane monitor locally before opening the baseline-update PR.
 
 ### CI
 
@@ -113,7 +113,7 @@ opchain/
 │   │                       # mirror" below.
 ├── .checkpoints/           # Session-state checkpoints — see "Session resume" below.
 ├── .github/workflows/      # 7 workflows, no deploy workflows (manual): ci.yml, lighthouse.yml,
-│   │                       # canary.yml (10-min prod+staging /api/health probe, emails on failure),
+│   │                       # canary.yml (10-min prod+staging Cloudflare control-plane baseline check),
 │   │                       # lighthouse-prod.yml (daily LHCI vs the live site), deploy-lag.yml,
 │   │                       # mirror-public.yml, publish-mcp-registry.yml
 ├── wrangler.jsonc           # Worker config (prod + env.staging)
@@ -243,7 +243,8 @@ statically like `security.txt`) and `.secrets/opchain-did-ed25519.jwk` (PRIVATE 
 gitignored; move to a password manager / Cloudflare secret, then delete). The resolvable
 did.json alone makes the identity verifiable; the private key is only needed later to *sign*
 assertions (e.g. an ARD `trustManifest`). Rotate with `--force`. The did.json path is in the
-recommended WAF bot-challenge skip list (`/.well-known/*`), so agents can fetch it.
+public discovery surface. Bot Fight Mode can still selectively challenge machine
+clients fetching it; there is no Free-plan WAF Skip exception for that mode.
 
 ## Environment Variables
 
@@ -255,9 +256,9 @@ Template lives in `.env.example`. Copy to `.dev.vars` for local dev; set in the 
 - `POSTHOG_PROJECT_API_KEY`, `POSTHOG_HOST` — server-side analytics capture. Env-gated; unset → no-op.
 - `PUBLIC_POSTHOG_KEY`, `PUBLIC_POSTHOG_HOST` — client-side PostHog (consent-gated via `ConsentBanner.astro`).
 
-CI deploy needs two GitHub Actions secrets at the repo level:
+Scheduled Cloudflare control-plane monitoring needs two GitHub Actions secrets at the repo level. They do not create an automatic deploy path; prefer a dedicated least-privilege read token and rotate the older broad token when practical:
 
-- `CLOUDFLARE_API_TOKEN` — Wrangler API token with Workers deploy scope
+- `CLOUDFLARE_API_TOKEN` — token that can read Workers deployments, versions/settings, and custom domains
 - `CLOUDFLARE_ACCOUNT_ID` — the opchain Cloudflare account id
 
 ## Important Notes
