@@ -1,20 +1,20 @@
 {
   "protocol_version": "1.1",
   "project": "opchain.dev",
-  "project_dir": "/Users/aidanelsesser/repos/opchain",
+  "project_dir": "/private/tmp/opchain-release-j09xo0/main",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-28T02:52:43.000Z",
+  "updated_at": "2026-08-29T00:05:05.000Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "codex/v1.8.3-human-checklist-gate",
-  "progress_summary": "Pre-PR readiness PASS for the one-line Phase A human-checklist correction. Independent re-audit reports 0 CRITICAL, 0 HIGH, and 0 MEDIUM code/process blockers after the patch. The branch passed 491 tests, 30 focused release-gate cases, a 76-page build, catalog/mirror checks, clean production dependency audits, and generated OG cleanup.",
+  "step": "codex/fix-security-cta-contrast",
+  "progress_summary": "Pre-PR readiness PASS for the security-advisory CTA contrast correction. Independent code and security re-audits report 0 CRITICAL, 0 HIGH, 0 MEDIUM, and 0 LOW patch-specific findings. The branch passed Astro check, 491 root tests, 30 focused release-seal cases, a 76-page build, 28 route/accessibility tests, catalog/mirror checks, clean deployed dependency audits, and generated OG cleanup.",
   "context_primer": {
     "key_decisions": [
-      "Docs Forge packet is current for fa5e62808827d03e24fe0baf736e9f79cc3ca909 and contains the required Documentation section.",
-      "The one-line checklist change is aligned with authoritative Phase A line 49 and closes the post-merge MEDIUM drift.",
-      "Build-generated OG image churn was restored and is excluded from the focused docs PR.",
-      "The remaining public MCP checkpoint HIGH is a Deploy Ops confirmation gate, not a PR-readiness failure."
+      "Docs Forge packet is current for 0b772361021f47dc7a6ee7bede51ba857e029500 and contains the required Documentation section.",
+      "The patch changes only the CTA color selector/pairs and focused browser regression; no reader-facing docs surface drifted.",
+      "Build-generated OG image churn was restored and is excluded from the focused fix PR.",
+      "The remaining public MCP checkpoint HIGH was accepted for staging only and is not introduced or changed by this PR."
     ],
     "generated_files": [
       ".checkpoints/oc-repo-ops.checkpoint.json"
@@ -25,15 +25,15 @@
     "blocking_findings": [],
     "warnings": [
       "Site development-only LHCI dependency chain retains seven high advisory nodes; both production dependency audits are clean.",
-      "Deploy Ops requires explicit confirmation for the remaining unauthenticated MCP checkpoint HIGH before staging."
+      "The unauthenticated MCP checkpoint HIGH remains accepted for staging only; production still requires its own gate."
     ],
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
-    "verified_for_sha": "fa5e62808827d03e24fe0baf736e9f79cc3ca909",
+    "verified_for_sha": "0b772361021f47dc7a6ee7bede51ba857e029500",
     "last_verify": {
-      "at": "2026-08-28T02:52:43.000Z",
-      "branch": "codex/v1.8.3-human-checklist-gate",
+      "at": "2026-08-29T00:05:05.000Z",
+      "branch": "codex/fix-security-cta-contrast",
       "verdict": "PASS",
       "blocking_findings": []
     }

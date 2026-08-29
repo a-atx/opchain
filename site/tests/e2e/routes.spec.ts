@@ -126,6 +126,41 @@ test.describe("routes render", () => {
     });
   }
 
+  test("/security private-advisory CTA keeps legible text", async ({ page }) => {
+    await page.goto("/security", { waitUntil: "domcontentloaded" });
+    const cta = page.getByRole("link", {
+      name: "Open a private security advisory on GitHub",
+    });
+
+    await expect(cta).toBeVisible();
+    for (const [theme, hoverBackground] of [
+      ["dark", "rgb(184, 69, 16)"],
+      ["light", "rgb(171, 62, 8)"],
+    ] as const) {
+      await page.evaluate((value) => {
+        document.documentElement.setAttribute("data-theme", value);
+      }, theme);
+      await page.mouse.move(0, 0);
+
+      await expect(cta).toHaveCSS("color", "rgb(28, 23, 16)");
+      await expect(cta).toHaveCSS("background-color", "rgb(224, 92, 24)");
+      const { violations } = await new AxeBuilder({ page })
+        .include(".sec-cta-btn")
+        .withRules(["color-contrast"])
+        .analyze();
+      expect(violations).toEqual([]);
+
+      await cta.hover();
+      await expect(cta).toHaveCSS("color", "rgb(246, 240, 232)");
+      await expect(cta).toHaveCSS("background-color", hoverBackground);
+      const hoverAudit = await new AxeBuilder({ page })
+        .include(".sec-cta-btn")
+        .withRules(["color-contrast"])
+        .analyze();
+      expect(hoverAudit.violations).toEqual([]);
+    }
+  });
+
   test("404 route renders the 404 page", async ({ page }) => {
     const res = await page.goto("/definitely-not-a-real-route", {
       waitUntil: "domcontentloaded",
