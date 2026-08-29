@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-08-29T22:48:00.000Z",
+  "updated_at": "2026-08-29T22:58:59.000Z",
   "phase": "closeout",
-  "step": "closure-packet-gates-passed",
+  "step": "draft-pr-open",
   "status": "in_progress",
-  "progress_summary": "v1.8.3 production and git truth are reconciled through exact runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b and docs-only main descendant 5baa289ceeac5813f0a4392d6f63ed89cafa705f. Commit 9df7e0351ac8fc2676c6c6c8e9bf859a8340e484 implements the option-3 monitoring redesign; branch Canary run 33278930280 and Deploy lag run 33278931387 passed. The checkpoint/runbook/Phase C C0-C1 closure packet passed Docs Forge, Repo Ops, and Bug Check: 506 tests, full build, Astro zero errors, synchronized catalogs/bundles/plugin copy, clean staged secret scan, and no critical dependency advisory. Continuous monitoring remains redesign-validated-pending-merge. The staged packet is ready for a signed-off commit, normal push, and draft PR; no extraction, flip, merge, tag movement, or new runtime deployment has occurred.",
+  "progress_summary": "v1.8.3 production and git truth are reconciled through exact runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b and docs-only main descendant 5baa289ceeac5813f0a4392d6f63ed89cafa705f. Commit 9df7e0351ac8fc2676c6c6c8e9bf859a8340e484 implements the option-3 monitoring redesign; branch Canary run 33278930280 and Deploy lag run 33278931387 passed. Commit cf62a8dc32a5185aad4f3afeb1462cc83d47d760 records the checkpoint/runbook and reversible Phase C C0/C1 preparation packet after Docs Forge, Repo Ops, and Bug Check passed. Draft PR #467 is open and unmerged; CI run 33279611204 and Lighthouse run 33279611215 passed at that PR head. Continuous monitoring remains redesign-validated-pending-merge until a human merge and successful default-branch scheduled evidence. No extraction, flip, merge, tag movement, or new runtime deployment has occurred.",
   "progress_table": [
     {
       "id": "v1.8.3-release-reconciliation",
@@ -48,7 +48,7 @@
     {
       "id": "v1.8.3-closeout-pr",
       "label": "Draft checkpoint/runbook closeout PR",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "id": "pr-183",
@@ -132,9 +132,9 @@
   },
   "blockers": [],
   "next_actions": [
-    "Commit and push the checkpoint/runbook/Phase C preparation packet with DCO and Codex co-author trailers; the chained Bug Check, Docs Forge, and Repo Ops gates already passed.",
-    "Open a draft PR to main that states redesign-validated-pending-merge, does not claim continuous monitoring healthy, and says Phase C stops at C1 human review/freeze.",
-    "Do not merge the closeout PR. Do not perform Phase C extraction or C5; the repository flip still requires Aidan to say exactly 'flip now'."
+    "HUMAN reviews draft PR #467 and the C1 product manifest; do not merge the PR in this task.",
+    "After a human merge, capture successful default-branch scheduled Canary and Deploy lag evidence before calling continuous monitoring healthy.",
+    "Do not begin C2 before the C1 path freeze, and do not perform C5 unless Aidan says exactly 'flip now'."
   ],
   "skill_state": {
     "current_branch": "codex/v1.8.3-phase-a-closeout (from origin/main 5baa289ceeac5813f0a4392d6f63ed89cafa705f; runtime release remains 395fc314c836d5d9d8a76b64d85b8380ece3a68b)",
@@ -468,7 +468,7 @@
       }
     },
     "closure_packet": {
-      "status": "gates-passed-ready-to-commit",
+      "status": "draft-pr-open",
       "docs_forge": "PASS",
       "repo_ops": "PASS",
       "bug_check": "PASS with warnings",
@@ -480,7 +480,22 @@
       "secret_scan": "PASS — gitleaks staged scan",
       "pr_mode": "draft; do not merge"
     },
-    "last_pr_number": 466,
-    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/466"
+    "closeout_pr": {
+      "number": 467,
+      "url": "https://github.com/asfbay-bit/opchain/pull/467",
+      "title": "fix(monitoring): close v1.8.3 release evidence gap",
+      "state": "OPEN",
+      "draft": true,
+      "base": "main",
+      "head": "codex/v1.8.3-phase-a-closeout",
+      "opened_head_sha": "cf62a8dc32a5185aad4f3afeb1462cc83d47d760",
+      "ci_run_id": 33279611204,
+      "ci_conclusion": "success",
+      "lighthouse_run_id": 33279611215,
+      "lighthouse_conclusion": "success",
+      "merged": false
+    },
+    "last_pr_number": 467,
+    "last_pr_url": "https://github.com/asfbay-bit/opchain/pull/467"
   }
 }

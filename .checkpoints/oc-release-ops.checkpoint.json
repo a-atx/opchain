@@ -3,18 +3,19 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-29T22:39:06.000Z",
+  "updated_at": "2026-08-29T22:58:59.000Z",
   "skill": "oc-release-ops",
   "phase": "closeout",
   "step": "redesign-validated-pending-merge",
   "status": "in_progress",
-  "progress_summary": "v1.8.3, Open seams, closed ledger, is shipped at exact runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b. Production deployment 7abc8570-6fcb-4942-b44e-8ef822f84b05 serves version 780e85e2-7022-44fa-82f3-e5eaeb2b82a1 at 100% traffic; staging deployment 8d709a57-181b-4ed7-90cc-ddf773ca14f4 serves version c52b3bd6-4eee-4e50-a8c3-e21569b998d6. Branch runs 33278930280 (Canary) and 33278931387 (Deploy lag) validate the option-3 authenticated Cloudflare control-plane redesign at branch SHA 9df7e0351ac8fc2676c6c6c8e9bf859a8340e484. Continuous monitoring is not yet healthy because the scheduled default-branch workflows remain old until this closeout PR merges. Phase C is now authorized only through reversible C0/C1 preparation; C5 still requires the exact separate HUMAN 'flip now' gate.",
+  "progress_summary": "v1.8.3, Open seams, closed ledger, is shipped at exact runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b. Production deployment 7abc8570-6fcb-4942-b44e-8ef822f84b05 serves version 780e85e2-7022-44fa-82f3-e5eaeb2b82a1 at 100% traffic; staging deployment 8d709a57-181b-4ed7-90cc-ddf773ca14f4 serves version c52b3bd6-4eee-4e50-a8c3-e21569b998d6. Branch runs 33278930280 (Canary) and 33278931387 (Deploy lag) validate the option-3 authenticated Cloudflare control-plane redesign at branch SHA 9df7e0351ac8fc2676c6c6c8e9bf859a8340e484. Draft closeout PR #467 is open and unmerged; CI run 33279611204 and Lighthouse run 33279611215 passed at its opening head. Continuous monitoring is not yet healthy because scheduled default-branch workflows remain old until this PR is human-merged and successful scheduled evidence exists. Phase C is authorized only through reversible C0/C1 preparation here; C1 human manifest review/freeze remains pending and C5 still requires the exact separate HUMAN 'flip now' gate.",
   "progress_table": [
     { "id": "phase-a-production", "label": "Exact-SHA v1.8.3 production ship", "status": "complete" },
     { "id": "monitoring-redesign", "label": "Option-3 branch validation", "status": "complete" },
     { "id": "checkpoint-closeout", "label": "Checkpoint and runbook reconciliation", "status": "complete" },
     { "id": "phase-c-c0-c1", "label": "Reversible C0/C1 preparation", "status": "complete" },
-    { "id": "closeout-pr", "label": "Draft closeout PR and default-branch activation", "status": "not_started" }
+    { "id": "closeout-pr", "label": "Draft closeout PR opened", "status": "complete" },
+    { "id": "default-branch-monitoring", "label": "Post-merge scheduled monitoring activation", "status": "not_started" }
   ],
   "context_primer": {
     "key_decisions": [
@@ -32,7 +33,7 @@
   },
   "blockers": [],
   "next_actions": [
-    "Open the draft closeout PR with branch-run evidence and keep status redesign-validated-pending-merge.",
+    "HUMAN reviews draft PR #467; do not merge it in this task, and keep monitoring status redesign-validated-pending-merge.",
     "After a human merges the closeout PR, require successful default-branch scheduled Canary and Deploy lag evidence before calling continuous monitoring healthy.",
     "Obtain HUMAN review of split/product-paths.txt and a path freeze before any Phase C extraction; C5 still requires Aidan to say exactly 'flip now'.",
     "Before the next post-cut-over release tag push, replace publish --dry-run with the supported validation path and record that repaired workflow hash in the next version's new release seal."
@@ -126,6 +127,8 @@
     },
     "monitoring_closeout": {
       "status": "redesign-validated-pending-merge",
+      "closeout_pr": 467,
+      "closeout_pr_url": "https://github.com/asfbay-bit/opchain/pull/467",
       "branch_head_sha": "9df7e0351ac8fc2676c6c6c8e9bf859a8340e484",
       "canary_run_id": 33278930280,
       "canary_run_url": "https://github.com/asfbay-bit/opchain/actions/runs/33278930280",

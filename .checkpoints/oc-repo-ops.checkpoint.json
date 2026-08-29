@@ -3,7 +3,7 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/.codex/worktrees/a418/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-29T22:48:00.000Z",
+  "updated_at": "2026-08-29T22:58:59.000Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
@@ -36,9 +36,9 @@
     "internal_links_verified": true,
     "product_manifest_verified": true,
     "related_untracked_files_staged": true,
-    "verified_for_sha": "staged:codex/v1.8.3-phase-a-closeout@9df7e0351ac8fc2676c6c6c8e9bf859a8340e484",
+    "verified_for_sha": "working-tree:codex/v1.8.3-phase-a-closeout@cf62a8dc32a5185aad4f3afeb1462cc83d47d760",
     "last_verify": {
-      "at": "2026-08-29T22:48:00.000Z",
+      "at": "2026-08-29T22:58:59.000Z",
       "branch": "codex/v1.8.3-phase-a-closeout",
       "verdict": "PASS",
       "blocking_findings": []

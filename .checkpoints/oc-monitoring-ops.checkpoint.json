@@ -4,7 +4,7 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-20T03:50:45.264Z",
-  "updated_at": "2026-08-29T22:39:06.000Z",
+  "updated_at": "2026-08-29T22:58:59.000Z",
   "phase": "observe",
   "step": "redesign-validated-pending-merge",
   "status": "in_progress",
@@ -22,11 +22,11 @@
       "description": "Branch dispatch validates the redesigned code, but GitHub schedules execute the workflow on the default branch. Continuous monitoring cannot be called healthy before the closeout PR is human-merged and successful default-branch scheduled evidence exists.",
       "blocking": "default-branch-activation",
       "needs": "user_decision",
-      "proposed_resolution": "Human reviews and merges the draft closeout PR; then observe successful scheduled Canary and Deploy lag runs. This task must not merge the PR."
+      "proposed_resolution": "Human reviews and merges draft PR #467; then observe successful scheduled Canary and Deploy lag runs. This task must not merge the PR."
     }
   ],
   "next_actions": [
-    "Open the draft closeout PR with status redesign-validated-pending-merge and the exact branch-run URLs.",
+    "HUMAN reviews draft PR #467; keep status redesign-validated-pending-merge and do not merge it in this task.",
     "After human merge, capture successful default-branch scheduled Canary and Deploy lag run IDs before changing continuous_monitoring_status to healthy.",
     "Keep Cloudflare Free-plan Bot Fight Mode enabled. Do not claim a WAF Skip exception, enable workers.dev, or upgrade the plan without new authority.",
     "Retain CLOUDFLARE_ACCOUNT_ID and rotate CLOUDFLARE_API_TOKEN to a dedicated least-privilege read credential during Phase C8; do not delete monitoring credentials with the mirror token."
@@ -108,7 +108,7 @@
       "branch_validation_url": "https://github.com/asfbay-bit/opchain/actions/runs/33278930280",
       "branch_head_sha": "9df7e0351ac8fc2676c6c6c8e9bf859a8340e484",
       "branch_validation_conclusion": "success",
-      "default_branch_activation": "pending merge"
+      "default_branch_activation": "pending PR #467 merge"
     },
     "deploy_lag_monitor": {
       "previous_default_branch_failure_run_id": 33266202606,
@@ -120,7 +120,7 @@
       "deploy_relevant_changes": 0,
       "explicitly_non_deploying_changes": 6,
       "has_changes": false,
-      "default_branch_activation": "pending merge"
+      "default_branch_activation": "pending PR #467 merge"
     },
     "assurance_limits": [
       "No WAF exception exists; Free-plan Bot Fight Mode remains enabled.",
