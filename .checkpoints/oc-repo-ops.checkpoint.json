@@ -3,18 +3,18 @@
   "project": "opchain.dev",
   "project_dir": "/private/tmp/opchain-release-j09xo0/main",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-29T00:05:05.000Z",
+  "updated_at": "2026-08-29T05:03:20.000Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "codex/fix-security-cta-contrast",
-  "progress_summary": "Pre-PR readiness PASS for the security-advisory CTA contrast correction. Independent code and security re-audits report 0 CRITICAL, 0 HIGH, 0 MEDIUM, and 0 LOW patch-specific findings. The branch passed Astro check, 491 root tests, 30 focused release-seal cases, a 76-page build, 28 route/accessibility tests, catalog/mirror checks, clean deployed dependency audits, and generated OG cleanup.",
+  "step": "codex/v1-8-3-publisher-exception",
+  "progress_summary": "Pre-PR readiness PASS for the documentation/checkpoint-only v1.8.3 publisher disposition. The Docs Forge packet contains the required Documentation section; the changed runbook references exist; all checkpoint JSON parses and validates; diff whitespace is clean; the 29-skill catalog and bundled references are in sync; and related ignored artifacts are intentional. The PR records but does not accept the exception, mutate the tag, or touch staging/production.",
   "context_primer": {
     "key_decisions": [
-      "Docs Forge packet is current for 0b772361021f47dc7a6ee7bede51ba857e029500 and contains the required Documentation section.",
-      "The patch changes only the CTA color selector/pairs and focused browser regression; no reader-facing docs surface drifted.",
-      "Build-generated OG image churn was restored and is excluded from the focused fix PR.",
-      "The remaining public MCP checkpoint HIGH was accepted for staging only and is not introduced or changed by this PR."
+      "Docs Forge packet is current for the codex/v1-8-3-publisher-exception working tree and contains the required Documentation section.",
+      "The PR is limited to the OSS-split runbook plus release/deploy/git/docs/repo checkpoint state.",
+      "The exception is evidence-bound and still requires explicit HUMAN acceptance; production authorization remains false.",
+      "Ignored .dev.vars, generated roadmap/catalog data, public assets, and site test-results are intentional local/build artifacts and are excluded from the PR."
     ],
     "generated_files": [
       ".checkpoints/oc-repo-ops.checkpoint.json"
@@ -24,16 +24,17 @@
     "verdict": "PASS",
     "blocking_findings": [],
     "warnings": [
-      "Site development-only LHCI dependency chain retains seven high advisory nodes; both production dependency audits are clean.",
-      "The unauthenticated MCP checkpoint HIGH remains accepted for staging only; production still requires its own gate."
+      "The publisher workflow remains red by design in the immutable tag history; this PR documents a proposed one-time disposition but does not itself accept it.",
+      "The unauthenticated MCP checkpoint HIGH remains accepted for staging only; production still requires explicit acceptance and approval.",
+      "Staging lacks ROADMAP_GITHUB_TOKEN and remains a separate HUMAN prerequisite before production."
     ],
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
-    "verified_for_sha": "0b772361021f47dc7a6ee7bede51ba857e029500",
+    "verified_for_sha": "working-tree:codex/v1-8-3-publisher-exception@395fc314c836d5d9d8a76b64d85b8380ece3a68b",
     "last_verify": {
-      "at": "2026-08-29T00:05:05.000Z",
-      "branch": "codex/fix-security-cta-contrast",
+      "at": "2026-08-29T05:03:20.000Z",
+      "branch": "codex/v1-8-3-publisher-exception",
       "verdict": "PASS",
       "blocking_findings": []
     }
