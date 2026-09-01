@@ -263,7 +263,7 @@ is part of the PR, not an afterthought.
 | `site/tests/e2e/changelog-and-scenarios.spec.ts` | CI (Playwright) | Which hero is open, Coming Next lead, deep-link targets |
 | `npm run gen-catalog` | Every build | SKILL.md frontmatter validity, dir/name match, flag registry drift |
 | `npm run checkpoint:validate` | CI | Checkpoint schema honesty |
-| Deploy-lag canary + ancestry refusal in `scripts/deploy.mjs` | Daily / at deploy | Prod behind main; staging cut from a non-main SHA |
+| Deploy-lag canary + ancestry refusal in `scripts/deploy.mjs` | Every fourth day-of-month / at deploy | Prod behind main; staging cut from a non-main SHA |
 | *Planned:* changelog cross-check (decision doc R3a) | CI | Header claiming a release `skills/CHANGELOG.md` doesn't have |
 | *Planned:* derived counts module + pinned test (R3b) | CI | The §3d count strings, retired as hand strings |
 | *Planned:* submodule pin ↔ tag check (R3c, post-split) | CI | Site claiming a release the pinned product tree isn't on |
