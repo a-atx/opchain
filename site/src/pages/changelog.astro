@@ -83,15 +83,6 @@ const v18Skills = [
   },
 ];
 
-// v1.9 "Assurance and governed delivery ops" — the selected direction.
-// Scope comes from `roadmap:planned` GitHub issues milestoned "v1.9". It is
-// displayed without vote controls because the release direction is settled.
-const v19Items = itemsForMilestone(roadmap, "planned", "v1.9").map((item) => ({
-  id: item.id,
-  title: item.title,
-  blurb: item.blurb,
-}));
-
 // v2.0 is committed. v2.1-v2.3 are the voting horizon: their issue-level vote
 // controls preserve the existing vote ids while making the sequence explicit.
 // v2.0 is NOT listed here: at the v1.9 cut it moved to the Coming Next panel as
@@ -106,7 +97,6 @@ const plannedReleaseGroups = [
     summary:
       "Make opchain easier to discover and install in the places people already work: the public catalog, Claude.ai, and editors.",
     votable: true,
-    highlights: [],
     items: itemsForMilestone(roadmap, "planned", "v2.1").map((item) => ({
       id: item.id,
       title: item.title,
@@ -121,7 +111,6 @@ const plannedReleaseGroups = [
     summary:
       "Give studios and larger programs first-class coordination across clients, repositories, checkpoints, releases, and handoffs.",
     votable: true,
-    highlights: [],
     items: itemsForMilestone(roadmap, "planned", "v2.2").map((item) => ({
       id: item.id,
       title: item.title,
@@ -136,7 +125,6 @@ const plannedReleaseGroups = [
     summary:
       "Strengthen the pipeline before implementation with sharper problem discovery, opportunity framing, and evaluator evidence.",
     votable: true,
-    highlights: [],
     items: itemsForMilestone(roadmap, "planned", "v2.3").map((item) => ({
       id: item.id,
       title: item.title,
@@ -1050,21 +1038,8 @@ const plannedReleaseGroups = [
           </button>
           <div class="card-body" id={`${group.id}-body`} data-disclosure-body inert>
             <div class="card-body-inner">
-            <div class="tag-row"><span class="tag tag--info">planned</span><span class="tag">{group.items.length} {group.items.length === 1 ? "item" : "items"}</span>{group.version === "v2.0" && <span class="tag">33 → 35 skills</span>}</div>
+            <div class="tag-row"><span class="tag tag--info">planned</span><span class="tag">{group.items.length} {group.items.length === 1 ? "item" : "items"}</span></div>
               <p>{group.summary}</p>
-              {group.highlights.length > 0 && (
-                <>
-                  <h3>Planned architecture</h3>
-                  <div class="tile-grid">
-                    {group.highlights.map((highlight) => (
-                      <div class="tile">
-                        <span class="tile-name">{highlight.name}</span>
-                        <p class="tile-desc">{highlight.blurb}</p>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
               <ul class="horizon-list">
                 {group.items.map((h) => (
                   <li class="horizon-item">
