@@ -12,7 +12,88 @@ checkpoint `protocol_version` is tracked separately (see
 
 ## [Unreleased]
 
-_Nothing yet._
+### v1.9 groundwork — "Assurance and governed delivery ops" (in build)
+
+Four new skills, catalog 29 → 33 (internal plan:
+docs/plans/2026-08-28-v1.9-assurance-release-plan.md; roadmap
+issues [#8](https://github.com/asfbay-bit/opchain-skills/issues/8)
+[#9](https://github.com/asfbay-bit/opchain-skills/issues/9)
+[#10](https://github.com/asfbay-bit/opchain-skills/issues/10)
+[#11](https://github.com/asfbay-bit/opchain-skills/issues/11)):
+
+- **oc-qa-ops** (`/oc-qa`) — test-pyramid design: coverage strategy,
+  contract-test matrix, load-test planning. The strategy layer split out of
+  oc-bug-check; writes `.opchain/qa.yaml`, which oc-bug-check's test check
+  reads when present. Budget misses report as WARN by default; setting
+  `coverage.enforce: fail` in the manifest (a human opt-in) flips a
+  global-budget miss to FAIL at the commit gate, with the normal bypass
+  protocol. No manifest, or an unparseable one, leaves oc-bug-check exactly
+  as before v1.9.
+- **oc-data-ops** (`/oc-data-ops`, tri-agent Designer/Builder/Contract-Verifier)
+  — data pipelines: ingestion patterns, transformation layering, dbt, and
+  observable data contracts (`.opchain/data-contracts/*.yaml`) with
+  freshness/volume/schema verification.
+- **oc-compliance-ops** (`/oc-comply`) — standing control register + audit-ready
+  evidence bundles generated at deploy/release time. Activated per-project by
+  `.opchain/compliance.yaml`; inert without it. Readiness and evidence, not
+  certification.
+- **oc-security-hardening** (`/oc-harden`) — the execution half of the security
+  pair: oc-security-auditor assesses (`/oc-hardening`), this skill executes
+  (`/oc-harden`) and maintains `.opchain/hardening.yaml`, adding a
+  manifest-verify row to the oc-deploy-ops audit gate when present.
+
+**Changed (deliberate, the one non-additive edit):** oc-security-auditor's
+trigger phrases were re-pointed at the new security pair split — "harden this"
+now routes to oc-security-hardening (`/oc-harden baseline`), several assessment
+phrases were recast in audit form ("audit the CSP policy", "review WAF rules",
+"check TLS config", "is it hardened"), and "how would someone attack this" was
+dropped. All slash-command triggers, `/oc-hardening` included, are unchanged.
+
+Reciprocal edges (additive): oc-app-architect Phase 2 authors
+`06-testing.md` via oc-qa-ops and gains a data-heavy discovery branch to
+oc-data-ops (its Phase 6 Evaluator grades against qa.yaml budgets);
+oc-deploy-ops' audit gate gains two conditional manifest rows;
+oc-security-auditor hands findings to oc-security-hardening; oc-scale-ops
+executes oc-qa-ops load plans; oc-signal-forge chains estate-level pipelines
+to oc-data-ops — plus paired rows in eight more skills (oc-api-dev,
+oc-code-auditor, oc-dash-forge, oc-integrations-engineer, oc-migration-ops,
+oc-monitoring-ops, oc-release-ops, oc-stack-forge), fourteen in total. The
+opchain plugin registers four new slash commands (8 → 12) and suggests the new
+skills from its Stop hook.
+
+**Release-assurance hardening (rides this release; repo tooling + CI, not
+catalog-skill changes):**
+
+- `npm run telemetry -- status` gains a liveness guard: `enabled=true` with
+  no store on disk now reports `ENABLED — NOT RECORDING ⚠`, prints
+  `⚠ LIVENESS FAIL` to stderr, and **exits 1** instead of reporting a healthy
+  ENABLED state over a silent sink — the exact state that sat undetected for
+  24 days in 2026-06/07. Scripted callers relying on exit 0 there will now
+  fail; that is the point.
+- `npm run check-release-tag` now names the deploy-freeze window: when the
+  tagged catalog and the working tree agree on the lockstep version but
+  disagree on skill *identity* (added, removed, or swapped skills — not just
+  count), the check reports the tree as the *next* release still wearing the
+  old number and prescribes `/oc-release bump` + `/oc-git-release` — never a
+  re-tag; staging stays open. The deploy wrapper stops offering the untagged
+  escape hatch in that state.
+- 13 routing eval cases (`route-016`–`route-028`) added to the
+  `/oc-prompt eval` goldset (`prompts/opchain-eval/`), covering the four new
+  skills and the near-miss routes (`/oc-harden` vs `/oc-hardening`, api-dev
+  vs data-ops schema drift, SOC 2 assess vs evidence, qa-ops load-planning
+  vs scale-ops execution).
+- The full GitHub Actions surface becomes a locally runnable release sequence:
+  `scripts/release-sequence.mjs` (repo-internal, not part of the catalog) maps
+  every workflow to a named step across three stages (pre-merge / pre-tag /
+  post-deploy) with fail/warn classes, and `tests/release-sequence.test.js`
+  fails CI if a workflow is ever added without a ledger entry. Manual deploys
+  no longer depend on Actions firing to be fully verified.
+- Three CI pins so load-bearing catalog text cannot be silently edited away:
+  the boundary cross-references in `description:` frontmatter
+  (`tests/routing-disambiguation.test.js`), the not-certification /
+  not-legal-advice / redaction / no-offensive-testing lines
+  (`tests/liability-disclaimers.test.js`), and the telemetry liveness guard
+  (`tests/telemetry-status.test.js`).
 
 ## [1.8.3] — 2026-08-27 — "Open seams, closed ledger"
 

@@ -171,6 +171,18 @@ npx vitest run --reporter=verbose 2>&1
 **Why no tests is a warning, not a pass:** Zero tests means zero regression protection.
 The warning nudges toward coverage without blocking early-stage commits.
 
+**QA-manifest awareness (v1.9, additive):** when `.opchain/qa.yaml` exists
+(written by oc-qa-ops), and the runner emits coverage, compare it against the
+manifest's `coverage.global` budget and report a miss as **WARN** — never FAIL,
+and never a change to the PASS/FAIL semantics above — **unless** the manifest
+sets `coverage.enforce: fail`, in which case a global-budget miss is FAIL (a
+human wrote that line; the opt-in is theirs, and the normal bypass protocol
+applies). An unparseable manifest, or a version this check doesn't recognize,
+is treated exactly as absent plus a single WARN line ("qa.yaml unreadable —
+budgets not applied; run /oc-qa status") — never FAIL on a parse problem. No
+manifest → this check behaves exactly as before v1.9. Suggest `/oc-qa coverage`
+when the budget is missed repeatedly.
+
 ### Check 4: Anti-Pattern Scan
 
 Fast grep-based checks for patterns that indicate bugs, not style preferences:

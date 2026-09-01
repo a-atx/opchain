@@ -15,6 +15,8 @@ description: >
   "connect to Salesforce", "webhook", "OAuth", "API integration", "connect to Slack",
   or any external service connection. For designing or building your *own* first-party
   API (OpenAPI/GraphQL authoring, versioning, SDK generation), use oc-api-dev instead.
+  When the destination is the data warehouse, this skill builds the connector; the
+  warehouse-bound pipeline + data contract side is oc-data-ops.
 ---
 
 # Integrations Engineer

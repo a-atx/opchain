@@ -581,6 +581,8 @@ project-dir/
 | oc-scale-ops | Performance budgets → SLO/alert thresholds |
 | oc-app-architect | Spec, error handling strategy → instrumentation targets |
 | oc-code-auditor | Error handling gaps → logging instrumentation needs |
+| oc-data-ops | Monitor inventory from `/oc-data-ops observe` (freshness/volume/schema checks) → alert routing + runbooks (v1.9) |
+| oc-security-hardening | Detection-class controls (`detect.*` ids) in `.opchain/hardening.yaml` → map each to an alert + runbook during `/oc-monitor audit` and `/oc-monitor alerts` (v1.9) |
 
 | Read by | Why |
 |---|---|

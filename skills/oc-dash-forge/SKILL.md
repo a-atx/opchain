@@ -192,10 +192,14 @@ Phase 4: Handoff               (spec + prototype + integration notes)
 
 Before asking anything, **check for upstream context:**
 
-1. Is there a `data-architect-handoff.md` in the project dir? Read it — schema, analytics top 10, platform are all relevant.
-2. Was this called from `/oc-ux-engineer`? Read its design spec / tokens for consistency.
-3. Was this called from `/oc-app-architect`? Read the spec + style book.
-4. Is there a checkpoint from a prior run?
+1. Is there an oc-data-ops checkpoint or `.opchain/data-contracts/*.yaml`
+   (v1.9)? Read the mart contracts — schema, grain, freshness SLA — as the
+   authoritative inventory of what data exists; prefer them over
+   `data-architect-handoff.md` when both are present.
+2. Is there a `data-architect-handoff.md` in the project dir? Read it — schema, analytics top 10, platform are all relevant.
+3. Was this called from `/oc-ux-engineer`? Read its design spec / tokens for consistency.
+4. Was this called from `/oc-app-architect`? Read the spec + style book.
+5. Is there a checkpoint from a prior run?
 
 Skim what exists. Only ask what you don't already know.
 
