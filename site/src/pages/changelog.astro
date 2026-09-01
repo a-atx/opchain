@@ -94,38 +94,10 @@ const v19Items = itemsForMilestone(roadmap, "planned", "v1.9").map((item) => ({
 
 // v2.0 is committed. v2.1-v2.3 are the voting horizon: their issue-level vote
 // controls preserve the existing vote ids while making the sequence explicit.
+// v2.0 is NOT listed here: at the v1.9 cut it moved to the Coming Next panel as
+// the committed next release (hero #v2-0). Keeping a Planned card for it too
+// would duplicate that DOM id.
 const plannedReleaseGroups = [
-  {
-    version: "v2.0",
-    id: "v2-0",
-    title: "The self-improving pipeline",
-    timing: "committed after v1.9",
-    summary:
-      "Two governed multi-agent workflows turn measured outcomes into operational memory and proven behavior changes—without making generated suggestions hidden authority.",
-    votable: false,
-    highlights: [
-      {
-        name: "oc-hindsight · /oc-hindsight",
-        blurb:
-          "Planner/Curator → Lesson Generator → isolated Retrieval Evaluator → human promotion. Builds source-grounded, safe, testable operational memory.",
-      },
-      {
-        name: "oc-evolve · /oc-evolve",
-        blurb:
-          "Reflector/Planner → Rule Generator → isolated Adversarial Evaluator → human adoption. Changes behavior only after held-out and full-suite proof.",
-      },
-      {
-        name: "wire 1.2 + Outcome Scorecard",
-        blurb:
-          "Append-safe evaluation history and deterministic trend signals provide the substrate. The scorecard remains infrastructure, not a third skill.",
-      },
-    ],
-    items: itemsForMilestone(roadmap, "planned", "v2.0").map((item) => ({
-      id: item.id,
-      title: item.title,
-      blurb: item.blurb,
-    })),
-  },
   {
     version: "v2.1",
     id: "v2-1",
@@ -872,7 +844,6 @@ const plannedReleaseGroups = [
             </div>
           </div>
         </div>
-      </article>
       </article>
 
       <!-- v1.4.2 — past; demoted from hero to rel-card -->
