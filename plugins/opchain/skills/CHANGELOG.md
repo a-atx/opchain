@@ -12,7 +12,9 @@ checkpoint `protocol_version` is tracked separately (see
 
 ## [Unreleased]
 
-### v1.9 groundwork — "Assurance and governed delivery ops" (in build)
+_Nothing yet._
+
+## [1.9.0] — 2026-09-01 — "Assurance and governed delivery ops"
 
 Four new skills, catalog 29 → 33 (internal plan:
 docs/plans/2026-08-28-v1.9-assurance-release-plan.md; roadmap
@@ -94,6 +96,14 @@ catalog-skill changes):**
   not-legal-advice / redaction / no-offensive-testing lines
   (`tests/liability-disclaimers.test.js`), and the telemetry liveness guard
   (`tests/telemetry-status.test.js`).
+
+### Compatibility
+
+**Back-compatible with v1.8.3.** All 33 skills lockstep-bump to `1.9.0`. No
+checkpoint migration; no commands or routes removed. The four new skills and
+every reciprocal edge are additive; the one behavioural change is the
+oc-security-auditor trigger re-point noted above, plus the telemetry `status`
+exit code.
 
 ## [1.8.3] — 2026-08-27 — "Open seams, closed ledger"
 

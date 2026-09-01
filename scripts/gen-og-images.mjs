@@ -74,6 +74,27 @@ const ROUTES = [
     headline: "prompt-ops.",
     tagline: "Prompts as code — versioned, eval-gated, drift-detected.",
   },
+  // Per-skill cards for the v1.9 assurance skills.
+  {
+    file: "skills-oc-qa-ops.png",
+    headline: "qa-ops.",
+    tagline: "Test pyramid, coverage budgets, contract matrix, load plans.",
+  },
+  {
+    file: "skills-oc-data-ops.png",
+    headline: "data-ops.",
+    tagline: "Ingestion, dbt layering, observable data contracts — tri-agent.",
+  },
+  {
+    file: "skills-oc-compliance-ops.png",
+    headline: "compliance-ops.",
+    tagline: "Control register and audit-ready evidence, generated at deploy.",
+  },
+  {
+    file: "skills-oc-security-hardening.png",
+    headline: "security-hardening.",
+    tagline: "Executes the fixes; stands the per-deploy hardening gate.",
+  },
 ];
 
 // Chosen to balance large-text legibility with line-length for the longest
