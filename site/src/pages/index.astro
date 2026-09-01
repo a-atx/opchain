@@ -1,4 +1,5 @@
 ---
+import { REPO_SITE } from "../lib/repo";
 import Base from "../layouts/Base.astro";
 import Logo from "../components/Logo.astro";
 import Eyebrow from "../components/ui/Eyebrow.astro";
@@ -77,9 +78,9 @@ const softwareLd = {
         Each skill specializes in one piece of the puzzle (discovery,
         spec, design, build, audit, ship, monitor, migrate, scale). At
         the beginning of the next session, Claude reads them back to
-        pick up right where you left off. A central orchestrator routes
-        between them so you never have to think about which skill to
-        call.
+        pick up right where you left off. Ask the orchestrator at any
+        point and it reads that state back to you and names the skill to
+        run next.
       </p>
       <p>
         Install them, trigger by name, keep going. No API keys. No SaaS.
@@ -116,8 +117,8 @@ const softwareLd = {
         <span class="stat-num">live</span>
         <span class="stat-label">system status</span>
       </a>
-      <a class="stat" href="https://github.com/asfbay-bit/opchain" rel="noopener">
-        <span class="stat-num">MIT</span>
+      <a class="stat" href={REPO_SITE} rel="noopener">
+        <span class="stat-num">Apache-2.0</span>
         <span class="stat-label">open source</span>
       </a>
     </section>

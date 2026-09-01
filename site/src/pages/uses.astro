@@ -1,4 +1,5 @@
 ---
+import { REPO_SITE } from "../lib/repo";
 import Base from "../layouts/Base.astro";
 import Eyebrow from "../components/ui/Eyebrow.astro";
 import Card from "../components/ui/Card.astro";
@@ -86,9 +87,9 @@ const stack: StackSection[] = [
 ];
 
 const meta = [
-  { label: "Repo", value: "github.com/asfbay-bit/opchain", href: "https://github.com/asfbay-bit/opchain" },
+  { label: "Repo", value: "github.com/asfbay-bit/opchain", href: REPO_SITE },
   { label: "Live version", value: "see /status", href: "/status" },
-  { label: "License", value: "MIT" },
+  { label: "License", value: "Apache-2.0" },
   { label: "Last refresh", value: "2026-05" },
 ];
 ---

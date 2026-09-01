@@ -2,14 +2,79 @@
   "protocol_version": "1.1",
   "skill": "oc-git-ops",
   "project": "opchain.dev",
-  "project_dir": "/Users/aidanelsesser/repos/opchain",
+  "project_dir": "/Users/aidanelsesser/.codex/worktrees/a418/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-06-22T16:35:00Z",
-  "phase": "post-merge-wave",
-  "step": "last-merge-#316-v1.5-shipped",
-  "status": "complete",
-  "progress_summary": "v1.5.0 'Build the AI app' shipped + live (2026-06-22). The v1.5 build/release wave merged 7 PRs to main, all squash, all CI-green (Worker + Site + Playwright e2e + LHCI): #299 (reconcile + canary), #300 (Sprint 1 scaffolds), #303 (Sprint 2 claude-api/rag-forge + vector packs), #306 (Sprint 3 agent-forge/prompt-ops + AI-safety + eval set), #309 (Sprint 4 GTM surfaces), #311 (Sprint 5 lockstep 1.5.0 + changelog cut), #316 (deferred tail: pipeline-builder AI branch + OG cards). Notable git-ops handling: #311 hit a post-promotion e2e break (changelog #v1-6 deep-link id collision) fixed in a follow-up commit; #299 needed a main-merge to resolve a checkpoint conflict. Prod deployed by user after the Cloudflare WAF challenge was cleared. HISTORY: 2026-05-31 PR-review wave: cleared 11 open PRs in one session. Feature: #239 (email-pipeline Step 5 nested-form fix, follow-up to #233) and #243 (link orphaned /coverage into nav, ⌘K palette, stack-forge skill page). Security: #227 (DOMPurify 3.4.5 XSS-bypass fix in the markdown group) and #209 (js-yaml v3→v4 with prototype-pollution patch — verified all callsites use only `yaml.load`, safe across the major). Dependency hygiene: #241 vitest 4.1.6, #211 tailwind 4.3, #210 astro group, #175 zod 4.4.3, #176 @axe-core/playwright 4.11.3, #242 @playwright/test 1.60, #173 wrangler 4.95 (Dependabot recreated to latest after lockfile conflict). All squash-merged with full CI green (Worker, Site, LHCI). #208 (chore(generated): restore stale coverage-flags + api-dev-adapters baselines) closed as obsolete — main now carries 26 coverage-flags and 13 api-dev-adapters via the v1.4 chain, vs. #208's 5/5 from the pre-v1.4 era. Held for user review: #232 (feat(compare): switch to Option C — groups + zebra + winner dots + mobile sticky labels), branch up-to-date with main, CI green, awaiting user signoff before merge. Production is now ~12 PRs behind staging.opchain.dev; deploy gap surfaced as the next blocker (deploy-ops hand-off). Required pre-flight: `wrangler secret put RESEND_API_KEY` on both staging and prod envs before the email-pipeline flag flips on.",
+  "updated_at": "2026-09-01T05:16:14.000Z",
+  "phase": "closeout",
+  "step": "scheduler-actor-refresh-ready-to-commit",
+  "status": "in_progress",
+  "progress_summary": "PR #467 merged to main as bf896c2b4c306f2a27001be09b82189a49fe9d6e, activating the redesigned monitoring code, but no successful post-transfer event=schedule runs exist yet. The repository now belongs to a-atx. On codex/v1.8.3-scheduler-actor-refresh, Canary and Deploy lag are reduced to one run on every fourth day-of-month at 13:47 UTC and 14:17 UTC and their cron definitions are changed to refresh scheduling after transfer. Docs Forge, Repo Ops, and Bug Check pass; successful scheduled evidence and the final closure PR remain pending. Production stays at approved runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; no deployment, retag, tag move, mirror mutation, or Phase C work occurred.",
   "progress_table": [
+    {
+      "id": "pr-467-merged",
+      "label": "Monitoring redesign PR #467 merged to main",
+      "status": "complete"
+    },
+    {
+      "id": "scheduler-cadence-refresh",
+      "label": "Every-fourth-day Canary and Deploy lag schedule refresh",
+      "status": "complete"
+    },
+    {
+      "id": "scheduler-refresh-pr",
+      "label": "Draft scheduler-actor refresh PR for a-atx merge",
+      "status": "in_progress"
+    },
+    {
+      "id": "post-transfer-scheduled-evidence",
+      "label": "Successful event=schedule Canary and Deploy lag runs on main",
+      "status": "not_started"
+    },
+    {
+      "id": "final-v1.8.3-closure-pr",
+      "label": "Final checkpoint and runbook closure PR",
+      "status": "not_started"
+    },
+    {
+      "id": "v1.8.3-release-reconciliation",
+      "label": "Release reconciliation PR chain through #465",
+      "status": "complete"
+    },
+    {
+      "id": "phase-a-staging-reviewed",
+      "label": "Exact-SHA staging deploy + automated and Safari review",
+      "status": "complete"
+    },
+    {
+      "id": "v1.8.3-signed-tag",
+      "label": "Signed v1.8.3 tag local gate, push, and remote gate",
+      "status": "complete"
+    },
+    {
+      "id": "v1.8.3-publisher-disposition",
+      "label": "Registry publication outcome and publisher workflow disposition",
+      "status": "complete"
+    },
+    {
+      "id": "phase-a-production-shipped",
+      "label": "Exact-SHA v1.8.3 production deploy and verification",
+      "status": "complete"
+    },
+    {
+      "id": "monitoring-redesign-branch-validation",
+      "label": "Canary and Deploy lag authenticated control-plane branch validation",
+      "status": "complete"
+    },
+    {
+      "id": "phase-c-c0-c1-preparation",
+      "label": "Phase C prerequisites, fixture scrub, and product manifest",
+      "status": "complete"
+    },
+    {
+      "id": "v1.8.3-closeout-pr",
+      "label": "Draft checkpoint/runbook closeout PR",
+      "status": "complete"
+    },
     {
       "id": "pr-183",
       "label": "PR #183 — v1.4 install upgrade flow + main-CI repairs",
@@ -73,16 +138,22 @@
   ],
   "context_primer": {
     "key_decisions": [
-      "Manual deploys per CLAUDE.md — git-ops only handles branch/commit/push/PR; deploy-ops owns wrangler.",
-      "Rebased #183 onto a moved main (one checkpoint conflict, took --theirs to keep this branch's gate state).",
-      "After rebase, main turned out to have 5 pre-existing CI failures that were silently broken on main itself. Per user direction, fixed all 5 in #183 rather than open a separate hotfix PR — scope creep was the cheaper path to merge.",
-      "Test loosening on changelog-and-scenarios.spec.ts: the original toHaveCount(1) over-specified a contract the changelog page never actually held; switched to .first() + toBeVisible() and split test fixtures (v13_LINKED for changelog assertion, ALL_PICKABLE for /demo picker coverage).",
-      "Pixel 5 demo-mobile scenario count needed two bumps in this session: 6→9 (v1.2 carry-over, originally on PR #184) then 9→12 (v1.3 additions, on the rebased #183). Both surfaced only on CI; can't run Playwright locally (no chromium browsers in this env).",
-      "Used --force-with-lease once after the rebase. No --force, --amend, or --no-verify."
+      "Canonical repository is a-atx/opchain; immutable repository ID 1208651570 and main/tag history survived the ownership transfer.",
+      "PR #467 is merged, but continuous monitoring remains pending because manual workflow_dispatch evidence cannot satisfy scheduled activation.",
+      "Both monitors run on days 1, 5, 9, 13, 17, 21, 25, and 29 to minimize Actions use; calendar month boundaries are not exact rolling 96-hour intervals.",
+      "The scheduler refresh must be merged by a-atx, then proven by successful event=schedule runs on main.",
+      "Git Ops owns only this branch/commit/push/draft PR. No deployment, tag, mirror, Cloudflare, or Phase C mutation is authorized."
     ],
     "generated_files": [
-      "Branch ref claude/add-upgrade-instructions-yvBC8 — squash-merged & deletable",
-      "Branch ref claude/fix-demo-mobile-scenario-count — closed branch (PR #184), deletable"
+      ".github/workflows/canary.yml",
+      ".github/workflows/deploy-lag.yml",
+      ".github/workflows/release-ledger.yml",
+      "CLAUDE.md",
+      "docs/governance/RELEASING.md",
+      "tests/cloudflare-monitor.test.js",
+      ".checkpoints/oc-docs-forge.checkpoint.json",
+      ".checkpoints/oc-repo-ops.checkpoint.json",
+      ".checkpoints/oc-git-ops.checkpoint.json"
     ],
     "user_preferences": [
       "Wants draft PRs by default per session-level GitHub policy (PR #183 was opened ready-for-review per harness instructions for this session).",
@@ -91,14 +162,13 @@
   },
   "blockers": [],
   "next_actions": [
-    "Hand off to deploy-ops: production is ~12 PRs behind main (today's wave + earlier #225/#231/#233 etc). Run `export LINEAR_API_KEY=lin_api_…; npm run deploy:staging` → curl /api/health → `npm run deploy`. Two security patches in the wave (DOMPurify XSS, js-yaml prototype pollution) make this time-sensitive.",
-    "Pre-flight before email-pipeline flag flips on: `wrangler secret put RESEND_API_KEY` on staging + production. Verify the opchain.dev sending domain in Resend dashboard first.",
-    "Held for user review: PR #232 (feat(compare): switch to Option C) — branch is up-to-date with main, all 4 checks green, ready when user approves. Either squash-merge or close.",
-    "Linear hygiene (non-git): ADEV-347/348 duplicate `v1.5 Sprint 3 — agent-forge + prompt-ops bodies` tickets — pick canonical, cancel the other. Both currently labelled `roadmap-visible` so both surface on the public roadmap.",
-    "Schedule code-auditor pre-deploy sweep before v1.5 Sprint 2/3 land (agent-forge + claude-api + rag-forge introduce prompt-injection / tool-use surfaces that warrant new audit rules)."
+    "HUMAN merges the scheduler-actor refresh draft PR while authenticated as a-atx; do not merge it in this task.",
+    "After merge, capture successful event=schedule Canary and Deploy lag runs on main; manual dispatch does not satisfy closure.",
+    "Verify the approved Cloudflare production deployment remains unchanged, then open the final checkpoint/runbook closure PR without merging it.",
+    "Do not deploy, retag, move tags, mutate the mirror, or perform Phase C work."
   ],
   "skill_state": {
-    "current_branch": "main (no active feature branch)",
+    "current_branch": "codex/v1.8.3-scheduler-actor-refresh (from origin/main bf896c2b4c306f2a27001be09b82189a49fe9d6e; runtime release remains 395fc314c836d5d9d8a76b64d85b8380ece3a68b)",
     "open_prs": [
       {
         "number": 232,
@@ -328,11 +398,156 @@
     "default_base": "main",
     "depends_on": "app-architect for build state; ux-engineer for design rationale; checkpoint-protocol v1.0",
     "merged_prs+": {
-      "number": 263,
-      "title": "design(changelog): round 2-3 layout explorations — bidirectional takeover + full-width tabs",
-      "merge_method": "squash",
-      "merge_sha": "d5c875b",
-      "merged_at": "2026-06-19T15:12:09.658Z"
-    }
+      "number": 452,
+      "title": "docs(runbooks): OSS-split execution handoff (rev 3, adversarially verified)",
+      "merge_method": "rebase-admin",
+      "merge_sha": "a2ca230",
+      "merged_at": "2026-08-27T19:53:30Z"
+    },
+    "oss_split": {
+      "plan": "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
+      "recommended": "A — invert the mirror; opchain-skills = source of truth; site consumes tag-pinned submodule + skills symlink",
+      "extraction_tool": "git-filter-repo 2.47.0 installed; no extraction run",
+      "leak_scanner": "gitleaks 8.30.1 installed; no rewritten-history scan run",
+      "manifest": "split/product-paths.txt prepared for human review",
+      "pm_fixture": ".opchain/pm.yaml scrubbed of maintainer UUIDs and ADEV release-plan data",
+      "stale_drafts_closed": [385, 363],
+      "product_commits": "~76–82 of 543",
+      "tags_carried": [
+        "v1.8.0",
+        "v1.8.1",
+        "v1.8.2"
+      ],
+      "history_leak_scan": "clean (PostHog public key + AWS example key only)",
+      "decisions": {
+        "D1": "Apache-2.0 (2026-08-22)",
+        "D2": "'Aidan Elsesser and the opchain contributors' · asfbay-bit (2026-08-24)",
+        "D3": "monorepo stays public; forward-only scrub (2026-08-24)",
+        "D4": "DCO, no CLA (2026-08-24)"
+      },
+      "relicense": {
+        "executed": "2026-08-24",
+        "pr": 416,
+        "url": "https://github.com/asfbay-bit/opchain/pull/416"
+      }
+    },
+    "prs": [
+      {
+        "number": 416,
+        "url": "https://github.com/asfbay-bit/opchain/pull/416",
+        "title": "chore(license): relicense to Apache-2.0 + OSS split decision plan",
+        "branch": "claude/opchain-repo-licensing-compliance-c39ebb",
+        "opened_at": "2026-08-24"
+      }
+    ],
+    "open_prs+": null,
+    "release_reconciliation": {
+      "merged_prs": [461, 462, 463, 465, 466],
+      "release_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "staging_review_version_id": "a8d3d1de-885e-466c-b762-ee2e946c8261",
+      "current_staging_version_id": "c52b3bd6-4eee-4e50-a8c3-e21569b998d6",
+      "current_staging_deployment_id": "8d709a57-181b-4ed7-90cc-ddf773ca14f4",
+      "staging_human_approved": true,
+      "staging_human_approved_at": "2026-08-29T03:23:40.000Z",
+      "tag_local": true,
+      "tag_origin": true,
+      "tag_object_sha": "5ba19cedb72a994dd32d4c4f53e5a962bd68b283",
+      "tag_peeled_commit": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "tag_signer": "Aidan Elsesser <admin@opchain.dev>",
+      "tag_signing_fingerprint": "0B62AC18DBF70E5D0A16572613F2AB1A91C4CDBD",
+      "tag_local_gate": "pass",
+      "tag_remote_gate": "pass",
+      "publisher_workflow": {
+        "run_id": 33234878843,
+        "url": "https://github.com/asfbay-bit/opchain/actions/runs/33234878843",
+        "conclusion": "failure",
+        "cause": "Validate published via publish --dry-run; Publish then failed duplicate-version"
+      },
+      "registry_publication": {
+        "version": "1.8.3",
+        "status": "active",
+        "is_latest": true,
+        "metadata_matches_server_json": true,
+        "published_at": "2026-08-29T04:53:31.36821Z"
+      },
+      "publisher_disposition": "accepted-one-time-outcome-exception",
+      "publisher_exception_pr": 466,
+      "publisher_exception_merge_sha": "5baa289ceeac5813f0a4392d6f63ed89cafa705f",
+      "publisher_exception_accepted_at": "2026-08-29T12:05:05.000Z",
+      "production_authorized": true,
+      "production_authorized_at": "2026-08-29T14:44:56.000Z",
+      "production_authorized_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+      "production_deployment": {
+        "git_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
+        "health_version": "395fc31",
+        "deployment_id": "7abc8570-6fcb-4942-b44e-8ef822f84b05",
+        "version_id": "780e85e2-7022-44fa-82f3-e5eaeb2b82a1",
+        "traffic_percent": 100,
+        "rollback_used": false
+      },
+      "continuous_monitoring": {
+        "status": "redesign-activated-scheduled-evidence-pending",
+        "canary_run_id": 33278930280,
+        "deploy_lag_run_id": 33278931387,
+        "default_branch_main_sha": "bf896c2b4c306f2a27001be09b82189a49fe9d6e",
+        "manual_diagnostic_run_id": 33459557207,
+        "manual_diagnostic_conclusion": "success; workflow_dispatch only, not closure evidence",
+        "latest_scheduled_canary_run_id": 33455303999,
+        "latest_scheduled_canary_conclusion": "failure; pre-transfer billing lock",
+        "latest_scheduled_deploy_lag_run_id": 33433307630,
+        "latest_scheduled_deploy_lag_conclusion": "failure; pre-transfer billing lock",
+        "default_branch_scheduled_activation": "PR #467 merged; successful post-transfer event=schedule evidence pending scheduler refresh"
+      },
+      "phase_c": {
+        "authorized": true,
+        "scope": "reversible C0/C1 preparation only",
+        "status": "c0-complete-c1-manifest-prepared-human-review-pending",
+        "hard_stop": "No extraction or flip; C5 requires Aidan to say exactly 'flip now'."
+      }
+    },
+    "closure_packet": {
+      "status": "ready-to-commit-and-open-draft-pr",
+      "docs_forge": "PASS",
+      "repo_ops": "PASS",
+      "bug_check": "PASS with warnings; tree-bound local checkpoint",
+      "tests": "38 files, 507 tests passed; 48 hook tests passed",
+      "workflow_yaml": "PASS — js-yaml parsed both schedules",
+      "checkpoint_validate": "PASS — 14 valid with 7 pre-existing advisory warnings",
+      "build": "PASS — Worker and 76-page static site",
+      "astro_check": "0 errors, 49 hints",
+      "root_audit": "0 vulnerabilities",
+      "site_audit": "0 critical; 7 high, 1 moderate, 2 low pre-existing advisories",
+      "secret_scan": "PASS — gitleaks staged scan",
+      "pr_mode": "draft; human a-atx merge required"
+    },
+    "closeout_pr": {
+      "number": 467,
+      "url": "https://github.com/a-atx/opchain/pull/467",
+      "title": "fix(monitoring): close v1.8.3 release evidence gap",
+      "state": "MERGED",
+      "draft": false,
+      "base": "main",
+      "head": "codex/v1.8.3-phase-a-closeout",
+      "opened_head_sha": "1751efd552b3c61ce7586b95a5ed4a7d5b133652",
+      "ci_run_id": 33279611204,
+      "ci_conclusion": "success",
+      "lighthouse_run_id": 33279611215,
+      "lighthouse_conclusion": "success",
+      "merged": true,
+      "merged_at": "2026-08-29T23:11:06Z",
+      "merge_sha": "bf896c2b4c306f2a27001be09b82189a49fe9d6e"
+    },
+    "scheduler_actor_refresh": {
+      "branch": "codex/v1.8.3-scheduler-actor-refresh",
+      "base": "main",
+      "base_sha": "bf896c2b4c306f2a27001be09b82189a49fe9d6e",
+      "canary_cron": "47 13 */4 * *",
+      "deploy_lag_cron": "17 14 */4 * *",
+      "cadence": "calendar days 1, 5, 9, 13, 17, 21, 25, and 29",
+      "status": "draft-pr-prepared-human-a-atx-merge-required",
+      "assurance": "cron change is a scheduler refresh attempt; only successful event=schedule runs on main prove activation"
+    },
+    "last_pr_number": 467,
+    "last_pr_url": "https://github.com/a-atx/opchain/pull/467"
   }
 }

@@ -57,6 +57,9 @@ const codexMcpCmd = `# ~/.codex/config.toml
 [mcp_servers.opchain]
 url = "https://opchain.dev/mcp"`;
 
+const pluginCmd = `/plugin marketplace add asfbay-bit/opchain-skills
+/plugin install opchain`;
+
 const codexSkillsCmd = `curl -L https://opchain.dev/opchain-skills.zip -o opchain-skills.zip
 unzip opchain-skills.zip -d .codex/skills/
 codex`;
@@ -100,12 +103,37 @@ codex`;
           Need the CLI first?
           <a href="https://claude.com/claude-code" rel="noopener">
             Install Claude Code
-          </a>, open a terminal at your project root, then drop the skills
-          into <code class="ic">.claude/skills/</code>. Claude Code
-          auto-discovers them on the next session.
+          </a>, then pick a path. The <strong>plugin</strong> is the one to
+          use if you can — it carries the skills <em>and</em> the hooks that
+          enforce them. The zip carries the skills only.
+        </p>
+
+        <h3 class="flow-sub">Plugin <span class="flow-tag">recommended</span></h3>
+        <p>
+          Two commands. Adds the 29 skills, eight registered slash commands,
+          and three hooks: a commit gate that refuses <code class="ic">git
+          commit</code> unless the code being committed passed bug-check,
+          pipeline state at session start, and a pointer to the next skill
+          when one finishes.
         </p>
         <div class="code-row">
-          <pre class="codeblock"><code>{cliCmd}</code></pre>
+          <pre class="codeblock" tabindex="0" role="region" aria-label="Plugin install commands"><code>{pluginCmd}</code></pre>
+          <button class="copy" type="button" data-copy={pluginCmd} data-flow="plugin" aria-label="Copy command">
+            <Icon name="copy" size={12} />
+            <span class="copy-label">copy</span>
+          </button>
+        </div>
+
+        <h3 class="flow-sub">Zip <span class="flow-tag flow-tag--muted">skills only</span></h3>
+        <p>
+          Drop the skills into <code class="ic">.claude/skills/</code>; Claude
+          Code discovers them next session. Use this where a plugin install
+          isn't an option. Note what it does <em>not</em> include: none of the
+          hooks, so nothing mechanically enforces a gate — the skills describe
+          the contract and you follow it.
+        </p>
+        <div class="code-row">
+          <pre class="codeblock" tabindex="0" role="region" aria-label="CLI install commands"><code>{cliCmd}</code></pre>
           <button class="copy" type="button" data-copy={cliCmd} data-flow="cli" aria-label="Copy command">
             <Icon name="copy" size={12} />
             <span class="copy-label">copy</span>
@@ -137,9 +165,11 @@ codex`;
           <li>Open Claude → <strong>Settings → Customize → Skills</strong>.</li>
           <li>Click <strong>Upload skill</strong> and pick the <code class="ic">.md</code> file.</li>
           <li>
-            Start a new conversation and trigger by name
-            (<em>"I have an app idea"</em> auto-invokes oc-app-architect) or by
-            slash command (<code class="ic">/oc-discover</code>).
+            Start a new conversation and name the skill
+            (<em>"use oc-app-architect — I have an app idea"</em>) or use its
+            slash command (<code class="ic">/oc-discover</code>). Naming it
+            explicitly is markedly more reliable than hoping the description
+            matches.
           </li>
         </ol>
       </div>
@@ -152,7 +182,7 @@ codex`;
         <h2><Icon name="github" /> Team (check into git)</h2>
         <p>Commit the skills directory so every teammate uses the same prompt pipeline.</p>
         <div class="code-row">
-          <pre class="codeblock"><code>{teamCmd}</code></pre>
+          <pre class="codeblock" tabindex="0" role="region" aria-label="Team git commands"><code>{teamCmd}</code></pre>
           <button class="copy" type="button" data-copy={teamCmd} data-flow="team" aria-label="Copy command">
             <Icon name="copy" size={12} />
             <span class="copy-label">copy</span>
@@ -179,10 +209,11 @@ codex`;
           <p class="flow-sub">
             <strong>Drop the skills in (recommended)</strong> — Codex Agent Skills
             use the same <code class="ic">SKILL.md</code> format and auto-trigger by
-            description, the same way Claude Code does:
+            description — the same unenforced, name-it-yourself matching Claude
+            Code skills rely on:
           </p>
           <div class="code-row">
-            <pre class="codeblock"><code>{codexSkillsCmd}</code></pre>
+            <pre class="codeblock" tabindex="0" role="region" aria-label="Codex skills install commands"><code>{codexSkillsCmd}</code></pre>
             <button class="copy" type="button" data-copy={codexSkillsCmd} data-flow="codex-skills" aria-label="Copy Codex skills install">
               <Icon name="copy" size={12} />
               <span class="copy-label">copy</span>
@@ -193,7 +224,7 @@ codex`;
             install; works for any MCP client:
           </p>
           <div class="code-row">
-            <pre class="codeblock"><code>{codexMcpCmd}</code></pre>
+            <pre class="codeblock" tabindex="0" role="region" aria-label="Codex MCP server config"><code>{codexMcpCmd}</code></pre>
             <button class="copy" type="button" data-copy={codexMcpCmd} data-flow="codex-mcp" aria-label="Copy Codex MCP config">
               <Icon name="copy" size={12} />
               <span class="copy-label">copy</span>
@@ -231,7 +262,7 @@ codex`;
         and replaces it with the latest bundle.
       </p>
       <div class="code-row">
-        <pre class="codeblock"><code>{upgradeCmd}</code></pre>
+        <pre class="codeblock" tabindex="0" role="region" aria-label="Upgrade command"><code>{upgradeCmd}</code></pre>
         <button class="copy" type="button" data-copy={upgradeCmd} data-flow="upgrade-cli" aria-label="Copy upgrade command">
           <Icon name="copy" size={12} />
           <span class="copy-label">copy</span>
@@ -268,7 +299,7 @@ codex`;
         review:
       </p>
       <div class="code-row">
-        <pre class="codeblock"><code>{`git checkout -b chore/upgrade-opchain
+        <pre class="codeblock" tabindex="0" role="region" aria-label="Team upgrade commands"><code>{`git checkout -b chore/upgrade-opchain
 rm -rf .claude/skills/
 curl -L https://opchain.dev/opchain-skills.zip -o opchain-skills.zip
 unzip opchain-skills.zip -d .claude/skills/
@@ -294,7 +325,7 @@ git commit -m "chore: upgrade opchain skills"`} data-flow="upgrade-team" aria-la
 
       <h3><Icon name="target" /> Check which version you're on</h3>
       <div class="code-row">
-        <pre class="codeblock"><code>{versionCmd}</code></pre>
+        <pre class="codeblock" tabindex="0" role="region" aria-label="Version check command"><code>{versionCmd}</code></pre>
         <button class="copy" type="button" data-copy={versionCmd} data-flow="upgrade-version" aria-label="Copy version-check command">
           <Icon name="copy" size={12} />
           <span class="copy-label">copy</span>
@@ -380,12 +411,12 @@ git commit -m "chore: upgrade opchain skills"`} data-flow="upgrade-team" aria-la
       <ul>
         <li><strong>One skill per pipeline phase</strong> covering discover · spec · design · build · audit · ship · monitor · migrate · scale</li>
         <li><strong>Session persistence</strong> — JSON checkpoints in <code class="ic">.checkpoints/</code>; pick up exactly where you left off, next chat or next week</li>
-        <li><strong>Active chaining</strong> — skills invoke each other automatically at phase boundaries; no manual handoffs</li>
+        <li><strong>Documented handoffs</strong> — each skill names the one that follows it, so you always know what to run next; with the plugin installed, the commit gate is enforced and finished skills suggest the next step</li>
         <li><strong>Natural-language triggers</strong> — type "build me an app" or "audit this before Friday" and opchain routes you to the right skill</li>
       </ul>
       <p style="margin-top: 1.5rem;">
         Want a preview first? The <a href="/demo">demo</a> walks you
-        through six end-to-end opchain sessions, end to end.
+        through twelve end-to-end opchain sessions.
       </p>
     </section>
 

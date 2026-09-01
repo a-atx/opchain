@@ -290,6 +290,10 @@ const DEFINITIONS = [
     "/oc-cost", "/oc-telemetry",
     // v1.7 "Seams & Signals" verbs. Subcommands inherit the parent verb.
     "/oc-signal", "/oc-modularize", "/oc-fleet",
+    // v1.8.3: the release-tag verb. oc-release-ops always handed off "the merge /
+    // tag" to oc-git-ops, which had no tag verb to catch it — ten releases shipped
+    // untagged as a result. See docs/plans/2026-08-26-git-ops-per-release.md.
+    "/oc-git-release",
   ]),
 
   // ── skills.coverage.<id>.enabled — one per oc-stack-forge pack ──────────────

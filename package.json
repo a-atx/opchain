@@ -2,6 +2,7 @@
   "name": "opchain-dev",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "npm run prebuild && wrangler dev",
@@ -15,6 +16,9 @@
     "sync-docs": "bash scripts/sync-docs.sh",
     "make-zip": "bash scripts/make-skills-zip.sh",
     "gen-catalog": "node scripts/gen-skills-catalog.mjs",
+    "lint-internal-refs": "node scripts/lint-internal-refs.mjs",
+    "check-skill-flags": "OPCHAIN_STRICT_REGISTRY=1 node scripts/check-skill-flags.mjs",
+    "check-release-tag": "node scripts/check-release-tag.mjs",
     "gen-mcp-catalog": "node scripts/gen-mcp-catalog.mjs",
     "gen-flags": "node scripts/gen-flags.mjs",
     "gen-stack-packs": "node scripts/gen-stack-packs.mjs",
@@ -25,9 +29,11 @@
     "validate-pm-mcp": "node scripts/validate-pm-mcp.mjs",
     "sync-bundles": "node scripts/sync-skill-bundles.mjs",
     "sync-bundles:check": "node scripts/sync-skill-bundles.mjs --check",
+    "sync-plugin-skills": "node scripts/sync-plugin-skills.mjs",
+    "sync-plugin-skills:check": "node scripts/sync-plugin-skills.mjs --check",
     "build-site": "bash scripts/build-site.sh",
-    "prebuild": "npm run gen-stack-packs && npm run gen-api-dev-adapters && npm run gen-packs-catalog && npm run gen-flags && npm run gen-catalog && npm run gen-mcp-catalog && npm run validate-pm-mcp && npm run sync-bundles:check && npm run sync-docs && npm run make-zip && npm run gen-og && npm run build-site",
-    "pretest": "npm run gen-stack-packs && npm run gen-api-dev-adapters && npm run gen-packs-catalog && npm run gen-flags && npm run gen-catalog && npm run gen-mcp-catalog && npm run validate-pm-mcp && npm run sync-bundles:check",
+    "prebuild": "npm run gen-stack-packs && npm run gen-api-dev-adapters && npm run gen-packs-catalog && npm run gen-flags && npm run gen-catalog && npm run lint-internal-refs && npm run check-skill-flags && npm run gen-mcp-catalog && npm run validate-pm-mcp && npm run sync-bundles:check && npm run sync-plugin-skills:check && npm run sync-docs && npm run make-zip && npm run gen-og && npm run build-site",
+    "pretest": "npm run gen-stack-packs && npm run gen-api-dev-adapters && npm run gen-packs-catalog && npm run gen-flags && npm run gen-catalog && npm run lint-internal-refs && npm run check-skill-flags && npm run gen-mcp-catalog && npm run validate-pm-mcp && npm run sync-bundles:check && npm run sync-plugin-skills:check",
     "test": "vitest run",
     "test:watch": "vitest",
     "site:install": "cd site && npm install",
@@ -39,13 +45,13 @@
     "checkpoint:next": "node scripts/checkpoint.mjs next",
     "checkpoint:doctor": "node scripts/checkpoint.mjs doctor",
     "checkpoint:validate": "node scripts/checkpoint.mjs validate",
-    "prepare": "node scripts/install-git-drivers.mjs"
+    "prepare": "node scripts/install-git-drivers.mjs",
+    "test:hooks": "node plugins/opchain/hooks/test-gate.cjs && node plugins/opchain/hooks/test-suggestion.cjs"
   },
   "devDependencies": {
-    "esbuild": "^0.28.1",
-    "gray-matter": "^4.0.3",
-    "js-yaml": "^4.2.0",
-    "vitest": "^4.1.9",
+    "esbuild": "^0.28.2",
+    "js-yaml": "^4.3.1",
+    "vitest": "^4.1.10",
     "wrangler": "^4.103.0"
   },
   "dependencies": {

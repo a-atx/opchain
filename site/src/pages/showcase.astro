@@ -103,16 +103,17 @@ const projects: Project[] = [
         <h2>What it actually costs.</h2>
         <p>
           Every shipped feature on this list carries an attributed LLM cost —
-          measured from real token counts by <code>oc-cost-ops</code>, not
-          estimated. Across opchain's own pipeline the average lands around
-          <strong>$7.41</strong> per shipped feature (spec on Opus, build on
-          Sonnet, bulk eval batched). The honest, full breakdown — pipelines run,
+          the report <code>oc-cost-ops</code> builds from real token counts. The
+          figures shown today are a labeled <strong>sample corpus</strong> —
+          averaging <strong>$7.41</strong> per shipped feature (spec on Opus,
+          build on Sonnet, bulk eval batched) — until opt-in telemetry
+          aggregates enough real runs. The honest, full breakdown — pipelines run,
           model-tier mix, and per-feature spend — lives on the
           <a href="/dashboard">dashboard</a>.
         </p>
         <p class="cpf-note">
-          This is the answer to the v1.5 "what did it cost to ship?" question:
-          real numbers, anonymized and aggregated, never a guess.
+          This is the shape of the answer to the v1.5 "what did it cost to ship?" question:
+          anonymized, aggregated numbers once opt-in telemetry lands — until then, every figure is marked sample.
         </p>
       </Card>
     </section>

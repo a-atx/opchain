@@ -206,7 +206,7 @@ import Icon from "../components/Icon.astro";
 
         <div class="result-section">
           <div class="result-head">Install</div>
-          <pre class="codeblock" id="install-cmd"></pre>
+          <pre class="codeblock" id="install-cmd" tabindex="0" role="region" aria-label="Install command"></pre>
           <button type="button" class="copy" id="copy-install">
             <Icon name="copy" size={12} /> copy
           </button>
@@ -214,7 +214,7 @@ import Icon from "../components/Icon.astro";
 
         <div class="result-section">
           <div class="result-head">CLAUDE.md starter</div>
-          <pre class="codeblock claude-md" id="claude-md"></pre>
+          <pre class="codeblock claude-md" id="claude-md" tabindex="0" role="region" aria-label="Generated CLAUDE.md"></pre>
           <button type="button" class="copy" id="copy-claude">
             <Icon name="copy" size={12} /> copy
           </button>
@@ -933,7 +933,7 @@ ${DEPLOY_NOTE[a.deploy]}
       "",
       "1. **Install the recommended skills** — run the install snippet above (or upload each SKILL.md via Claude.ai → Settings → Customize → Skills).",
       "2. **Add the CLAUDE.md scaffold** — copy the starter above into your repo root.",
-      "3. **Run /orchestrator in your first session** — type `/orchestrator` (or `/oc-ops`) in Claude Code to confirm checkpoints are wired and the skills resolved correctly.",
+      "3. **Run /oc-ops in your first session** — type `/oc-ops` in Claude Code to confirm checkpoints are wired and the skills resolved correctly.",
       "4. **Ship with oc-deploy-ops** — when you're ready, deploy via `/oc-deploy staging` then `/oc-deploy prod`; the audit gate runs before either.",
       "",
       "— opchain.dev",

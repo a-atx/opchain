@@ -60,9 +60,9 @@ directory. JSON (not markdown) because it's machine-parseable for cross-skill re
 
 Example paths:
 ```
-/home/claude/gtrack/.checkpoints/oc-app-architect.checkpoint.json
-/home/claude/gtrack/.checkpoints/oc-code-auditor.checkpoint.json
-/home/claude/gtrack/.checkpoints/oc-reverse-spec.checkpoint.json
+/home/claude/storefront/.checkpoints/oc-app-architect.checkpoint.json
+/home/claude/storefront/.checkpoints/oc-code-auditor.checkpoint.json
+/home/claude/storefront/.checkpoints/oc-reverse-spec.checkpoint.json
 ```
 
 Multiple skills can checkpoint the same project simultaneously without collision.
@@ -74,8 +74,8 @@ Multiple skills can checkpoint the same project simultaneously without collision
   // === HEADER (required) ===
   "protocol_version": "1.1",             // On-disk schema version — stamp new writes "1.1"; validator also accepts "1.0"
   "skill": "oc-app-architect",              // Skill that owns this checkpoint
-  "project": "gtrack",                   // Human-readable project name
-  "project_dir": "/home/claude/gtrack",  // Absolute path
+  "project": "storefront",               // Human-readable project name
+  "project_dir": "/home/claude/storefront",  // Absolute path
   "created_at": "2026-03-31T14:00:00Z",
   "updated_at": "2026-03-31T15:30:00Z",
 
@@ -101,7 +101,7 @@ Multiple skills can checkpoint the same project simultaneously without collision
   "context_primer": {
     "key_decisions": [
       "Stack: Hono + D1 + Workers. Auth: WebAuthn passkeys.",
-      "Two users: Aidan (admin), Dan (viewer). User IDs in D1.",
+      "Two users: Alex (admin), Sam (viewer). User IDs in D1.",
       "Sprint 1 delivered auth + session middleware. All tests pass."
     ],
     "generated_files": [

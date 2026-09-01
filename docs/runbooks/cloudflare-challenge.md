@@ -1,72 +1,126 @@
-# Runbook: `opchain.dev` is serving a Cloudflare challenge ("Just a moment…")
+# Runbook: GitHub health probes receive a Cloudflare challenge
 
-**Severity:** high — silently breaks the v1.4.3 Codex/MCP release and all programmatic access to the site.
-**Symptom in one line:** you deploy, the worker updates, but nothing about the release is reachable to non-browser clients — and the deploy-lag canary never warns you.
+**Severity:** monitoring degradation plus residual public machine-client risk.
 
-## What's actually happening
+**Observed symptom:** GitHub-hosted requests to production and staging
+`/api/health` return HTTP 403 with `cf-mitigated: challenge`, while normal local
+operator traffic can still return the expected `395fc31` JSON response.
 
-A **Cloudflare Managed Challenge** (the "Just a moment…" bot interstitial) is applied to the
-`opchain.dev` zone **at the edge, before requests reach the `opchain-dev` worker.** Real browsers
-usually solve the JS challenge and pass, so the site *looks* fine when you click around. But every
-**non-browser** client — `curl`, CI, monitoring, and crucially **Codex / Claude Desktop / Cursor /
-any MCP client POSTing to `https://opchain.dev/mcp`** — gets an HTML challenge page instead of the
-worker's JSON response.
+## What is happening
 
-This is the failure mode behind "I deployed v1.4.3 a dozen times and it still isn't live":
-**the deploys were always fine; the front door was challenging automated traffic.** The entire point
-of v1.4.3 is the hosted `/mcp` endpoint that MCP clients hit programmatically with no browser, no JS,
-and no cookies — exactly the traffic a managed challenge blocks.
+Cloudflare Free-plan Bot Fight Mode can challenge automated-looking requests at
+the edge before they reach the Worker. The behavior is selective: the failing
+GitHub Actions traffic does **not** prove that every browser, local `curl`, or
+MCP client is blocked, and a successful local request does **not** prove that a
+different public machine client will pass.
 
-## How it was confirmed (2026-06-20)
+For v1.8.3, the confirming scheduled evidence is:
 
-- `.github/workflows/deploy-lag.yml` reads `version` from `https://opchain.dev/api/health` daily.
-  Its job logs showed the response body on all 3 retries was the Cloudflare challenge page:
-  `<title>Just a moment...</title>`, `cType: 'managed'`, `cZone: 'opchain.dev'`,
-  `/cdn-cgi/challenge-platform/…`, "Enable JavaScript and cookies to continue."
-- Because the canary could never parse a `version`, it hit its "skip, no false alarm" branch
-  **every day** and opened no drift issue — so "zero open issues" was false comfort, not proof that
-  prod was current. (Fixed: the canary now detects the challenge and fails loudly.)
-- The `opchain-dev` worker itself was deploying correctly (Cloudflare showed it updated the same day).
-  The block is a **zone-level security setting, not worker code or a deploy artifact** — so no amount
-  of `wrangler deploy` fixes it.
+- Canary run `33272073249`: production and staging both received 403 challenge
+  responses.
+- Deploy lag run `33266202606`: the same challenge prevented its old
+  `/api/health` comparison.
+- Cloudflare still showed the approved production and staging deployments
+  active, and normal local health checks returned `395fc31`.
 
-## Fix (Cloudflare dashboard — this cannot be done from `wrangler` or the repo)
+This is an edge-policy/traffic-classification interaction, not evidence that a
+new Worker deployment is needed.
 
-**Preferred — scope the exemption to the machine-facing paths so the rest of the site keeps bot
-protection.** Security → WAF → **Custom rules → Create rule**:
+## What not to do
 
-- Expression:
-  ```
-  (http.host eq "opchain.dev" and (starts_with(http.request.uri.path, "/api/") or http.request.uri.path eq "/mcp"))
-  ```
-- Action: **Skip** → tick **Super Bot Fight Mode** and **Managed Challenge** (and "All remaining
-  custom rules").
-- Add the same rule for `staging.opchain.dev`.
+Do **not** create or claim a narrow WAF Skip exception for Bot Fight Mode.
+Cloudflare documents that Free-plan Bot Fight Mode runs outside the Ruleset
+Engine and cannot be skipped or customized by a WAF Skip rule:
 
-**Blunt alternative:** Security → **Bots → turn Bot Fight Mode / Super Bot Fight Mode OFF** for the
-zone. Also confirm Security → Settings → **Security Level is not "I'm Under Attack."**
+<https://developers.cloudflare.com/waf/feature-interoperability/>
 
-## Verify after the change
+For this disposition:
 
-```bash
-# Must return JSON with a "version" field, NOT an HTML challenge page:
-curl -sS https://opchain.dev/api/health
+- keep Bot Fight Mode enabled;
+- do not upgrade the plan solely to restore GitHub curl monitoring;
+- do not expose a public `workers.dev` route as a monitoring bypass;
+- do not treat repeated deploys as remediation for an edge challenge.
 
-# Must return JSON-RPC, NOT a challenge page:
-curl -sS -X POST https://opchain.dev/mcp \
-  -H 'content-type: application/json' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+Any of those policy changes needs a separate explicit decision.
 
-# Confirm the deployed version matches what you intend to be live:
-git rev-parse --short HEAD
-```
+## Monitoring design
 
-If `version` is older than `main` HEAD, redeploy from latest `main`
-(`npm run deploy:staging` → eyeball → `npm run deploy`) and re-check.
+`.github/workflows/canary.yml` and `.github/workflows/deploy-lag.yml` use the
+authenticated Cloudflare control plane instead of sending GitHub curl traffic
+through the challenged custom-domain path. Their source of truth is
+`.github/monitoring/release-baseline.json`.
 
-## Prevention
+The canary fails closed unless, for production and staging:
 
-- The deploy-lag canary now **fails loudly** when it sees a challenge page instead of silently
-  skipping, so this can't hide again. A red "Deploy lag" run = go check the WAF/Bots config first.
-- Any future tightening of Cloudflare bot/WAF settings on this zone must keep `/api/*` and `/mcp`
-  exempt, or it will take the MCP product offline for every non-browser client.
+1. the newest deployment is the approved deployment id;
+2. the approved version is the only version and receives exactly 100% traffic;
+3. the version's script fingerprint, `fetch` handler, and `ASSETS` binding match;
+4. the custom domain is present, certified, and associated with the expected
+   Worker;
+5. Workers observability and invocation logs remain enabled.
+
+Deploy lag additionally proves that the signed release tag peels to the
+baseline runtime SHA, that SHA remains an ancestor of `origin/main`, and all
+changes after it are classified using the baseline's explicit
+deploy-relevance rules. A docs/checkpoint/workflow-only main descendant is not
+a deployment gap.
+
+The monitor token should be a dedicated least-privilege credential capable of
+reading Workers scripts/deployments, versions/settings, and custom domains.
+Never print it or copy its value into a checkpoint, runbook, issue, or log.
+
+## After an intentional deployment
+
+From the exact reviewed and approved runtime checkout:
+
+1. deploy staging and run the local staging smoke checks;
+2. complete the human staging review at that exact SHA;
+3. deploy that exact SHA to production and run the local production smoke
+   checks;
+4. record the new production/staging deployment ids, version ids, script
+   fingerprints, and 100% traffic state in
+   `.github/monitoring/release-baseline.json`;
+5. verify the baseline script locally with credentials in the environment:
+
+   ```bash
+   node .github/scripts/cloudflare-monitor.mjs control-plane
+   node .github/scripts/cloudflare-monitor.mjs deploy-diff
+   ```
+
+6. merge the reviewed baseline update with the deploy documentation. A feature
+   branch dispatch is validation evidence only; continuous scheduled monitoring
+   is active only after the change is on the default branch and a scheduled run
+   succeeds.
+
+## Interpreting failures
+
+- **Deployment/version/traffic mismatch:** stop and inspect Cloudflare history.
+  Do not silently bless an unknown version by editing the baseline.
+- **Script fingerprint, handler, or binding mismatch:** treat the deployed
+  artifact as unapproved even if its version id looks plausible.
+- **Domain/certificate mismatch:** inspect the custom-domain association; do not
+  pre-create replacement DNS records because Wrangler owns these routes.
+- **Observability disabled:** restore logging before declaring monitoring
+  healthy.
+- **API authentication/permission failure:** rotate or repair the monitoring
+  token. Do not mislabel it as application deployment drift.
+- **Deploy-relevant source changes after the baseline:** open a new
+  release/deploy workstream and approve a new exact runtime SHA. Do not deploy
+  an arbitrary current `main` tip.
+
+## Assurance boundary
+
+A green control-plane check proves API access, approved deployment/version
+identity, traffic allocation, Worker script identity, required binding/handler,
+custom-domain association, and observability configuration. It does **not**
+prove:
+
+- `/api/health` returns JSON or `ok:true` through the public edge;
+- Worker code, static assets, or external dependencies execute successfully;
+- public reachability, regional behavior, latency, or TLS expiry;
+- `/mcp` or another machine-facing route avoids a Bot Fight challenge.
+
+Retain the point-in-time local health, smoke, TLS, and live-log evidence for each
+release. Public custom-domain machine traffic, including `/mcp`, remains an
+accepted residual risk until a separately approved edge-access design changes
+that fact.

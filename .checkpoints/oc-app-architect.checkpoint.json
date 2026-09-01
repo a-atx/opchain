@@ -2,43 +2,43 @@
   "protocol_version": "1.1",
   "skill": "oc-app-architect",
   "project": "opchain.dev",
-  "project_dir": "/home/user/opchain",
+  "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-07T00:00:00Z",
-  "updated_at": "2026-07-03T20:05:28Z",
+  "updated_at": "2026-08-28T00:24:27.027Z",
   "phase": "build",
-  "step": "pr-372-merged-jul-6-8-prewrites-staged",
+  "step": "git-ops-per-release-built",
   "status": "in_progress",
-  "progress_summary": "PRIOR FEATURE CLOSED: v1.6 shipped 2026-06-25 (PR #351) and v1.7 'Seams & Signals' shipped 2026-06-26 (PRs #356-359, site flip #359/#360) — launch phase of the v1.6 checkpoint is complete. CURRENT QUICK-FEATURE: blog content program (branch claude/vigilant-rhodes-6ebe72). Backfilled the 2026-06-25→07-01 publishing gap with 7 posts grounded in real repo history (v1.6 + v1.7 release narratives, cost-report pair incl. the public 13× correction #361→#364, telemetry stance, wire-1.1 protocol playbook, '27 skills' sequel), published 07-02 agent-discovery post, staged 07-03 deploy-pipeline post as draft:true, wrote docs/blog-content-calendar.md (M/W/F slate 07-03→08-01, 13 slots + spares + runbook), and reconciled docs/blog-overhaul-plan.md (Wave 3 shipped). Evaluator pass green: astro build 67 pages, astro check 0 errors, vitest 448/448, OG gen 19 blog cards, draft excluded from paths/RSS/OG, zero dead internal links, all frontmatter within schema caps, hero = 13x postmortem (featured).",
+  "progress_summary": "The v2.0 plan and /changelog now specify oc-hindsight and oc-evolve as governed multi-agent workflows; draft PR #454 is open and awaiting CI/review.",
   "progress_table": [
     {
       "id": "discovery",
-      "label": "Discovery (from context: blog infra + release history recon)",
+      "label": "Repository/worktree discovery — recover 2.0 design and inventory roadmap candidates",
       "status": "complete"
     },
     {
       "id": "spec",
-      "label": "Content plan (9 posts + 30-day calendar, §8 QA rubric)",
+      "label": "Sequence v1.9 → v2.0 → votable v2.1-v2.3 with vote-id preservation",
       "status": "complete"
     },
     {
       "id": "build",
-      "label": "Build — 9 posts, calendar doc, plan reconcile",
+      "label": "GitHub milestones/issues, changelog UI, recovered 2.0 plan, docs and tests",
       "status": "complete"
     },
     {
       "id": "eval",
-      "label": "Evaluator — build/check/tests/links/OG/draft gates",
+      "label": "Evaluator — full tests, Astro checks/build, live-data assertions and staging review",
       "status": "complete"
     },
     {
       "id": "pr",
-      "label": "Commit + PR + CI green (PR #372 merged as b77144e)",
+      "label": "Focused PR, CI green, merge",
       "status": "complete"
     },
     {
       "id": "launch",
-      "label": "Deploy (publishes through 07-02) + flip staged drafts",
-      "status": "not_started"
+      "label": "Refresh staging; production only after fresh explicit approval",
+      "status": "in_progress"
     }
   ],
   "context_primer": {
@@ -49,7 +49,8 @@
       "Calendar extends blog-overhaul-plan.md instead of rivaling it: §8 QA checklist retained as the per-post gate, S6 '~2/mo, no quota' principle preserved via an explicit slip-don't-fill rule; July runs M/W/F deliberately (launch-window backlog).",
       "Series ledger: 'Dogfooding opchain' grew to 5 parts (cost pair joined); July opens 'Seams & Signals in practice' (4 parts: modularize playbook, golden-fixture anatomy, fleet playbook, signal playbook).",
       "Hero rotation relies on newest-featured-wins in blog/index.astro — old featured flags don't need retiring.",
-      "Voice: house style per §3 (confident, technical, slightly irreverent, shows the seams) with humor dialed up on user request; every post keeps descriptions 120–160 chars and ≥2 internal links."
+      "Voice: house style per §3 (confident, technical, slightly irreverent, shows the seams) with humor dialed up on user request; every post keeps descriptions 120–160 chars and ≥2 internal links.",
+      "v1.9 adds four skills first (29→33); v2.0 then adds two workflow skills (33→35): oc-hindsight governs operational memory and oc-evolve governs behavior change; both isolate Planner/Generator/Evaluator contexts and end activation at a human gate."
     ],
     "generated_files": [
       "site/src/blog/2026-06-25-v1-6-the-instrumented-pipeline.md",
@@ -62,7 +63,9 @@
       "site/src/blog/2026-07-02-seo-for-robots-that-arent-googlebot.md",
       "site/src/blog/2026-07-03-we-deleted-our-deploy-pipeline-on-purpose.md",
       "docs/blog-content-calendar.md",
-      "docs/blog-overhaul-plan.md (status header + Wave 3 table updated)"
+      "docs/blog-overhaul-plan.md (status header + Wave 3 table updated)",
+      "docs/releases/2.0-plan.md",
+      "site/src/pages/changelog.astro"
     ],
     "user_preferences": [
       "Picks options when given clear choices; comfortable with 'go with defaults'.",
@@ -74,13 +77,9 @@
   },
   "blockers": [],
   "next_actions": [
-    "URGENT USER: prod is serving 90b90c2 (branch codex/checkpoint-audit-staging, forked pre-blog) — the blog is NOT live in production. Fix: cd .claude/worktrees/silly-tu-56b768 && npm run deploy (staging already validated ed2902b). Deploy-lag canary will nag until done.",
-    "2026-07-03 post DROPPED (owner call 07-04): moved to site/drafts/ drawer, permanently unpublished; calendar slot marked slipped.",
-    "Flips are automated from 07-04: scheduled agent (M/W/F mornings, America/Chicago) flips only a draft dated exactly that day, PRs, merges on green, notifies that a deploy is owed. Next flips: 07-06 monolith playbook, 07-08 golden-fixture anatomy.",
-    "Per-slot writing resumes Jul 10 ('From Compose guilt to a governed fleet').",
-    "v1.8 theme is being re-slated to 'Documentation and repo hygiene' (oc-docs-forge + oc-repo-ops) in uncommitted work on codex/1-7-release — snapshot pushed as tag wip/v1-8-docs-mesh-20260703. Rebase onto main when Codex is done (zero file overlap with blog work; fix stale '26 skills' subtitle). Jul 29 release-post slot inherits the theme.",
-    "/architecture Lighthouse fix (stable 0.89) deferred until after v1.8 lands (page churns then).",
-    "Voice calibration is locked (user: 'keep this level') — recorded in auto-memory feedback_blog_voice.md."
+    "Review and merge PR #454 after CI passes.",
+    "After merge, deploy and smoke-test staging before any production approval.",
+    "v1.8.3 release-ledger work is in PRs #458 (product) and #459 (site); see docs/plans/2026-08-26-git-ops-per-release.md."
   ],
   "skill_state": {
     "feature": {
@@ -91,7 +90,10 @@
       "posts_staged": 2,
       "posts_drawered": 1,
       "calendar_slots": 13,
-      "series": ["Dogfooding opchain (5 parts)", "Seams & Signals in practice (planned, 4 parts)"],
+      "series": [
+        "Dogfooding opchain (5 parts)",
+        "Seams & Signals in practice (planned, 4 parts)"
+      ],
       "prehistory_wave": "5 posts 2026-05-12→06-19 (v1.3, deploy-gap postmortem, oc- rename, MCP v1.4.3, Linear decoupling), each anchored to a real commit; v1.3 post carries an era-names editor's note (pre-rename command forms + updated: field)",
       "crr_pass": "3-round CRR on all 14 session posts: fixed 6/26 tense anachronism (referenced 6/30 sync in past tense), 5/12 era-name anachronism, de-duped the 'house rules' tic (5→2), repaired the two-hard-problems joke, added cross-links (7/02→6/13, 7/03→5/15), trimmed 5 descriptions into 120-160",
       "eval_gates": "astro build 72 pages · astro check 0 errors · vitest 448/448 · OG 24 cards · draft excluded · 0 dead links · chronology check clean for session posts"
@@ -105,6 +107,116 @@
       "shipped_at": "2026-06-26",
       "status": "live",
       "next_theme": "v1.8 TBD via /oc-release plan (calendar slot 2026-07-29)"
+    },
+    "oss_split": {
+      "plan": "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
+      "audit": "docs/audits/2026-08-22-oss-readiness-audit.md",
+      "options": "A invert mirror (recommended) / B monorepo hygiene only / C full two-repo split",
+      "seams": [
+        "gen-skills-catalog↔flags registry",
+        "build-time catalog/docs/zips",
+        "mcp/local-server↔src/lib/mcp",
+        "skills reference monorepo-only CLI",
+        "stack-forge packs feed site"
+      ],
+      "baseline": "3 validators + 10 suites / 188 tests green at c440c7b",
+      "decisions": {
+        "D1": "Apache-2.0 (2026-08-22)",
+        "D2": "'Aidan Elsesser and the opchain contributors' · asfbay-bit (2026-08-24)",
+        "D3": "public + forward scrub (2026-08-24)",
+        "D4": "DCO (2026-08-24)"
+      }
+    },
+    "site_surface_pass": {
+      "doc": "docs/plans/2026-08-25-site-surface-pass.md",
+      "at": "2026-08-26T15:49:15.609Z"
+    },
+    "roadmap_v2_sequence": {
+      "decision": "v1.9 Assurance and governed delivery ops; v2.0 The self-improving pipeline; voting for v2.1-v2.3",
+      "recovered_plan": "docs/releases/2.0-plan.md (source worktree preserved unmodified)",
+      "public_roadmap": {
+        "v1.9": [
+          "#8 oc-qa-ops",
+          "#9 oc-data-ops",
+          "#10 oc-compliance-ops",
+          "#11 oc-security-hardening"
+        ],
+        "v2.0": [
+          "#12 The self-improving pipeline"
+        ],
+        "v2.1": [
+          "#1 Marketplace + templates",
+          "#4 Claude.ai web skill install",
+          "#5 VS Code / Cursor extension"
+        ],
+        "v2.2": [
+          "#2 Agency play",
+          "#7 oc-monorepo-ops"
+        ],
+        "v2.3": [
+          "#3 Pipeline depth",
+          "#6 oc-discovery-ops"
+        ]
+      },
+      "vote_policy": "v1.9 and v2.0 are selected/committed and render without vote controls; v2.1-v2.3 render 7 vote controls using preserved GitHub issue ids",
+      "superseded": "v1.10 and v1.11 milestones closed after all issues were reassigned",
+      "evaluation": "npm test 461/461; Astro check 0 errors/0 warnings; Astro builds 76 pages; Playwright changelog/demo 22/22; checkpoint validation green; full repository build green",
+      "pr": "https://github.com/asfbay-bit/opchain/pull/451 merged as 4b1f7201c5aa76ba92d4888545df77bcb61f5e96 with Worker, site, Playwright, and Lighthouse CI green",
+      "staging": "4b1f720 deployed; smoke and health green; deployed HTML verified exact 4/1/3/2/2 grouping and vote ids 1,4,5,2,7,3,6; staging vote #1 incremented; feature request returned STAGING-DRY-RUN",
+      "staging_browser_note": "Safari loaded the cache-busted staging URL but its accessibility tree remained trapped in the Resources menu; no browser substitution was used because Safari was an explicit user constraint",
+      "production_gate": "awaiting a fresh explicit yes after the refreshed staging evidence; production has not been deployed",
+      "v2_workflow_revision": {
+        "at": "2026-08-27",
+        "catalog": "33→35",
+        "skills": [
+          "oc-hindsight",
+          "oc-evolve"
+        ],
+        "hindsight_topology": "Planner/Curator → Lesson Generator → isolated Retrieval Evaluator → human promotion",
+        "evolve_topology": "Reflector/Planner → Rule Generator → isolated Adversarial Evaluator → human adoption",
+        "scorecard": "mechanical substrate, not a skill",
+        "roadmap_issue": "https://github.com/asfbay-bit/opchain-skills/issues/12 updated",
+        "site": "/changelog#v2-0 updated and visually verified",
+        "pr": "https://github.com/asfbay-bit/opchain/pull/454"
+      }
+    },
+    "roadmap_github_issues": {
+      "doc": "docs/plans/2026-08-26-roadmap-github-issues.md",
+      "status": "sprint-1-done-locally",
+      "decisions": {
+        "repo": "asfbay-bit/opchain-skills (public mirror) — confirmed via gh api: 0 issues, only default labels, asfbay-bit has repo-write auth locally",
+        "scope": "phased full swap — Sprint 1 read path done; Sprint 2 write path + content migration gated on explicit go-ahead (live public repo + new secret)",
+        "voting": "REVISED from reactions back to keeping /api/votes — reactions require leaving the site + GitHub login to vote, too much conversion friction for a marketing page. VOTE_ID_RE now /^\\d{1,6}$/ (GitHub issue numbers) instead of Linear team-prefix ids.",
+        "bucketing": "roadmap:shipped/in-progress/planned/backlog labels — collapses Linear's two-concept (roadmap-visible gate + state bucket) into one",
+        "unification": "discovered site/src/data/roadmap-static.ts + roadmap-types.ts were orphaned dead code — nothing imported them. Real data lived as two hardcoded arrays inline in changelog.astro. Revived roadmap-types.ts as the real contract (chose 'unify' over 'minimal change' as the reconciliation approach); deleted roadmap-static.ts."
+      },
+      "sprint_1_files": [
+        "site/src/data/roadmap-types.ts (revived contract + itemsForMilestone helper)",
+        "site/src/data/roadmap-static.ts (deleted)",
+        "scripts/gen-roadmap.mjs (rewritten for GitHub REST, anonymous public read)",
+        "tests/gen-roadmap.test.js (rewritten)",
+        "site/src/pages/changelog.astro (v19Options/futureReleaseGroups items now derived via loadRoadmap())",
+        "src/index.js (VOTE_ID_RE → digits-only)",
+        "tests/votes.test.js (rewritten for numeric ids)",
+        "CLAUDE.md, .env.example (updated)"
+      ],
+      "sprint_1_verified": "npm test 456/456 · astro check 0 errors · astro build 76 pages incl /changelog (renders empty-but-intact, as expected with 0 real issues) · gen-roadmap.mjs run for real against the live public repo (read-only, confirmed 0 items)",
+      "not_deployed_because": "opchain-skills has 0 real roadmap:* issues — deploying now would blank the live roadmap. Also: production KV has vote-count:OPC-170-style keys that won't carry over to the new numeric-id format without a manual wrangler kv copy at deploy time.",
+      "sprint_2_done": {
+        "live_repo_setup": "5 labels (roadmap:shipped/in-progress/planned/backlog, community-submitted) + 3 milestones (v1.9=#1, v1.10=#2, v1.11=#3) + 11 issues created on asfbay-bit/opchain-skills, preserving exact copy from the old hardcoded arrays. Issue numbers 1-11 map to OPC-170/173/174 (v1.9) and OPC-186/185/180/182 (v1.10), OPC-181/183/184/187 (v1.11) in creation order.",
+        "write_path": "src/lib/roadmap-config.js (new, shared by gen-roadmap.mjs + index.js). handleFeedback branches isCommunity before the Linear code, calls new handleRoadmapRequest() -> creates GitHub issue with community-submitted label (not roadmap:*, stays off public roadmap until triage promotion). Dead Linear isCommunity branches + LINEAR_COMMUNITY_LABEL_ID removed. Added 5/hr per-IP rate limit (reuses NOTIFY KV) as a mitigation for spam being instantly public.",
+        "roadmap_form": "RoadmapForm.astro copy updated to GitHub; success-state id is now a real link to the created issue",
+        "tests": "462/462 passing incl. new tests/feedback.test.js roadmap-community-request suite (503/201/502/500/429/dry-run)",
+        "verified_e2e": "gh api created the real labels/milestones/issues -> node scripts/gen-roadmap.mjs pulled them for real (11 items, correct buckets/milestones) -> astro build confirmed 3 theme-options + 8 horizon-items + vote targets 1-11 in the rendered HTML"
+      },
+      "bug_found_and_fixed": "loadRoadmap()'s original fs.readFileSync(__dirname + roadmap.json) pattern silently returned an empty roadmap under real astro build (Vite bundles the module into dist/.prerender/chunks/, so import.meta.url-relative path math resolves to the wrong location) — worked fine under plain node/Vitest, which is why it was never caught before nothing had ever actually exercised loadRoadmap() through a real Astro build. Fixed with import.meta.glob('./roadmap.json', { eager: true }), which resolves against the source module graph at compile time. Confirmed fixed via a real astro build after the fix.",
+      "blocked_on_user": "ROADMAP_GITHUB_TOKEN (fine-grained PAT, issues:write on opchain-skills) must be provisioned by the user via wrangler secret put -- cannot be done by the assistant. Until set, the write path 503s not_configured (fails closed).",
+      "not_deployed": "everything built/tested locally only; docs/plans/2026-08-26-roadmap-github-issues.md 'Suggested next step' has the exact deploy sequence (gen-roadmap refresh -> secret provisioning -> staging -> prod)",
+      "open_questions": [
+        "Turnstile in front of the request form (the 5/hr rate limit is a floor, not a final answer)",
+        "Vote-history migration for production KV's old OPC-170-style keys (not carried over automatically to numeric issue-number keys)",
+        "Whether to also drop Linear internally, or keep this scoped to the public roadmap surface only"
+      ]
     }
   }
 }

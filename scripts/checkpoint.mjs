@@ -15,7 +15,8 @@
  *                                     when every queued action is stale).
  *   doctor [--online] [--fail-on-warnings]
  *                                     Cross-check checkpoints against ground truth
- *                                     (git, filesystem, optionally /api/health) and
+ *                                     (git, filesystem, optionally the approved
+ *                                     deployment baseline + /api/health) and
  *                                     report drift. Exit 1 on hard inconsistencies;
  *                                     --fail-on-warnings also exits 1 on warnings.
  *   list                              List every checkpoint file with a one-line status.
@@ -57,8 +58,8 @@ import { dirname, join, basename } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { execSync } from "node:child_process";
 
-const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
-const DIR  = join(ROOT, ".checkpoints");
+const ROOT = process.env.OPCHAIN_ROOT ?? dirname(dirname(fileURLToPath(import.meta.url)));
+const DIR  = process.env.OPCHAIN_CHECKPOINTS_DIR ?? join(ROOT, ".checkpoints");
 
 /** On-disk schema version stamped on new writes. See header note: distinct from
  *  the skill release version. v1.1 (v1.6 release) added the additive optional
@@ -98,6 +99,25 @@ const SIZE_WARN_BYTES = 32 * 1024;
 const SUMMARY_WARN_CHARS = 1200;
 /** A checkpoint older than this with status in_progress is probably stale. */
 const STALE_DAYS = 7;
+/**
+ * A `complete` checkpoint is not exempt from staleness — it is the artifact most
+ * likely to rot, because it asserts a finished state that history then moves past.
+ * (2026-07-20: oc-orchestrator sat `complete` at v1.5.0 for 27 days and three minor
+ * releases while `doctor` stayed silent, because the drift check required
+ * status === "in_progress".) Longer window than STALE_DAYS: a finished phase is
+ * allowed to sit for a while before it counts as drift.
+ */
+const STALE_COMPLETE_DAYS = 14;
+/** Blocked work goes cold fastest — someone is waiting on a decision. */
+const STALE_BLOCKED_DAYS = 3;
+
+/** Staleness threshold for a given status, or null if the status never goes stale. */
+function staleThresholdFor(status) {
+  if (status === "in_progress") return STALE_DAYS;
+  if (status === "complete") return STALE_COMPLETE_DAYS;
+  if (status === "blocked") return STALE_BLOCKED_DAYS;
+  return null; // "failed" is a terminal record; age is not drift.
+}
 
 // Repo-relative prefixes that look like real generated artifacts worth existence-checking.
 const ARTIFACT_PREFIXES = ["src/", "scripts/", "skills/", "site/", "spec/", "design/", "sprints/", ".checkpoints/", ".github/", ".opchain/"];
@@ -438,16 +458,36 @@ function recommendedAction(data, staleTokens) {
   const blockers = Array.isArray(data.blockers) ? data.blockers : [];
   const decision = blockers.find((b) => b.needs === "user_decision");
   if (decision) {
+    // The drift filter applies here too. These are ranks 1-2 — the ones pickNext
+    // prefers ABOVE all others — so a stale action here outranks every correctly
+    // filtered suggestion below it. Before 2026-07-24 both branches returned raw
+    // text without consulting staleTokens, which is why `next` told this repo to
+    // "tag v1.8.0 on the merge commit" twelve days after v1.8.0 shipped: the
+    // highest-priority path was the only unfiltered one.
+    const proposed = decision.proposed_resolution || "";
+    const stale = proposed && actionIsStale(proposed, staleTokens);
     return {
       why: `Blocked on your decision: ${decision.description}`,
-      action: decision.proposed_resolution || "Resolve the blocker, then resume.",
+      action: stale ? "Resolve the blocker, then resume." : proposed || "Resolve the blocker, then resume.",
+      allStale: Boolean(stale),
     };
   }
   const firstBlocker = blockers[0];
   if (data.status === "failed" || data.status === "blocked") {
+    const proposed = firstBlocker?.proposed_resolution || "";
+    if (proposed && !actionIsStale(proposed, staleTokens)) {
+      return {
+        why: firstBlocker ? `${data.status}: ${firstBlocker.description}` : `${data.status} — needs recovery`,
+        action: proposed,
+        allStale: false,
+      };
+    }
+    // Fall through to the queued actions, drift-filtered, before giving up.
+    const { action: fresh, allStale } = firstFreshAction(data.next_actions, staleTokens);
     return {
       why: firstBlocker ? `${data.status}: ${firstBlocker.description}` : `${data.status} — needs recovery`,
-      action: firstBlocker?.proposed_resolution || actionText((data.next_actions || [])[0]) || "Diagnose and recover.",
+      action: fresh || "Diagnose and recover.",
+      allStale: Boolean(allStale && !fresh),
     };
   }
   // Normal path: recommend the first NON-stale queued action. With no stale-token
@@ -464,7 +504,10 @@ function recommendedAction(data, staleTokens) {
   const action = allStale
     ? `All ${data.next_actions.length} queued action(s) reference already-merged/-completed work — run \`checkpoint doctor\` and reconcile this checkpoint before continuing.`
     : (fresh || "No queued next action — review the checkpoint.");
-  return { why, action };
+  // allStale is part of the contract now: consumers (the plugin's suggestion
+  // hook) stay SILENT rather than surfacing a recommendation built entirely
+  // from work git says already landed.
+  return { why, action, allStale: Boolean(allStale) };
 }
 
 // ───────────────────────────── commands ─────────────────────────────────────
@@ -553,7 +596,8 @@ function cmdStatus(opts = {}) {
     const age = d.updated_at ? daysSince(d.updated_at) : null;
     // H4: stale flag.
     let ageCell = age == null ? "—" : `${age < 1 ? "<1" : Math.floor(age)}d`;
-    if (age != null && age > STALE_DAYS && d.status === "in_progress") ageCell = `⚠ ${Math.floor(age)}d stale`;
+    const staleAfter = staleThresholdFor(d.status);
+    if (age != null && staleAfter != null && age > staleAfter) ageCell = `⚠ ${Math.floor(age)}d stale`;
     console.log(`| ${d.skill || "?"} | ${d.phase || "?"} | ${d.step || "?"} | ${d.status || "?"} | ${updated} | ${ageCell} |`);
   }
   console.log();
@@ -623,6 +667,22 @@ function driftTokens(all) {
   return toks;
 }
 
+/** Return the approved site release SHA when this checkout carries the site's
+ * monitoring baseline. The product repo intentionally does not: checkpoint
+ * remains product-owned after the split, while live deployment monitoring
+ * stays with opchain.dev. A missing baseline therefore means "not applicable",
+ * not drift. Malformed baselines still fail loudly for site checkouts. */
+function readApprovedReleaseBaseline(root = ROOT) {
+  const baselinePath = join(root, ".github", "monitoring", "release-baseline.json");
+  if (!existsSync(baselinePath)) return null;
+  const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
+  const expected = baseline?.release?.sourceShortSha;
+  if (!/^[0-9a-f]{7,12}$/.test(expected || "")) {
+    throw new Error("approved release baseline has no valid sourceShortSha");
+  }
+  return expected;
+}
+
 async function cmdDoctor(opts = {}) {
   const all = readAll();
   if (all.length === 0) { console.log("(no checkpoints found in .checkpoints/)"); return 0; }
@@ -645,10 +705,18 @@ async function cmdDoctor(opts = {}) {
       add("warn", skill, `project_dir "${data.project_dir}" doesn't exist here (authored on another machine? expected ${ROOT})`);
     }
 
-    // Drift 2: stale in_progress.
+    // Drift 2: staleness, per status. `complete` is NOT exempt — see STALE_COMPLETE_DAYS.
     const age = data.updated_at ? daysSince(data.updated_at) : null;
-    if (age != null && age > STALE_DAYS && data.status === "in_progress") {
-      add("warn", skill, `in_progress but last updated ${Math.floor(age)}d ago — stale? resume or reset`);
+    const staleAfter = staleThresholdFor(data.status);
+    if (age != null && staleAfter != null && age > staleAfter) {
+      const d = Math.floor(age);
+      add(
+        "warn",
+        skill,
+        data.status === "complete"
+          ? `marked complete but last updated ${d}d ago — does it still describe reality? reconcile against git HEAD/tags or reopen`
+          : `${data.status} but last updated ${d}d ago — stale? resume or reset`,
+      );
     }
 
     // Drift 3: referenced generated_files that look like repo paths but are missing.
@@ -675,21 +743,31 @@ async function cmdDoctor(opts = {}) {
     }
   }
 
-  // Drift 5 (F1/F3, optional): deployed version vs local HEAD via /api/health.
+  // Drift 5 (F1/F3, optional): point-in-time health response vs the approved
+  // release baseline. Raw local/main equality is deliberately not the contract:
+  // docs/checkpoint/workflow-only commits may advance without a deploy.
   if (opts.online) {
     try {
-      const head = execSync("git rev-parse --short HEAD", { cwd: ROOT, encoding: "utf8" }).trim();
-      // Cache-busting query string: the route is no-store at the origin, but
-      // a zone cache rule serving a stale HIT would fake a drift warning.
-      const res = await fetch(`https://opchain.dev/api/health?doctor=${Date.now()}`, { signal: AbortSignal.timeout(8000) });
-      const live = (await res.json()).version;
-      if (live && head && !head.startsWith(String(live)) && !String(live).startsWith(head)) {
-        add("warn", "deploy", `live /api/health version=${live} != local HEAD ${head} — production may be behind main`);
+      const expected = readApprovedReleaseBaseline();
+      if (expected == null) {
+        console.log("(online) skipped site health drift check: no opchain.dev release baseline in this checkout");
       } else {
-        console.log(`(online) live version ${live} matches local HEAD ${head}`);
+        // Cache-busting query string: the route is no-store at the origin, but
+        // a zone cache rule serving a stale HIT would fake a drift warning.
+        const res = await fetch(`https://opchain.dev/api/health?doctor=${Date.now()}`, { signal: AbortSignal.timeout(8000) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}${res.headers.get("cf-mitigated") === "challenge" ? " (Cloudflare challenge)" : ""}`);
+        const live = (await res.json()).version;
+        if (!/^[0-9a-f]{7,12}$/.test(String(live || ""))) {
+          throw new Error("health response has no valid version SHA");
+        }
+        if (!expected.startsWith(String(live)) && !String(live).startsWith(expected)) {
+          add("warn", "deploy", `live /api/health version=${live} != approved release baseline ${expected}`);
+        } else {
+          console.log(`(online) live version ${live} matches approved release baseline ${expected}`);
+        }
       }
     } catch (e) {
-      add("warn", "deploy", `--online check skipped: ${e.message}`);
+      add("warn", "deploy", `--online point-in-time health check unavailable: ${e.message}; run the authenticated Cloudflare control-plane monitor for deployment identity`);
     }
   }
 
@@ -707,7 +785,7 @@ async function cmdDoctor(opts = {}) {
   console.log(`${errs.length} error(s), ${warns.length} warning(s).`);
   const failOnWarn = Boolean(opts.failOnWarnings) && warns.length > 0;
   if (failOnWarn) console.log("Failing on warnings (--fail-on-warnings).");
-  if (!opts.online) console.log("Tip: `checkpoint doctor --online` also checks the deployed /api/health version.");
+  if (!opts.online) console.log("Tip: `checkpoint doctor --online` also compares a point-in-time /api/health response to the approved release baseline.");
   return (errs.length > 0 || failOnWarn) ? 1 : 0;
 }
 
@@ -881,7 +959,7 @@ function cmdReset(skill) {
 
 // Exported for tests. The CLI dispatch below only runs when invoked directly,
 // so importing this module (e.g. from vitest) is side-effect-free.
-export { validate, rankCheckpoint, pickNext, recommendedAction, actionText, harvestTokens, actionIsStale, firstFreshAction, budgetExceeded, SCHEMA_VERSION, ACCEPTED_SCHEMA_VERSIONS };
+export { validate, rankCheckpoint, pickNext, recommendedAction, actionText, harvestTokens, actionIsStale, firstFreshAction, budgetExceeded, readApprovedReleaseBaseline, SCHEMA_VERSION, ACCEPTED_SCHEMA_VERSIONS };
 
 // ───────────────────────────── arg parsing ──────────────────────────────────
 

@@ -1,4 +1,5 @@
 ---
+import { REPO_SITE } from "../lib/repo";
 import { defaultFor } from "../lib/flags/build-defaults";
 
 const year = new Date().getFullYear();
@@ -42,7 +43,7 @@ const newsletterEnabled = defaultFor("site.ui.footer.newsletter") as boolean;
     </div>
     <div class="col">
       <div class="col-head">source</div>
-      <a href="https://github.com/asfbay-bit/opchain" rel="noopener">GitHub</a>
+      <a href={REPO_SITE} rel="noopener">GitHub</a>
       <a href="https://opchain.dev/api/health" rel="noopener">API health</a>
       <button type="button" id="opchain-privacy-reset" class="link-btn">Manage privacy</button>
     </div>
@@ -71,8 +72,8 @@ const newsletterEnabled = defaultFor("site.ui.footer.newsletter") as boolean;
   )}
 
   <div class="site-footer-meta">
-    <span>&copy; {year} opchain</span>
-    <span>open-source · MIT</span>
+    <span>&copy; {year} Aidan Elsesser and the opchain contributors</span>
+    <span>open-source · <a href="/LICENSE">Apache-2.0</a></span>
   </div>
 </footer>
 
@@ -283,4 +284,14 @@ const newsletterEnabled = defaultFor("site.ui.footer.newsletter") as boolean;
     color: var(--subtle);
     letter-spacing: var(--ls-wide);
   }
+  /* The license link inherits the AA-cleared subtle tone (B-10) and stays
+     distinguishable by underline, not color alone — the global accent anchor
+     style fails Axe color-contrast at fs-xs on this ground. */
+  .site-footer-meta a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .site-footer-meta a:hover { color: var(--accent); }
 </style>

@@ -1,8 +1,10 @@
 /**
- * Validates that the skill-catalog generator rejects SKILL.md frontmatter
- * referencing unknown flags. We do this by spawning the script against a
- * temp skills/ tree that includes one bad fixture, then asserting the
- * error message points at the offender.
+ * Validates that the site-side flag-drift gate (scripts/check-skill-flags.mjs)
+ * rejects SKILL.md frontmatter referencing unknown flags or unregistered
+ * command verbs. (gen-skills-catalog.mjs is deliberately product-pure and no
+ * longer touches the registry — seam S2 of the OSS-split plan.) We spawn the
+ * script against a temp skills/ tree that includes one bad fixture, then
+ * assert the error message points at the offender.
  */
 import { describe, it, expect } from "vitest";
 import { spawnSync } from "node:child_process";
@@ -21,7 +23,7 @@ function findNodeModules() {
   // checkout without installed deps creates node_modules/.vite, and that
   // cache-only shell would then shadow the real install one level up.
   const require = createRequire(import.meta.url);
-  return dirname(dirname(require.resolve("gray-matter/package.json")));
+  return dirname(dirname(require.resolve("js-yaml/package.json")));
 }
 
 function runValidator(skillsDir) {
@@ -35,11 +37,11 @@ function runValidator(skillsDir) {
     // Symlink node_modules rather than copy it. The recursive copy was hundreds
     // of MB / thousands of files per run and intermittently failed or timed out
     // under parallel test load; module resolution follows the symlink, so the
-    // spawned validator still resolves gray-matter and the registry import.
+    // spawned validator still resolves js-yaml and the registry import.
     symlinkSync(findNodeModules(), join(work, "node_modules"), "dir");
     cpSync(join(ROOT, "package.json"), join(work, "package.json"));
     cpSync(skillsDir, join(work, "skills"), { recursive: true });
-    return spawnSync("node", ["scripts/gen-skills-catalog.mjs"], {
+    return spawnSync("node", ["scripts/check-skill-flags.mjs"], {
       cwd: work,
       encoding: "utf8",
     });
@@ -59,6 +61,7 @@ function makeFixture({ extraSkills = {} } = {}) {
       "name: oc-checkpoint-protocol",
       "displayName: Checkpoint Protocol",
       "version: 1.0.0",
+      "license: Apache-2.0",
       "shortDesc: Cross-skill protocol for session persistence.",
       "phases: [foundation]",
       "triAgent: false",
@@ -77,7 +80,7 @@ function makeFixture({ extraSkills = {} } = {}) {
   return dir;
 }
 
-describe("gen-skills-catalog — flag validation", () => {
+describe("check-skill-flags — registry drift validation", () => {
   it("passes with a clean fixture", () => {
     const dir = makeFixture();
     try {
@@ -96,6 +99,7 @@ describe("gen-skills-catalog — flag validation", () => {
           "name: demo-skill",
           "displayName: Demo",
           "version: 0.1.0",
+          "license: Apache-2.0",
           "shortDesc: A test skill.",
           "phases: [build]",
           "triAgent: false",
@@ -127,6 +131,7 @@ describe("gen-skills-catalog — flag validation", () => {
           "name: demo-skill",
           "displayName: Demo",
           "version: 0.1.0",
+          "license: Apache-2.0",
           "shortDesc: A test skill.",
           "phases: [build]",
           "triAgent: false",

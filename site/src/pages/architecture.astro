@@ -29,7 +29,7 @@ const packCounts = {
 
 <Base
   title="Architecture · opchain"
-  description="Checkpoint-driven pipeline of 24 opchain skills across 6 phases — interactive diagram of how skills chain through .checkpoints/<skill>.json."
+  description="Checkpoint-driven pipeline of 29 opchain skills across 6 phases — interactive diagram of how skills chain through .checkpoints/<skill>.checkpoint.json."
   active="/architecture"
 >
   <!-- Mobile-only static architecture (≤767px). Hidden on desktop via the
@@ -453,15 +453,15 @@ const packCounts = {
                 <line x1="138" y1="96" x2="240" y2="96" stroke="#c4b89e" stroke-width="1.0" stroke-dasharray="5,3" opacity="0.55" marker-end="url(#ah-sand)"/>
                 <line x1="240" y1="120" x2="138" y2="120" stroke="#e05c18" stroke-width="1.2" stroke-dasharray="5,3" opacity="0.78" marker-end="url(#ah-ember)"/>
 
-                <text x="189" y="20" fill="#e05c18" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.85">auto-invoke</text>
+                <text x="189" y="20" fill="#e05c18" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.85">chains-to</text>
                 <text x="189" y="44" fill="#c4b89e" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.75">advisory</text>
                 <text x="189" y="90" fill="#c4b89e" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.75">advisory</text>
-                <text x="189" y="114" fill="#e05c18" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.85">auto-invoke</text>
+                <text x="189" y="114" fill="#e05c18" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.85">chains-to</text>
 
                 <line x1="520" y1="63" x2="610" y2="63" stroke="#e05c18" stroke-width="1.2" stroke-dasharray="5,3" opacity="0.78" marker-end="url(#ah-ember)"/>
                 <line x1="610" y1="87" x2="520" y2="87" stroke="#c4b89e" stroke-width="1.0" stroke-dasharray="5,3" opacity="0.55" marker-end="url(#ah-sand)"/>
 
-                <text x="565" y="57" fill="#e05c18" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.85">auto-invoke</text>
+                <text x="565" y="57" fill="#e05c18" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.85">chains-to</text>
                 <text x="565" y="81" fill="#c4b89e" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle" opacity="0.75">advisory</text>
               </svg>
               <div class="band-detail">
@@ -573,7 +573,7 @@ const packCounts = {
                ></div>
 
           <!-- ══ BAND 3: AI (v1.5) ══
-               New AI-native phase. The four skills auto-invoke off
+               New AI-native phase. The four skills chains-to off
                oc-app-architect's "AI app?" branch in /oc-discover and return
                checkpoints — they are not on the primary spine (same pattern as
                Build). Violet accent (--ai) distinguishes the v1.5 phase. -->
@@ -585,7 +585,7 @@ const packCounts = {
               <span class="band-label-text" style="color:var(--ai)">AI</span>
             </div>
             <div class="band-content">
-              <svg viewBox="0 0 760 120" role="img" aria-label="AI phase (v1.5) — oc-claude-api (specialist/advisor), oc-rag-forge (tri-agent), oc-agent-forge (tri-agent), oc-prompt-ops (specialist); auto-invoked by oc-app-architect">
+              <svg viewBox="0 0 760 120" role="img" aria-label="AI phase (v1.5) — oc-claude-api (specialist/advisor), oc-rag-forge (tri-agent), oc-agent-forge (tri-agent), oc-prompt-ops (specialist); invoked from oc-app-architect">
                 <rect x="14" y="22" width="170" height="76" rx="5" fill="#1c1710" stroke="#a78bfa" stroke-width="1" opacity="0.97"><title>oc-claude-api — specialist/advisor (NEW v1.5, flag-gated); model routing, prompt caching, tool use, version-migration playbooks</title></rect>
                 <rect x="14" y="22" width="170" height="76" rx="5" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="0.5"/>
                 <text x="99" y="40" fill="#e8dfd0" font-size="7.5" font-weight="600" font-family="Outfit,system-ui,sans-serif" text-anchor="middle">oc-claude-api</text>
@@ -654,7 +654,7 @@ const packCounts = {
                       </div></div>
                       <div class="bd-meta-row"><span class="bd-meta-label">checkpt</span><div class="bd-cp"><span class="bd-cp-badge">CP</span> phase · model_routing · retrieval · agent_topology · prompt_versions</div></div>
                       <div class="bd-meta-row"><span class="bd-meta-label">links</span><div class="bd-cross">
-                        <span class="bd-cross-tag" style="background:rgba(245,158,11,0.06);border:0.5px solid rgba(245,158,11,0.2);color:#f59e0b">↑ auto-invoked by oc-app-architect · “AI app?” branch</span>
+                        <span class="bd-cross-tag" style="background:rgba(245,158,11,0.06);border:0.5px solid rgba(245,158,11,0.2);color:#f59e0b">↑ invoked from oc-app-architect · “AI app?” branch</span>
                         <span class="bd-cross-tag" style="background:rgba(167,139,250,0.06);border:0.5px solid rgba(167,139,250,0.25);color:#a78bfa">↓ checkpoints back to oc-app-architect</span>
                       </div></div>
                     </div>
@@ -682,7 +682,7 @@ const packCounts = {
             </div>
             <div class="band-content">
               <svg viewBox="0 0 760 205" role="img" aria-label="Build phase — oc-ux-engineer (tri-agent), oc-dash-forge (specialist), oc-api-dev (tri-agent), oc-integrations-engineer (tri-agent), oc-signal-forge (tri-agent, v1.7 Signals chain)">
-                <rect x="14" y="22" width="170" height="76" rx="5" fill="#1c1710" stroke="#f59e0b" stroke-width="1" opacity="0.97"><title>oc-ux-engineer — tri-agent: Planner / Generator / Evaluator. Auto-attaches Design Evaluator to UI sprints.</title></rect>
+                <rect x="14" y="22" width="170" height="76" rx="5" fill="#1c1710" stroke="#f59e0b" stroke-width="1" opacity="0.97"><title>oc-ux-engineer — tri-agent: Planner / Generator / Evaluator. Its Design Evaluator is attached on UI sprints as a step in the build loop.</title></rect>
                 <rect x="14" y="22" width="170" height="76" rx="5" fill="rgba(245,158,11,0.05)" stroke="#f59e0b" stroke-width="0.5"/>
                 <text x="99" y="40" fill="#e8dfd0" font-size="7.5" font-weight="600" font-family="Outfit,system-ui,sans-serif" text-anchor="middle">oc-ux-engineer</text>
                 <text x="99" y="52" fill="#c4b89e" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle">Tri-agent</text>
@@ -737,9 +737,9 @@ const packCounts = {
                 <rect x="729" y="15" width="22" height="13" rx="3" fill="rgba(224,92,24,.10)" stroke="rgba(224,92,24,0.6)" stroke-width="0.5"/>
                 <text x="740" y="24.5" fill="#e05c18" font-size="6.5" font-weight="700" font-family="JetBrains Mono,monospace" text-anchor="middle">ORC</text>
 
-                <!-- oc-signal-forge — NEW v1.7 (Signals chain). Auto-invoked by oc-app-architect Phase 2 (08-analytics); feeds oc-dash-forge (render) + oc-monitoring-ops (freshness SLA). -->
+                <!-- oc-signal-forge — NEW v1.7 (Signals chain). Chains tod by oc-app-architect Phase 2 (08-analytics); feeds oc-dash-forge (render) + oc-monitoring-ops (freshness SLA). -->
                 <line x1="306" y1="112" x2="306" y2="99" stroke="#e879f9" stroke-width="1.3" stroke-dasharray="4,2" opacity="0.85" marker-end="url(#ah-ember)"/>
-                <rect x="206" y="112" width="200" height="80" rx="5" fill="#1c1710" stroke="#e879f9" stroke-width="1" filter="url(#glow-sig)" opacity="0.97"><title>oc-signal-forge — NEW v1.7; question → trustworthy metric. Designer/Builder/Evaluator loop builds the instrumentation + harvester + transform and adversarially proves the signal answers the question before wiring it. Auto-invoked by oc-app-architect (08-analytics.md); hands the validated signal to oc-dash-forge and a freshness SLA to oc-monitoring-ops.</title></rect>
+                <rect x="206" y="112" width="200" height="80" rx="5" fill="#1c1710" stroke="#e879f9" stroke-width="1" filter="url(#glow-sig)" opacity="0.97"><title>oc-signal-forge — NEW v1.7; question → trustworthy metric. Designer/Builder/Evaluator loop builds the instrumentation + harvester + transform and adversarially proves the signal answers the question before wiring it. Chains tod by oc-app-architect (08-analytics.md); hands the validated signal to oc-dash-forge and a freshness SLA to oc-monitoring-ops.</title></rect>
                 <rect x="206" y="112" width="200" height="80" rx="5" fill="rgba(232,121,249,0.05)" stroke="#e879f9" stroke-width="0.5"/>
                 <text x="306" y="131" fill="#e8dfd0" font-size="7.5" font-weight="600" font-family="Outfit,system-ui,sans-serif" text-anchor="middle">oc-signal-forge</text>
                 <text x="306" y="144" fill="#c4b89e" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle">Tri-agent · Designer · Builder · Eval</text>
@@ -769,14 +769,14 @@ const packCounts = {
                       </div></div>
                       <div class="bd-meta-row"><span class="bd-meta-label">checkpt</span><div class="bd-cp"><span class="bd-cp-badge">CP</span> phase · ux_specs · api_surface · integrations · dashboards</div></div>
                       <div class="bd-meta-row"><span class="bd-meta-label">links</span><div class="bd-cross">
-                        <span class="bd-cross-tag" style="background:rgba(224,92,24,0.06);border:0.5px solid rgba(224,92,24,0.2);color:#e05c18">↑ auto-invoked by oc-app-architect</span>
+                        <span class="bd-cross-tag" style="background:rgba(224,92,24,0.06);border:0.5px solid rgba(224,92,24,0.2);color:#e05c18">↑ invoked from oc-app-architect</span>
                         <span class="bd-cross-tag" style="background:rgba(244,63,94,0.06);border:0.5px solid rgba(244,63,94,0.2);color:#F43F5E">↓ to ship gates</span>
                       </div></div>
                     </div>
                     <div class="bd-text">
                       <div class="bd-badge" style="color:var(--warning)">Phase 4 of 6</div>
                       <div class="bd-title">Build</div>
-                      <div class="bd-desc">Three tri-agent loops (oc-ux-engineer · oc-api-dev · oc-integrations-engineer) plus the dense-UI specialist (oc-dash-forge) work in parallel. oc-ux-engineer hands data-heavy screens to oc-dash-forge; oc-api-dev produces an OpenAPI/GraphQL contract that the deploy-time drift gate later enforces. All four feed checkpoints back to oc-app-architect. <strong style="color:#e879f9">v1.7</strong> adds <strong style="color:#e879f9">oc-signal-forge</strong> — auto-invoked from oc-app-architect's <code>08-analytics</code> plan, it builds and adversarially proves a metric answers its question before wiring it to oc-dash-forge (render) and a freshness SLA in oc-monitoring-ops (the <strong style="color:#e879f9">Signals</strong> chain).</div>
+                      <div class="bd-desc">Three tri-agent loops (oc-ux-engineer · oc-api-dev · oc-integrations-engineer) plus the dense-UI specialist (oc-dash-forge) work in parallel. oc-ux-engineer hands data-heavy screens to oc-dash-forge; oc-api-dev produces an OpenAPI/GraphQL contract that the deploy-time drift gate later enforces. All four feed checkpoints back to oc-app-architect. <strong style="color:#e879f9">v1.7</strong> adds <strong style="color:#e879f9">oc-signal-forge</strong> — invoked from oc-app-architect's <code>08-analytics</code> plan, it builds and adversarially proves a metric answers its question before wiring it to oc-dash-forge (render) and a freshness SLA in oc-monitoring-ops (the <strong style="color:#e879f9">Signals</strong> chain).</div>
                     </div>
                   </div>
                 </div>
@@ -1034,7 +1034,7 @@ const packCounts = {
           <!-- ══ QUALITY-GATE RAIL (cross-cutting, v1.8) ══
                Reframes every gate skill onto one boundary timeline —
                commit · PR · deploy. The v1.8 addition is the PR boundary:
-               oc-git-ops auto-invokes oc-docs-forge → oc-repo-ops before a
+               oc-git-ops chains to oc-docs-forge → oc-repo-ops before a
                PR opens. The commit + deploy gates are unchanged; they also
                appear as nodes in the Ship band. Not on the spine. -->
           <div class="qrail" aria-label="Quality-gate rail (v1.8): one quality gate at every boundary. oc-bug-check at commit, the new oc-docs-forge and oc-repo-ops at the PR, oc-code-auditor and oc-security-auditor at deploy.">
@@ -1046,7 +1046,7 @@ const packCounts = {
               <svg viewBox="0 0 760 238" role="img" aria-label="Quality-gate rail timeline: oc-bug-check gates the commit, the new oc-docs-forge and oc-repo-ops gate the PR, oc-code-auditor and oc-security-auditor gate the deploy.">
                 <!-- PR-stop highlight (drawn behind the pair) -->
                 <rect x="258" y="42" width="244" height="88" rx="9" fill="var(--docs-dim)" stroke="#38bdf8" stroke-width="1" stroke-dasharray="6,4" opacity="0.9"/>
-                <text x="380" y="37" fill="#38bdf8" font-size="8" font-weight="700" font-family="JetBrains Mono,monospace" text-anchor="middle" letter-spacing="0.06em">PR GATE · NEW v1.8</text>
+                <text x="380" y="37" fill="#38bdf8" font-size="8" font-weight="700" font-family="JetBrains Mono,monospace" text-anchor="middle" letter-spacing="0.06em">PR RAIL · v1.8</text>
 
                 <!-- COMMIT: oc-bug-check -->
                 <rect x="48" y="46" width="164" height="78" rx="5" fill="#1c1710" stroke="#F43F5E" stroke-width="1" opacity="0.97"><title>oc-bug-check — audit gate; runs pre-commit (type · lint · secrets · vuln)</title></rect>
@@ -1057,7 +1057,7 @@ const packCounts = {
                 <text x="130" y="108" fill="#F43F5E" font-size="6.5" font-family="JetBrains Mono,monospace" text-anchor="middle">/oc-bugcheck</text>
 
                 <!-- PR: oc-docs-forge (NEW) -->
-                <rect x="270" y="46" width="104" height="78" rx="5" fill="#1c1710" stroke="#38bdf8" stroke-width="1" filter="url(#glow-docs)" opacity="0.97"><title>oc-docs-forge — NEW v1.8; generates the PR documentation packet (README · changelog · ADR · PR body). Auto-invoked by oc-git-ops before a PR opens, and by release flows.</title></rect>
+                <rect x="270" y="46" width="104" height="78" rx="5" fill="#1c1710" stroke="#38bdf8" stroke-width="1" filter="url(#glow-docs)" opacity="0.97"><title>oc-docs-forge — NEW v1.8; generates the PR documentation packet (README · changelog · ADR · PR body). Chains tod by oc-git-ops before a PR opens, and by release flows.</title></rect>
                 <rect x="270" y="46" width="104" height="78" rx="5" fill="rgba(56,189,248,0.07)" stroke="#38bdf8" stroke-width="0.5"/>
                 <rect x="326" y="39" width="18" height="12" rx="3" fill="#1c1710"/><rect x="326" y="39" width="18" height="12" rx="3" fill="rgba(224,92,24,.10)" stroke="rgba(224,92,24,0.6)" stroke-width="0.5"/><text x="335" y="47.5" fill="#e05c18" font-size="6.5" font-weight="700" font-family="JetBrains Mono,monospace" text-anchor="middle">CP</text>
                 <rect x="346" y="39" width="22" height="12" rx="3" fill="#1c1710"/><rect x="346" y="39" width="22" height="12" rx="3" fill="rgba(224,92,24,.10)" stroke="rgba(224,92,24,0.6)" stroke-width="0.5"/><text x="357" y="47.5" fill="#e05c18" font-size="6.5" font-weight="700" font-family="JetBrains Mono,monospace" text-anchor="middle">ORC</text>
@@ -1130,7 +1130,7 @@ const packCounts = {
                 <span class="ia-badges"><span class="ia-cp">CP</span><span class="ia-cp">ORC</span><span class="ia-new">NEW v1.8</span></span>
               </a>
             </div>
-            <div class="qrail-foot">↑ the PR boundary is new in v1.8 · oc-git-ops auto-invokes oc-docs-forge → oc-repo-ops before a PR opens · commit + deploy gates unchanged</div>
+            <div class="qrail-foot">↑ the PR boundary is new in v1.8 · oc-git-ops chains to oc-docs-forge → oc-repo-ops before a PR opens · commit + deploy gates unchanged</div>
           </div>
 
           <!-- Legend -->
@@ -1150,10 +1150,10 @@ const packCounts = {
             <span class="legend-item" tabindex="0"
                   >
               <div aria-hidden="true" class="li-line" style="border-color:#e05c18;border-style:dashed"></div>
-              <span>auto-invoke</span>
+              <span>chains-to</span>
               <div class="legend-card" role="tooltip">
-                <div class="legend-card-title">Auto-invoke</div>
-                The oc-orchestrator silently triggers a sub-skill without explicit user command. The sub-skill operates in the oc-orchestrator's current phase context.
+                <div class="legend-card-title">Chains to</div>
+                A documented handoff: the calling skill's own instructions bring the next one in while it runs, so you don't invoke it separately. It is a convention the assistant follows, not a background trigger — nothing in the catalog fires it on its own.
                 <div class="legend-card-examples">e.g. oc-app-architect → oc-stack-forge · oc-app-architect → oc-ux-engineer · oc-app-architect → oc-api-dev</div>
               </div>
             </span>
@@ -1183,7 +1183,7 @@ const packCounts = {
               <span>PR-readiness gate <span style="color:var(--docs)">v1.8</span></span>
               <div class="legend-card" role="tooltip">
                 <div class="legend-card-title">PR-readiness gate (v1.8)</div>
-                The v1.8 quality-gate rail adds a gate at the PR boundary. oc-git-ops auto-invokes oc-docs-forge (writes the docs packet) then oc-repo-ops (repo hygiene + drift), which blocks the PR until the repo is clean. Distinct from the three audit gates — this one gates the PR, not the commit or deploy.
+                The v1.8 rail runs oc-docs-forge (writes the docs packet) then oc-repo-ops (repo hygiene + drift) before a PR opens, and oc-repo-ops fails closed when the repo is not ready. Unlike the commit gate — which the opchain plugin enforces with a PreToolUse hook — nothing mechanically blocks a PR today: this is a sequence oc-git-ops follows, not an enforced boundary.
                 <div class="legend-card-examples">oc-git-ops → oc-docs-forge → oc-repo-ops → PR opens</div>
               </div>
             </span>
@@ -1203,7 +1203,7 @@ const packCounts = {
               <span>ORC · oc-orchestrator</span>
               <div class="legend-card" role="tooltip">
                 <div class="legend-card-title">Orchestrator</div>
-                Every skill is routed by <code>/oc-ops</code> — the central oc-orchestrator tracks which checkpoint is current and dispatches the next skill in the pipeline. The ORC badge sits centered on the top-right corner of each skill (straddling the right edge), with CP paired immediately to its left. Marks every skill that participates in active chaining.
+                Ask <code>/oc-ops</code> and the oc-orchestrator reads every checkpoint and recommends the next skill — you still invoke it. The ORC badge sits centered on the top-right corner of each skill (straddling the right edge), with CP paired immediately to its left. Marks every skill that appears in those routing recommendations.
                 <div class="legend-card-examples">/oc-ops · cross-project routing · gate enforcement · "what should I do next" recommendations</div>
               </div>
             </span>
@@ -1267,7 +1267,7 @@ const packCounts = {
               <span>AI-native · v1.5</span>
               <div class="legend-card" role="tooltip">
                 <div class="legend-card-title" style="color:#a78bfa">AI-native phase (v1.5)</div>
-                The four AI skills added in v1.5, auto-invoked by oc-app-architect's <code>"AI app?"</code> branch in <code>/oc-discover</code> and gated behind <code>skills.registry.&lt;id&gt;.enabled</code>. Two are tri-agent (oc-rag-forge, oc-agent-forge).
+                The four AI skills added in v1.5, invoked from oc-app-architect's <code>"AI app?"</code> branch in <code>/oc-discover</code> and gated behind <code>skills.registry.&lt;id&gt;.enabled</code>. Two are tri-agent (oc-rag-forge, oc-agent-forge).
                 <div class="legend-card-examples">oc-claude-api · oc-rag-forge · oc-agent-forge · oc-prompt-ops</div>
               </div>
             </span>
@@ -1287,7 +1287,7 @@ const packCounts = {
               <span>Seams &amp; Signals · v1.7</span>
               <div class="legend-card" role="tooltip">
                 <div class="legend-card-title" style="color:#e879f9">Seams &amp; Signals (v1.7)</div>
-                The three v1.7 skills, gated behind <code>skills.registry.&lt;id&gt;.enabled</code>. Two new throughlines. <strong style="color:#e879f9">Signals</strong>: oc-app-architect's <code>08-analytics</code> auto-invokes oc-signal-forge (build + adversarially prove a metric), which feeds oc-dash-forge (render) and a freshness SLA to oc-monitoring-ops. <strong style="color:#e879f9">Seams</strong>: oc-modularize-ops decomposes a live monolith with golden-fixture proof, hands the move to oc-migration-ops, and the modules deploy via oc-fleet-ops — oc-deploy-ops' self-managed peer.
+                The three v1.7 skills, gated behind <code>skills.registry.&lt;id&gt;.enabled</code>. Two new throughlines. <strong style="color:#e879f9">Signals</strong>: oc-app-architect's <code>08-analytics</code> chains to oc-signal-forge (build + adversarially prove a metric), which feeds oc-dash-forge (render) and a freshness SLA to oc-monitoring-ops. <strong style="color:#e879f9">Seams</strong>: oc-modularize-ops decomposes a live monolith with golden-fixture proof, hands the move to oc-migration-ops, and the modules deploy via oc-fleet-ops — oc-deploy-ops' self-managed peer.
                 <div class="legend-card-examples">oc-signal-forge · oc-modularize-ops · oc-fleet-ops</div>
               </div>
             </span>
@@ -1314,7 +1314,7 @@ const packCounts = {
         <div class="card">
           <div class="card-header">
             <div class="card-dot" style="background:var(--warning)"></div>
-            <h2>Tri-Agent Patterns (7)</h2>
+            <h2>Tri-Agent Patterns</h2>
           </div>
           <ul>
             <li>· oc-app-architect: Generator / Evaluator</li>
@@ -1344,7 +1344,7 @@ const packCounts = {
             <h2>AI Phase (v1.5)</h2>
           </div>
           <ul>
-            <li>· Phase 3 of 6 — auto-invoked via oc-app-architect's "AI app?" branch</li>
+            <li>· Phase 3 of 6 — chained in via oc-app-architect's "AI app?" branch</li>
             <li>· oc-claude-api — model routing · prompt caching · tool use · migration</li>
             <li>· oc-rag-forge — tri-agent; vector DB · embeddings · retrieval eval</li>
             <li>· oc-agent-forge — tri-agent; Agent SDK · subagents · tool budgets</li>
@@ -1372,7 +1372,7 @@ const packCounts = {
           </div>
           <ul>
             <li>· <strong>Bus pattern</strong>: 1 trunk + N branches for fan-outs/fan-ins</li>
-            <li>· <strong>Lane offsets</strong>: handoff −10, auto-invoke −3, advisory +4, gate +11</li>
+            <li>· <strong>Lane offsets</strong>: handoff −10, chains-to −3, advisory +4, gate +11</li>
             <li>· <strong>Width</strong>: spine 1.8 · secondary 1.2 · advisory 1.0 · gate 1.4</li>
             <li>· <strong>Opacity</strong>: spine .95 · secondary .78 · advisory .55</li>
             <li>· <strong>Long-jumps</strong>: route via left/right gutter (safeX 32)</li>
@@ -1611,11 +1611,11 @@ const packCounts = {
 
       if (mY_dp == null || mY_pb == null || mY_bs == null || mY_sm == null) return;
 
-      /* Plan → Build: app-arch BUS fan-out (auto-invoke) */
+      /* Plan → Build: app-arch BUS fan-out (chains-to) */
       const r2 = busFanOut('oc-app-architect',
                            ['oc-ux-engineer', 'oc-api-dev', 'oc-integrations-engineer'],
                            mY_pb + LANE_AUTO, EMB, W_SECONDARY, true, O_SECONDARY, A_SECONDARY);
-      if (r2) labelPill('auto-invoke', (r2.busL + r2.busR) / 2, mY_pb + LANE_AUTO, EMB);
+      if (r2) labelPill('chains-to', (r2.busL + r2.busR) / 2, mY_pb + LANE_AUTO, EMB);
 
       /* Build → Ship: oc-api-dev → oc-security-auditor (advisory, around oc-deploy-ops) */
       const _dpR  = pt('oc-deploy-ops', 'right');

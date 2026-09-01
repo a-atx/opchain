@@ -13,7 +13,18 @@ sessions and skills, so work resumes where you left off.
 
 ## install
 
-### Claude Code CLI
+### Claude Code — plugin (recommended)
+
+Ships the skills *plus* the hooks that enforce them: a commit gate bound to the
+code being committed, pipeline state at session start, and a pointer to the next
+skill when one finishes.
+
+```
+/plugin marketplace add asfbay-bit/opchain-skills
+/plugin install opchain
+```
+
+### Claude Code — zip (skills only, no hooks)
 
 ```bash
 curl -L https://opchain.dev/opchain-skills.zip -o opchain-skills.zip
@@ -112,4 +123,4 @@ into the upstream repo.
 
 ## license
 
-MIT — see [LICENSE](./LICENSE).
+Apache-2.0 — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE). Releases up to and including v1.8.2 were published under MIT.

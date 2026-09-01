@@ -35,11 +35,14 @@ const ARD_SPEC_VERSION = "1.0";
 // in src/lib/mcp/server.js.
 const MCP_PROTOCOL_VERSION = "2025-06-18";
 const PUBLISHER = "opchain";
+// SPDX id of the project license; the full text is served at /LICENSE.
+const LICENSE = "Apache-2.0";
 
 const SUITE_DESCRIPTION =
   "opchain is a set of interconnected Claude Code / MCP skills that form a software-development " +
   "pipeline: concept → spec → design → build → ship → operate. Each skill is a SKILL.md the model " +
-  "reads and follows; together they chain through a shared checkpoint protocol.";
+  "reads and follows. You invoke a skill by name; skills read each other's checkpoints when you chain " +
+  "them, so context carries forward across a session you drive.";
 
 // Natural-language phrases that map to the pipeline's most common entry points.
 // ARD registries index these so an agent searching by intent resolves opchain.
@@ -93,6 +96,9 @@ export function buildAiCatalog({ catalog, origin, version = "dev" } = {}) {
         capabilities: skills.map((s) => s.id),
         representativeQueries: REPRESENTATIVE_QUERIES,
         version,
+        // Not an ARD 1.0-defined member — the spec has no license slot — but a
+        // harmless extra field so every discovery surface states its terms.
+        license: LICENSE,
       },
     ],
   };
@@ -109,6 +115,7 @@ export function buildMcpCard({ catalog, origin, version = "dev", tools = [] } = 
   return {
     name: "opchain",
     version,
+    license: LICENSE,
     description: SUITE_DESCRIPTION,
     protocol: "mcp",
     protocolVersion: MCP_PROTOCOL_VERSION,
@@ -149,8 +156,10 @@ export function buildLlmsTxt({ catalog, origin } = {}) {
     `- [Skill catalog (JSON)](${b}${DISCOVERY_PATHS.skills}): machine-readable list of every skill`,
     `- [MCP server card](${b}${DISCOVERY_PATHS.mcpCard}): how to connect over MCP`,
     `- [Architecture](${b}/architecture): how the skills chain into a pipeline`,
-    `- [Install guide](${b}/install): drop-in install + MCP setup`,
+    `- [Install guide](${b}/install): plugin, drop-in install + MCP setup`,
+    "- Claude Code plugin: `/plugin marketplace add asfbay-bit/opchain-skills` then `/plugin install opchain` (adds the commit gate + hooks the zip does not carry)",
     `- [Skill bundle (zip)](${b}/opchain-skills.zip): every skill in one download`,
+    `- [License](${b}/LICENSE): Apache-2.0 — every download above ships the same terms`,
     "",
   );
   return lines.join("\n");
@@ -171,9 +180,21 @@ export function buildSkillsJson({ catalog, origin, version = "dev" } = {}) {
     // this is what installed copies compare against their local SKILL.md
     // frontmatter to detect an available update.
     catalogVersion: skills[0]?.version ?? null,
+    license: LICENSE,
+    licenseUrl: `${b}/LICENSE`,
     description: SUITE_DESCRIPTION,
     mcp: { endpoint: `${b}${DISCOVERY_PATHS.mcp}`, card: `${b}${DISCOVERY_PATHS.mcpCard}` },
-    install: { bundle: `${b}/opchain-skills.zip`, guide: `${b}/install` },
+    install: {
+      bundle: `${b}/opchain-skills.zip`,
+      guide: `${b}/install`,
+      // Claude Code's recommended channel: unlike the zip, the plugin carries
+      // executable hooks (commit gate, session state, next-skill pointer).
+      plugin: {
+        marketplace: "asfbay-bit/opchain-skills",
+        add: "/plugin marketplace add asfbay-bit/opchain-skills",
+        install: "/plugin install opchain",
+      },
+    },
     count: skills.length,
     skills: skills.map((s) => ({
       id: s.id,

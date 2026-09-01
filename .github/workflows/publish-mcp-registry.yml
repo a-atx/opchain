@@ -31,15 +31,30 @@ jobs:
     name: mcp-publisher
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Full history + tags: the monotonicity guard below has to see
+          # every release tag to know whether this one is the newest.
+          fetch-depth: 0
+          fetch-tags: true
 
-      - name: Install mcp-publisher
+      - name: Install mcp-publisher (pinned + checksum-verified)
         run: |
           set -euo pipefail
-          os="$(uname -s | tr '[:upper:]' '[:lower:]')"
-          arch="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
-          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_${os}_${arch}.tar.gz" \
-            | tar xz mcp-publisher
+          # Pinned, not releases/latest: this job holds an OIDC token
+          # (id-token: write) that authorizes registry publishes for the
+          # io.github.asfbay-bit namespace — an upstream release compromise
+          # must not be able to run arbitrary code here. Runner is
+          # ubuntu-latest, so the asset is always linux_amd64. To bump:
+          # update MCP_PUBLISHER_VERSION and the sha256 from that release's
+          # registry_<ver>_checksums.txt.
+          MCP_PUBLISHER_VERSION="v1.8.1"
+          MCP_PUBLISHER_SHA256="a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc"
+          curl -fsSL -o mcp-publisher.tar.gz \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz"
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher.tar.gz" | sha256sum -c -
+          tar xzf mcp-publisher.tar.gz mcp-publisher
+          rm mcp-publisher.tar.gz
           ./mcp-publisher --version || true
 
       - name: Sync version into server.json
@@ -55,11 +70,57 @@ jobs:
           fi
           echo "Publishing version $(jq -r .version server.json) of $(jq -r .name server.json)"
 
+      # ── monotonicity guard ────────────────────────────────────────────────
+      # The registry keeps ONE pointer per server, last write wins. This job
+      # fires on every `v*` tag push, so pushing a historical tag would publish
+      # that old version over the current one.
+      #
+      # That is not hypothetical. The 2026-08-26 ledger audit found v1.0-v1.7
+      # shipped untagged, and backfilling those ten tags — which we want to do,
+      # for bisect and for `/oc-release plan` — would otherwise walk the public
+      # registry pointer backwards from 1.8.x to whichever tag landed last.
+      #
+      # The invariant is local and needs no network: only the NEWEST release tag
+      # in the repo may publish. A backfilled tag is by definition not newest,
+      # so it skips quietly rather than failing loudly — a backfill is a correct
+      # operation, not an error, and ten red X's would train everyone to ignore
+      # this workflow.
+      #
+      # workflow_dispatch is exempt: an operator naming a version explicitly is
+      # making a deliberate choice, and this guard should not out-stubborn them.
+      - name: Refuse to republish an older version
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          publishing="$(jq -r .version server.json)"
+          newest="$(git tag -l 'v[0-9]*' | sed 's/^v//' | sort -V | tail -n1)"
+
+          if [ -z "$newest" ]; then
+            echo "::warning::no release tags found — cannot establish an ordering; proceeding."
+            exit 0
+          fi
+
+          echo "publishing: $publishing"
+          echo "newest tag: $newest"
+
+          if [ "$publishing" = "$newest" ]; then
+            echo "✓ this is the newest release — safe to publish"
+            exit 0
+          fi
+
+          echo "::notice::Skipping publish. $publishing is not the newest release ($newest)."
+          echo "This is expected for a backfilled historical tag. The registry pointer"
+          echo "stays on $newest rather than walking backwards."
+          echo "SKIP_PUBLISH=1" >> "$GITHUB_ENV"
+
       - name: Authenticate (GitHub OIDC)
+        if: env.SKIP_PUBLISH != '1'
         run: ./mcp-publisher login github-oidc
 
       - name: Validate
+        if: env.SKIP_PUBLISH != '1'
         run: ./mcp-publisher publish --dry-run
 
       - name: Publish
+        if: env.SKIP_PUBLISH != '1'
         run: ./mcp-publisher publish

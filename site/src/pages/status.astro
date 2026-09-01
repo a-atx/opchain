@@ -1,4 +1,5 @@
 ---
+import { REPO_SITE, REPO_ISSUES } from "../lib/repo";
 import Base from "../layouts/Base.astro";
 import Eyebrow from "../components/ui/Eyebrow.astro";
 import Card from "../components/ui/Card.astro";
@@ -62,7 +63,7 @@ import Card from "../components/ui/Card.astro";
         <li>
           <strong>Version.</strong> The <code>version</code> field is
           the git SHA stamped at build time. Compare against the
-          <a href="https://github.com/asfbay-bit/opchain/commits/main" rel="noopener">main branch</a>
+          <a href={`${REPO_SITE}/commits/main`} rel="noopener">main branch</a>
           to see if a deploy is pending.
         </li>
         <li>
@@ -82,7 +83,7 @@ import Card from "../components/ui/Card.astro";
       </p>
       <ul>
         <li>Cloudflare incidents that affect opchain: <a href="https://www.cloudflarestatus.com" rel="noopener">cloudflarestatus.com</a></li>
-        <li>Open issues: <a href="https://github.com/asfbay-bit/opchain/issues" rel="noopener">github.com/asfbay-bit/opchain/issues</a></li>
+        <li>Open issues: <a href={REPO_ISSUES} rel="noopener">GitHub issues</a></li>
         <li>Report a new problem: <button type="button" class="inline-link" data-feedback-launcher>send feedback</button></li>
       </ul>
     </section>

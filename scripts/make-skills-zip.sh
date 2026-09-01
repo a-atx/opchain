@@ -6,16 +6,29 @@
 # Per-skill zips power the "Download skill" button on /skills/<id>; the combined
 # zip powers the "download all" button on /skills. Both carry the complete skill
 # folder so SKILL.md's references/, scripts/, examples/, TRYIT.md, etc. come along.
+# Both also carry LICENSE + NOTICE: an OSPO intake reads the artifact it
+# downloaded, not the repo, so the terms must be establishable from the zip
+# itself (tests/license-artifacts.test.js gates this).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SKILLS="$ROOT/skills"
-PUBLIC="$ROOT/public"
+SKILLS="${OPCHAIN_SKILLS_DIR:-$ROOT/skills}"
+PUBLIC="${OPCHAIN_PUBLIC_DIR:-$ROOT/public}"
+# Normalize to an absolute path — COMBINED/out are used from subshells that
+# cd into $SKILLS / $STAGE, where a relative override would silently point
+# the zips somewhere else.
+mkdir -p "$PUBLIC"
+PUBLIC="$(cd "$PUBLIC" && pwd)"
 COMBINED="$PUBLIC/opchain-skills.zip"
 PER_SKILL_DIR="$PUBLIC/skills"
 
 mkdir -p "$PER_SKILL_DIR"
 rm -f "$COMBINED"
 rm -f "$PER_SKILL_DIR"/*.zip
+
+# Staging tree so LICENSE/NOTICE can be zipped *inside* each per-skill folder
+# path without copying the whole skill directory.
+STAGE="$(mktemp -d)"
+trap 'rm -rf "$STAGE"' EXIT
 
 # ── Combined bundle (every skill's full directory tree) ──────────────
 # Zip each skill's whole folder, same as the per-skill bundles below, so
@@ -40,13 +53,18 @@ rm -f "$PER_SKILL_DIR"/*.zip
   [[ -f README.md ]] && items+=(README.md)
   zip -q -9 -r "$COMBINED" "${items[@]}"
 )
+(
+  cd "$ROOT" || exit 1
+  zip -q -9 "$COMBINED" LICENSE NOTICE
+)
 echo "Wrote $COMBINED"
 
 # ── Per-skill bundles (full directory tree per skill) ────────────────
 # Each zip contains the skill's full folder so users get SKILL.md plus
 # any references/, scripts/, examples/, TRYIT.md, etc. — everything
 # Claude Code needs to operate the skill. Filename matches the skill's
-# directory name so the URL is /skills/<id>.zip.
+# directory name so the URL is /skills/<id>.zip. LICENSE + NOTICE land
+# inside the skill folder so a single extracted skill is self-describing.
 for dir in "$SKILLS"/*/; do
   id="$(basename "$dir")"
   # Skip anything that doesn't have a SKILL.md (defensive — schema requires it
@@ -56,6 +74,12 @@ for dir in "$SKILLS"/*/; do
   (
     cd "$SKILLS" || exit 1
     zip -q -9 -r "$out" "$id"
+  )
+  mkdir -p "$STAGE/$id"
+  cp "$ROOT/LICENSE" "$ROOT/NOTICE" "$STAGE/$id/"
+  (
+    cd "$STAGE" || exit 1
+    zip -q -9 "$out" "$id/LICENSE" "$id/NOTICE"
   )
   echo "Wrote $out"
 done

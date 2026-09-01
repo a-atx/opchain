@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 const header = readFileSync("site/src/components/Header.astro", "utf8");
 const skillsPage = readFileSync("site/src/pages/skills/index.astro", "utf8");
 const statusPage = readFileSync("site/src/pages/status.astro", "utf8");
-const versionLocations = readFileSync("skills/oc-release-ops/references/version-locations.md", "utf8");
 
 describe("site release chip", () => {
   it("keeps the header chip as a hard-coded release label", () => {
@@ -31,10 +30,10 @@ describe("site release chip", () => {
     expect(skillsPage).toContain("<code>oc-repo-ops</code>");
   });
 
-  it("documents the release chip in the release-version location map", () => {
-    expect(versionLocations).toContain("site/src/components/Header.astro");
-    expect(versionLocations).toContain('CURRENT_RELEASE = "v1.3"');
-  });
+  // The release-version location map lives in a shipped skill doc
+  // (skills/oc-release-ops/references/version-locations.md); a site test
+  // asserting its literal content was the last cross-boundary read blocking
+  // the OSS split (seam S5) — that doc's coverage moves with the product.
 
   it("documents the actual health payload shape on the status page", () => {
     expect(statusPage).toContain("<code>ok: true</code>");
