@@ -96,6 +96,32 @@ export function checkReleaseSurfaces() {
       errors.push(`${r.label} (${r.file}): says ${r.value}, expected ${expected}`);
     }
   }
+  // R3a (v1.9): consistency is not truth — all eight surfaces can agree on a
+  // release the product never recorded (v1.8.2 shipped with the changelog
+  // stopped at 1.8.1). Bind the site's claim to skills/CHANGELOG.md's newest
+  // release heading, so the site cannot announce what the catalog has not
+  // logged.
+  if (expected) {
+    try {
+      const changelog = readFileSync(join(ROOT, "skills", "CHANGELOG.md"), "utf8");
+      const heading = changelog.match(/^## \[(\d+\.\d+)\.\d+\]/m);
+      if (!heading) {
+        errors.push("skills/CHANGELOG.md: no released `## [x.y.z]` heading found");
+      } else {
+        const logged = `v${heading[1]}`;
+        results.push({ label: "skills/CHANGELOG.md newest release", file: "skills/CHANGELOG.md", value: logged });
+        if (logged !== expected) {
+          errors.push(
+            `skills/CHANGELOG.md (newest entry ${logged}) does not match the site's claimed ${expected} — ` +
+              "the site must not announce a release the catalog has not recorded",
+          );
+        }
+      }
+    } catch (e) {
+      errors.push(`skills/CHANGELOG.md: unreadable (${e.message})`);
+    }
+  }
+
   return { ok: errors.length === 0, expected, results, errors };
 }
 

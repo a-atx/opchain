@@ -121,7 +121,7 @@ const packCounts = {
     <div class="ma-header">
       <div class="ma-header-eyebrow">SKILLS · ARCHITECTURE · v2 · MOBILE · v1.8</div>
       <h1>opchain skills ecosystem</h1>
-      <p class="ma-subtitle">Checkpoint-driven pipeline · 29 skills · 6 phases · 8 tri-agent · 3 audit gates · spine ordinals · v1.6 instrument rail · v1.7 Seams &amp; Signals · <span style="color:var(--ma-docs)">v1.8 quality-gate rail</span></p>
+      <p class="ma-subtitle">Checkpoint-driven pipeline · 33 skills · 6 phases · 9 tri-agent · 3 audit gates · spine ordinals · v1.7 Seams &amp; Signals · v1.8 quality-gate rail · <span style="color:var(--ma-docs)">v1.9 assurance rail</span></p>
     </div>
 
     <!-- Diagram container -->
@@ -669,7 +669,7 @@ const packCounts = {
           <div class="ma-appendix-eyebrow">Appendix A · Cross-cutting</div>
           <h2 class="ma-appendix-title">Checkpoint Protocol — sync topology</h2>
         </summary>
-        <p class="ma-appendix-desc">Every skill (all 29) writes a JSON checkpoint after each state change. The oc-orchestrator both reads from and writes to each — bidirectional sync. Diagram below shows 6 representative connections; the same topology extends to all 29 skills.</p>
+        <p class="ma-appendix-desc">Every skill (all 33) writes a JSON checkpoint after each state change. The oc-orchestrator both reads from and writes to each — bidirectional sync. Diagram below shows 6 representative connections; the same topology extends to all 33 skills.</p>
         <svg viewBox="0 0 330 360" role="img" aria-label="Orchestrator bidirectionally syncs checkpoints with all skills (6 shown)">
           <rect x="20" y="14" width="92" height="50" rx="6" fill="rgba(224,92,24,.10)" stroke="#e05c18" stroke-width="1.8"/>
           <text x="66" y="32" fill="#e05c18" font-size="11" font-weight="700" font-family="JetBrains Mono,monospace" text-anchor="middle">CP</text>
@@ -789,7 +789,7 @@ const packCounts = {
             <div class="ma-li-swatch" style="background:var(--ma-ember);border-radius:50%;width:14px;height:14px"></div>
             <div class="ma-li-name">CP · checkpoint indicator</div>
           </div>
-          <div class="ma-li-desc">Solid ember dot in each skill's top-right corner indicates the skill writes a checkpoint. <strong>All 29 skills carry CP</strong> — desktop version shows full CP badge on each rect; mobile uses the dot for legibility.</div>
+          <div class="ma-li-desc">Solid ember dot in each skill's top-right corner indicates the skill writes a checkpoint. <strong>All 33 skills carry CP</strong> — desktop version shows full CP badge on each rect; mobile uses the dot for legibility.</div>
           <div class="ma-li-eg"><code>.checkpoints/&lt;skill&gt;.json</code> · phase · progress · blockers · next_actions</div>
         </div>
         <div class="ma-legend-item">
@@ -797,7 +797,7 @@ const packCounts = {
             <div class="ma-li-swatch" style="background:var(--ma-ember);border-radius:50%;width:14px;height:14px;opacity:0.55"></div>
             <div class="ma-li-name">ORC · oc-orchestrator indicator</div>
           </div>
-          <div class="ma-li-desc">Faded ember dot adjacent to the CP dot indicates the skill participates in <code>/oc-ops</code> routing. <strong>All 29 skills carry ORC</strong> — every skill is route-addressable by the oc-orchestrator.</div>
+          <div class="ma-li-desc">Faded ember dot adjacent to the CP dot indicates the skill participates in <code>/oc-ops</code> routing. <strong>All 33 skills carry ORC</strong> — every skill is route-addressable by the oc-orchestrator.</div>
           <div class="ma-li-eg"><code>/oc-ops</code> · cross-project routing · gate enforcement · "what should I do next"</div>
         </div>
         <div class="ma-legend-divider"></div>
@@ -902,7 +902,7 @@ const packCounts = {
           <ul>
             <li>JSON files at <code>.checkpoints/&lt;skill&gt;.json</code></li>
             <li>Keys: phase · progress_table · context_primer · blockers · next_actions</li>
-            <li>All 29 skills read all 29 checkpoints (no ACL)</li>
+            <li>All 33 skills read all 33 checkpoints (no ACL)</li>
             <li>Resume order: own → upstream → novice mode</li>
             <li>Framework-agnostic — no platform lock-in</li>
           </ul>

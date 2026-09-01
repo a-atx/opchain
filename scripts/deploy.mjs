@@ -205,8 +205,11 @@ function assertReleaseTagged() {
       `\nand no MCP-registry republish (that workflow triggers on \`v*\` tags).` +
       `\n(This is the 2026-08-26 ledger audit — see docs/plans/2026-08-26-git-ops-per-release.md.)\n` +
       (fix ? `\n${fix}` : "") +
-      `\nIf you genuinely mean to ship untagged, say so out loud:` +
-      `\n    OPCHAIN_ALLOW_UNTAGGED_RELEASE=1 npm run deploy\n`,
+      (result.countDrift
+        ? `\nOPCHAIN_ALLOW_UNTAGGED_RELEASE=1 also bypasses this, but here it would ship` +
+          `\nthe NEXT release under the old version number — bump instead.\n`
+        : `\nIf you genuinely mean to ship untagged, say so out loud:` +
+          `\n    OPCHAIN_ALLOW_UNTAGGED_RELEASE=1 npm run deploy\n`),
   );
   process.exit(1);
 }
