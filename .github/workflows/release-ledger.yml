@@ -26,7 +26,8 @@ name: Release ledger
 
 on:
   schedule:
-    # 20 minutes after the deploy-lag run, same reasoning on the off-hour.
+    # Daily at 14:23 UTC; on deploy-lag monitoring days this follows that run
+    # by six minutes. The odd minute avoids top-of-hour scheduler load.
     - cron: "23 14 * * *"
   workflow_dispatch:
 

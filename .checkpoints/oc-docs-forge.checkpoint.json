@@ -3,49 +3,50 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/.codex/worktrees/a418/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-08-29T22:58:59.000Z",
+  "updated_at": "2026-09-01T05:10:22.000Z",
   "skill": "oc-docs-forge",
   "phase": "pr-docs",
   "status": "complete",
-  "step": "codex/v1.8.3-phase-a-closeout",
-  "progress_summary": "The PR documentation packet is current for the v1.8.3 monitoring/checkpoint closeout and reversible Phase C C0/C1 preparation. The execution handoff records exact production and staging identity, successful branch Canary/Deploy lag runs, release-baseline semantics, Bot Fight Mode assurance limits, and the default-branch activation requirement. Phase C documentation records completed C0 prerequisites, the prepared C1 manifest boundary, and the unchanged HUMAN gates; it does not claim extraction, a flip, merge, tag movement, or a new deployment.",
+  "step": "codex/v1.8.3-scheduler-actor-refresh",
+  "progress_summary": "The PR documentation packet is current for the v1.8.3 scheduler-actor refresh. Canary and Deploy lag are intentionally reduced to one run on every fourth day-of-month, at 13:47 UTC and 14:17 UTC respectively, to minimize GitHub Actions usage and avoid top-of-hour load. The PR refreshes the cron definitions after the repository ownership transfer; it does not prove scheduled monitoring healthy. A human merge by a-atx and genuine event=schedule runs on main remain required before the final release closeout.",
   "context_primer": {
     "key_decisions": [
-      "The PR body labels monitoring redesign-validated-pending-merge until a human merge and successful default-branch scheduled runs exist.",
+      "Canary and Deploy lag run on calendar days 1, 5, 9, 13, 17, 21, 25, and 29; native GitHub cron cannot express an exact rolling 96-hour interval without a daily workflow run.",
+      "Canary runs at 13:47 UTC and Deploy lag at 14:17 UTC to avoid top-of-hour scheduler load and preserve ordered evidence on monitoring days.",
+      "A cron-changing merge by a-atx is a scheduler-actor refresh attempt, not evidence of health; only successful event=schedule runs on main satisfy closeout.",
       "No WAF exception exists; Cloudflare Bot Fight Mode stays enabled and public custom-domain machine traffic including /mcp may still be challenged.",
-      "The v1.8.3 runtime stays at exact SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; docs/checkpoint/monitoring changes do not trigger a redeploy.",
-      "Phase C is authorized through its documented gates, but this PR stops at C1 human manifest review/freeze and cannot satisfy C5's exact flip-now confirmation.",
+      "The v1.8.3 runtime stays at exact SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; this PR does not deploy, retag, move tags, or perform Phase C work.",
       "The mandatory Documentation section is inline in the draft PR body; no separate documentation comment is required."
     ],
     "generated_files": [
       ".checkpoints/oc-docs-forge.checkpoint.json",
-      "docs/runbooks/oss-split-execution-handoff.md",
-      "split/product-paths.txt"
+      ".github/workflows/canary.yml",
+      ".github/workflows/deploy-lag.yml",
+      ".github/workflows/release-ledger.yml",
+      "CLAUDE.md",
+      "docs/governance/RELEASING.md",
+      "tests/cloudflare-monitor.test.js"
     ]
   },
   "skill_state": {
     "pr_comment_marker": null,
     "docs_changed": [
-      "docs/runbooks/oss-split-execution-handoff.md",
-      ".checkpoints/oc-release-ops.checkpoint.json",
-      ".checkpoints/oc-deploy-ops.checkpoint.json",
-      ".checkpoints/oc-monitoring-ops.checkpoint.json",
-      ".checkpoints/oc-git-ops.checkpoint.json",
-      ".opchain/pm.yaml",
-      "split/product-paths.txt",
-      "plugins/opchain/LICENSE",
-      "plugins/opchain/NOTICE",
-      "mcp/LICENSE",
-      "mcp/NOTICE"
+      ".github/workflows/canary.yml",
+      ".github/workflows/deploy-lag.yml",
+      ".github/workflows/release-ledger.yml",
+      "CLAUDE.md",
+      "docs/governance/RELEASING.md",
+      "tests/cloudflare-monitor.test.js",
+      ".checkpoints/oc-docs-forge.checkpoint.json",
+      ".checkpoints/oc-repo-ops.checkpoint.json",
+      ".checkpoints/oc-git-ops.checkpoint.json"
     ],
     "docs_not_changed_reason": null,
     "follow_up_docs": [
-      "After human merge, record successful default-branch scheduled Canary and Deploy lag run IDs before calling continuous monitoring healthy.",
-      "During C4, copy and adapt the site-owned governance/releasing drafts and add a sanitized product .gitignore before product commands run.",
-      "Before v1.8.4+, replace publish --dry-run with the supported publisher validation path and rotate the release seal atomically."
+      "After human merge by a-atx, record successful default-branch scheduled Canary and Deploy lag run IDs in the final closure packet before calling continuous monitoring healthy."
     ],
-    "verified_for_sha": "working-tree:codex/v1.8.3-phase-a-closeout@cf62a8dc32a5185aad4f3afeb1462cc83d47d760",
-    "pr_body_fragment": "## Documentation\n\n**Generated by:** oc-docs-forge\n**Docs changed:** monitoring workflows/runbook, release/deploy/monitoring/git checkpoints, Phase C product manifest and neutral PM fixture, product license/notice copies\n**Reader impact:** Operators can verify the already-shipped v1.8.3 runtime through authenticated Cloudflare control-plane evidence and distinguish deploy-relevant drift from intentional docs/checkpoint-only changes. Phase C is prepared only through C1 review/freeze; no extraction or flip occurred.\n**Follow-up docs:** After human merge, record successful default-branch scheduled runs. During C4, adapt governance drafts and add the product .gitignore. Before v1.8.4+, repair the publisher validation command and rotate the release seal."
+    "verified_for_sha": "working-tree:codex/v1.8.3-scheduler-actor-refresh@bf896c2b4c306f2a27001be09b82189a49fe9d6e",
+    "pr_body_fragment": "## Documentation\n\n**Generated by:** oc-docs-forge\n**Docs changed:** monitoring workflow schedules, release-ledger schedule comment, deployment/release operator guidance, cadence regression test, and Git/Docs/Repo checkpoints\n**Reader impact:** Canary and Deploy lag now each run on every fourth day-of-month (days 1, 5, 9, 13, 17, 21, 25, and 29) at 13:47 UTC and 14:17 UTC. This reduces the pair to roughly 16 scheduled runs per month and refreshes their cron definitions after the repository transfer. It does not prove the scheduler is healthy.\n**Follow-up docs:** After a-atx merges this PR, capture successful event=schedule runs on main and record them in the final v1.8.3 closure PR."
   },
   "next_actions": []
 }
