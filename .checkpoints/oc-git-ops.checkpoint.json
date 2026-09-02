@@ -2,42 +2,42 @@
   "protocol_version": "1.1",
   "skill": "oc-git-ops",
   "project": "opchain.dev",
-  "project_dir": "/Users/aidanelsesser/.codex/worktrees/a418/opchain",
+  "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-05-01T16:58:00Z",
-  "updated_at": "2026-09-01T05:16:14.000Z",
+  "updated_at": "2026-09-02T21:49:57.000Z",
   "phase": "closeout",
-  "step": "scheduler-actor-refresh-ready-to-commit",
-  "status": "in_progress",
-  "progress_summary": "PR #467 merged to main as bf896c2b4c306f2a27001be09b82189a49fe9d6e, activating the redesigned monitoring code, but no successful post-transfer event=schedule runs exist yet. The repository now belongs to a-atx. On codex/v1.8.3-scheduler-actor-refresh, Canary and Deploy lag are reduced to one run on every fourth day-of-month at 13:47 UTC and 14:17 UTC and their cron definitions are changed to refresh scheduling after transfer. Docs Forge, Repo Ops, and Bug Check pass; successful scheduled evidence and the final closure PR remain pending. Production stays at approved runtime SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; no deployment, retag, tag move, mirror mutation, or Phase C work occurred.",
+  "step": "v1.9-release-delivery-complete",
+  "status": "complete",
+  "progress_summary": "The v1.9 release Git workflow is complete. Release PR #477 merged with all required checks as exact runtime SHA 244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248; signed tag v1.9.0 resolves to that SHA and Registry publication passed. Monitoring baseline PR #478 merged as non-deploying commit c6d529631cfe49021efdcabcfcf02bc95a94700f after CI, Playwright, and Lighthouse passed. Authenticated main-branch Canary and Deploy lag dispatches then passed and closed stale issue #475. The release runtime remains the signed tag SHA; later .github and checkpoint-only commits are explicitly non-deploying.",
   "progress_table": [
     {
-      "id": "pr-467-merged",
-      "label": "Monitoring redesign PR #467 merged to main",
+      "id": "v1.9-release-pr",
+      "label": "Release PR #477 merged with required checks",
       "status": "complete"
     },
     {
-      "id": "scheduler-cadence-refresh",
-      "label": "Every-fourth-day Canary and Deploy lag schedule refresh",
+      "id": "v1.9-signed-tag",
+      "label": "Signed annotated v1.9.0 tag pushed and verified",
       "status": "complete"
     },
     {
-      "id": "scheduler-refresh-pr",
-      "label": "Draft scheduler-actor refresh PR for a-atx merge",
-      "status": "in_progress"
+      "id": "v1.9-registry",
+      "label": "MCP Registry publication active and latest",
+      "status": "complete"
     },
     {
-      "id": "post-transfer-scheduled-evidence",
-      "label": "Successful event=schedule Canary and Deploy lag runs on main",
-      "status": "not_started"
+      "id": "v1.9-production",
+      "label": "Exact signed SHA deployed and verified in staging and production",
+      "status": "complete"
     },
     {
-      "id": "final-v1.8.3-closure-pr",
-      "label": "Final checkpoint and runbook closure PR",
-      "status": "not_started"
+      "id": "v1.9-monitoring-baseline",
+      "label": "Monitoring baseline PR #478 merged and manually validated",
+      "status": "complete"
     },
     {
-      "id": "v1.8.3-release-reconciliation",
-      "label": "Release reconciliation PR chain through #465",
+      "id": "v1.9-closeout",
+      "label": "Retention purge, roadmap closure, and release sign-off",
       "status": "complete"
     },
     {
@@ -139,10 +139,10 @@
   "context_primer": {
     "key_decisions": [
       "Canonical repository is a-atx/opchain; immutable repository ID 1208651570 and main/tag history survived the ownership transfer.",
-      "PR #467 is merged, but continuous monitoring remains pending because manual workflow_dispatch evidence cannot satisfy scheduled activation.",
-      "Both monitors run on days 1, 5, 9, 13, 17, 21, 25, and 29 to minimize Actions use; calendar month boundaries are not exact rolling 96-hour intervals.",
-      "The scheduler refresh must be merged by a-atx, then proven by successful event=schedule runs on main.",
-      "Git Ops owns only this branch/commit/push/draft PR. No deployment, tag, mirror, Cloudflare, or Phase C mutation is authorized."
+      "The signed v1.9.0 tag and deployed runtime remain pinned to 244bf13 even though non-deploying baseline and checkpoint commits advance main.",
+      "PR #478 records the exact deployed Cloudflare baseline; its .github-only change is explicitly non-deploying.",
+      "Authenticated workflow_dispatch runs validate the v1.9 baseline immediately, while oc-monitoring-ops separately tracks the first event=schedule cycle.",
+      "Release commits and the v1.9 tag were GPG-signed with fingerprint 66ED0CF12E9C51822AA1629BB4A90085A810B266."
     ],
     "generated_files": [
       ".github/workflows/canary.yml",
@@ -156,31 +156,15 @@
       ".checkpoints/oc-git-ops.checkpoint.json"
     ],
     "user_preferences": [
-      "Wants draft PRs by default per session-level GitHub policy (PR #183 was opened ready-for-review per harness instructions for this session).",
-      "Merges directly with single `merge` command after CI is mostly green; LHCI failures are treated as informational by default."
+      "Complete the v1.9 production push and release sign-off autonomously.",
+      "Require CI, Playwright, and Lighthouse to pass before release and baseline merges."
     ]
   },
   "blockers": [],
-  "next_actions": [
-    "HUMAN merges the scheduler-actor refresh draft PR while authenticated as a-atx; do not merge it in this task.",
-    "After merge, capture successful event=schedule Canary and Deploy lag runs on main; manual dispatch does not satisfy closure.",
-    "Verify the approved Cloudflare production deployment remains unchanged, then open the final checkpoint/runbook closure PR without merging it.",
-    "Do not deploy, retag, move tags, mutate the mirror, or perform Phase C work."
-  ],
+  "next_actions": [],
   "skill_state": {
-    "current_branch": "codex/v1.8.3-scheduler-actor-refresh (from origin/main bf896c2b4c306f2a27001be09b82189a49fe9d6e; runtime release remains 395fc314c836d5d9d8a76b64d85b8380ece3a68b)",
-    "open_prs": [
-      {
-        "number": 232,
-        "title": "feat(compare): switch to Option C — groups + zebra + winner dots + mobile sticky labels",
-        "branch": "aidan/compare-option-c",
-        "head_sha": "(updated 2026-05-31 via update_pull_request_branch)",
-        "status": "HELD for user review — branch up-to-date with main, CI green, awaiting user signoff",
-        "scope": "site/src/pages/compare.astro (one file, +358/-239)",
-        "ci_final": "Worker ✅ · Site build ✅ · Playwright e2e ✅ · LHCI 1.00 across the board",
-        "review_comments": 3
-      }
-    ],
+    "current_branch": "codex/v1.9-release-signoff (from origin/main c6d529631cfe49021efdcabcfcf02bc95a94700f; runtime release remains signed SHA 244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248)",
+    "open_prs": [],
     "merged_prs": [
       {
         "number": 140,
@@ -441,7 +425,7 @@
       }
     ],
     "open_prs+": null,
-    "release_reconciliation": {
+    "prior_release_reconciliation": {
       "merged_prs": [461, 462, 463, 465, 466],
       "release_sha": "395fc314c836d5d9d8a76b64d85b8380ece3a68b",
       "staging_review_version_id": "a8d3d1de-885e-466c-b762-ee2e946c8261",
@@ -505,49 +489,113 @@
         "hard_stop": "No extraction or flip; C5 requires Aidan to say exactly 'flip now'."
       }
     },
+    "release_reconciliation": {
+      "release_pr": {
+        "number": 477,
+        "url": "https://github.com/a-atx/opchain/pull/477",
+        "head_sha": "d1cba9972bbc856fddff9e81f17281efe1f998f1",
+        "merge_sha": "244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248",
+        "merged_at": "2026-09-02T19:27:32Z",
+        "ci_run_id": 33672836001,
+        "lighthouse_run_id": 33672836044,
+        "checks": "PASS"
+      },
+      "tag": {
+        "name": "v1.9.0",
+        "object_sha": "fd05dd2c5d696661cb2cc5cb9dd57d2470f69c32",
+        "peeled_commit": "244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248",
+        "signing_fingerprint": "66ED0CF12E9C51822AA1629BB4A90085A810B266",
+        "local_gate": "PASS",
+        "remote_gate": "PASS"
+      },
+      "registry": {
+        "preflight_run_id": 33673476599,
+        "tag_run_id": 33677209947,
+        "tag_run_conclusion": "success",
+        "version": "1.9.0",
+        "status": "active",
+        "is_latest": true,
+        "metadata_matches_server_json": true,
+        "published_at": "2026-09-02T20:05:41.073493Z"
+      },
+      "staging_deployment": {
+        "deployment_id": "791c1851-2b81-4408-b881-dac381fa6d07",
+        "version_id": "d07bb08a-9662-4e77-a2a1-673fc0c7a8a5",
+        "health_version": "244bf13",
+        "traffic_percent": 100
+      },
+      "production_deployment": {
+        "deployment_id": "54ef8a21-0665-4a83-bc1a-5768c2bae0d5",
+        "version_id": "01bbe46b-3533-4faa-bc1a-d140cbcecbbe",
+        "health_version": "244bf13",
+        "traffic_percent": 100,
+        "rollback_used": false
+      },
+      "retention": {
+        "sealed_legacy_count": 16,
+        "deleted": 16,
+        "checkpoint_records_remaining": 0,
+        "unrelated_records_preserved": 4
+      },
+      "monitoring_baseline": {
+        "pull_request": 478,
+        "url": "https://github.com/a-atx/opchain/pull/478",
+        "head_sha": "0a5ed13ee56994da8066dfc769c8aa9603cc2956",
+        "merge_sha": "c6d529631cfe49021efdcabcfcf02bc95a94700f",
+        "merged_at": "2026-09-02T21:43:29Z",
+        "ci_run_id": 33678937890,
+        "lighthouse_run_id": 33678937853,
+        "main_push_ci_run_id": 33686690691,
+        "main_push_lighthouse_run_id": 33686690787,
+        "canary_run_id": 33686712301,
+        "deploy_lag_run_id": 33686714194,
+        "deploy_relevant_paths": 0,
+        "incident_475": "closed"
+      },
+      "status": "complete"
+    },
     "closure_packet": {
-      "status": "ready-to-commit-and-open-draft-pr",
+      "status": "complete",
       "docs_forge": "PASS",
       "repo_ops": "PASS",
-      "bug_check": "PASS with warnings; tree-bound local checkpoint",
-      "tests": "38 files, 507 tests passed; 48 hook tests passed",
-      "workflow_yaml": "PASS — js-yaml parsed both schedules",
-      "checkpoint_validate": "PASS — 14 valid with 7 pre-existing advisory warnings",
-      "build": "PASS — Worker and 76-page static site",
-      "astro_check": "0 errors, 49 hints",
-      "root_audit": "0 vulnerabilities",
-      "site_audit": "0 critical; 7 high, 1 moderate, 2 low pre-existing advisories",
-      "secret_scan": "PASS — gitleaks staged scan",
-      "pr_mode": "draft; human a-atx merge required"
+      "bug_check": "PASS — complete v1.9 pre-merge ledger",
+      "tests": "43 files, 579 tests passed",
+      "checkpoint_validate": "PASS — 17 checkpoints valid",
+      "build": "PASS — Worker, site, Playwright, and Lighthouse",
+      "secret_scan": "PASS — targeted gitleaks diff scan",
+      "pr_mode": "release and baseline PRs merged"
     },
     "closeout_pr": {
-      "number": 467,
-      "url": "https://github.com/a-atx/opchain/pull/467",
-      "title": "fix(monitoring): close v1.8.3 release evidence gap",
+      "number": 478,
+      "url": "https://github.com/a-atx/opchain/pull/478",
+      "title": "chore(monitoring): approve v1.9 release baseline",
       "state": "MERGED",
       "draft": false,
       "base": "main",
-      "head": "codex/v1.8.3-phase-a-closeout",
-      "opened_head_sha": "1751efd552b3c61ce7586b95a5ed4a7d5b133652",
-      "ci_run_id": 33279611204,
+      "head": "codex/v1.9-monitoring-baseline",
+      "opened_head_sha": "0a5ed13ee56994da8066dfc769c8aa9603cc2956",
+      "ci_run_id": 33678937890,
       "ci_conclusion": "success",
-      "lighthouse_run_id": 33279611215,
+      "lighthouse_run_id": 33678937853,
       "lighthouse_conclusion": "success",
       "merged": true,
-      "merged_at": "2026-08-29T23:11:06Z",
-      "merge_sha": "bf896c2b4c306f2a27001be09b82189a49fe9d6e"
+      "merged_at": "2026-09-02T21:43:29Z",
+      "merge_sha": "c6d529631cfe49021efdcabcfcf02bc95a94700f"
     },
     "scheduler_actor_refresh": {
       "branch": "codex/v1.8.3-scheduler-actor-refresh",
       "base": "main",
       "base_sha": "bf896c2b4c306f2a27001be09b82189a49fe9d6e",
+      "pull_request": 474,
+      "merge_sha": "f014746292f8e77646effeaba21992b57c6c2bf9",
       "canary_cron": "47 13 */4 * *",
       "deploy_lag_cron": "17 14 */4 * *",
       "cadence": "calendar days 1, 5, 9, 13, 17, 21, 25, and 29",
-      "status": "draft-pr-prepared-human-a-atx-merge-required",
-      "assurance": "cron change is a scheduler refresh attempt; only successful event=schedule runs on main prove activation"
+      "status": "merged-and-active",
+      "next_v1_9_cycle": "2026-09-05",
+      "assurance": "The schedule is active; oc-monitoring-ops keeps continuous status pending until both September 5 event=schedule runs pass."
     },
-    "last_pr_number": 467,
-    "last_pr_url": "https://github.com/a-atx/opchain/pull/467"
+    "last_pr_number": 478,
+    "last_pr_url": "https://github.com/a-atx/opchain/pull/478"
   }
 }
