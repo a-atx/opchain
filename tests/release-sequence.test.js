@@ -4,7 +4,7 @@
 // entry is a silent coverage gap. This suite pins the mapping via --list.
 import { describe, it, expect } from "vitest";
 import { spawnSync } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,5 +43,24 @@ describe("scripts/release-sequence.mjs", () => {
   it("refuses an unknown --env for post-deploy", () => {
     const r = run(["--stage", "post-deploy", "--env", "production-ish"]);
     expect(r.status).toBe(1);
+  });
+
+  it("honors --version instead of checking only the catalog's current value", () => {
+    const r = run(["--stage", "pre-tag", "--version", "9.9.9"]);
+    expect(r.status).toBe(1);
+    expect(r.stdout).toContain("does not match requested 9.9.9");
+  }, 15_000);
+
+  it("binds registry sign-off to the exact tag SHA and required publish steps", () => {
+    const source = readFileSync(join(ROOT, "scripts/release-sequence.mjs"), "utf8");
+    expect(source).toMatch(/id: "registry-publish"[^\n]+cls: "fail"/);
+    expect(source).toContain("candidate.headBranch === tag");
+    expect(source).toContain("candidate.headSha === releaseSha");
+    expect(source).toContain('["Validate", "Authenticate as registry namespace owner", "Publish"]');
+  });
+
+  it("treats a dirty pre-tag tree as a release blocker", () => {
+    const source = readFileSync(join(ROOT, "scripts/release-sequence.mjs"), "utf8");
+    expect(source).toMatch(/id: "clean-tree"[^\n]+cls: "fail"/);
   });
 });

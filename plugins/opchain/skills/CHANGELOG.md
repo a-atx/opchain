@@ -14,7 +14,7 @@ checkpoint `protocol_version` is tracked separately (see
 
 _Nothing yet._
 
-## [1.9.0] — 2026-09-01 — "Assurance and governed delivery ops"
+## [1.9.0] — 2026-09-02 — "Assurance and governed delivery ops"
 
 Four new skills, catalog 29 → 33 (internal plan:
 docs/plans/2026-08-28-v1.9-assurance-release-plan.md; roadmap
@@ -66,6 +66,19 @@ skills from its Stop hook.
 **Release-assurance hardening (rides this release; repo tooling + CI, not
 catalog-skill changes):**
 
+- The release now dogfoods its new assurance rail: a repository-specific test
+  pyramid and contract matrix live in `.opchain/qa.yaml`; the first
+  `oc-security-hardening` remediation closes the hosted MCP checkpoint HIGH;
+  and the compliance scope is explicitly recorded as none-yet rather than
+  silently skipped.
+- MCP checkpoint clients now call `create_checkpoint_session` and retain its
+  private token; hosted tokens are HMAC-signed so invented values cannot read
+  or pre-seed state. The server validates skill ids and HTTP origins, caps
+  checkpoint state at 64 KiB and request bodies at 256 KiB, rate-limits session
+  creation and writes, and expires state 30 days after its latest write. The
+  signing key is a required hosted secret. Email-capture KV records now carry
+  their documented 365-day TTL. `.opchain/hardening.yaml` is replayed after
+  input generation immediately before deploy and against the live target.
 - `npm run telemetry -- status` gains a liveness guard: `enabled=true` with
   no store on disk now reports `ENABLED — NOT RECORDING ⚠`, prints
   `⚠ LIVENESS FAIL` to stderr, and **exits 1** instead of reporting a healthy
@@ -90,20 +103,37 @@ catalog-skill changes):**
   post-deploy) with fail/warn classes, and `tests/release-sequence.test.js`
   fails CI if a workflow is ever added without a ledger entry. Manual deploys
   no longer depend on Actions firing to be fully verified.
+- The pre-tag sequence's machine-readable tag probe now actually emits JSON;
+  its intended `missing-tag` success condition is covered by regression tests
+  instead of failing on human-formatted output.
+- The MCP Registry publisher now uses the real non-mutating `validate` command
+  and preserves the established `io.github.asfbay-bit/opchain-skills` identity
+  after the source-repository ownership transfer. Authentication uses the
+  existing fine-grained `asfbay-bit` mirror token; the now-invalid source-repo
+  OIDC permission is removed.
 - Three CI pins so load-bearing catalog text cannot be silently edited away:
   the boundary cross-references in `description:` frontmatter
   (`tests/routing-disambiguation.test.js`), the not-certification /
   not-legal-advice / redaction / no-offensive-testing lines
   (`tests/liability-disclaimers.test.js`), and the telemetry liveness guard
   (`tests/telemetry-status.test.js`).
+- Manifest-driven execution now states its trust boundaries: hardening checks
+  forbid shell execution and cross-origin/path escape, data invariants compile
+  expression-only predicates under read-only query guards, and compliance
+  captures default unknown commands/origins to explicit approval or a refused
+  stub.
 
 ### Compatibility
 
-**Back-compatible with v1.8.3.** All 33 skills lockstep-bump to `1.9.0`. No
-checkpoint migration; no commands or routes removed. The four new skills and
-every reciprocal edge are additive; the one behavioural change is the
-oc-security-auditor trigger re-point noted above, plus the telemetry `status`
-exit code.
+**Skill and on-disk checkpoint compatibility:** back-compatible with v1.8.3.
+All 33 skills lockstep-bump to `1.9.0`; no checkpoint-file migration, commands,
+or routes are removed. **All MCP checkpoint callers must now call
+`create_checkpoint_session` before `read_checkpoint` or `write_checkpoint`;**
+client-invented tokens and the former shared `default` session are rejected as
+a security fix. The 16 pre-v1.9 hosted checkpoint records are intentionally
+deleted during rollout because they cannot be bound to signed sessions; local
+on-disk skill checkpoints are unaffected. The other behavioural changes are the
+oc-security-auditor trigger re-point and telemetry `status` exit code above.
 
 ## [1.8.3] — 2026-08-27 — "Open seams, closed ledger"
 

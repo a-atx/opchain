@@ -156,6 +156,17 @@ distinctly in the checkpoint. Malformed contract YAML → VIOLATION with the
 parse error as evidence. A contract whose dataset the pipeline no longer
 builds → VIOLATION (orphaned contract).
 
+**Warehouse execution boundary.** Contract text is untrusted input even when
+it lives in the repo. Connect with a read-only identity, select the declared
+warehouse/database/schema explicitly, set a statement timeout and result-row
+cap, and never interpolate a contract string as a complete query. An
+`invariants[].check` must pass the expression-only grammar in
+`references/data-contract-format.md`; compile it under the Verifier-owned
+`SELECT` wrapper. Reject comments, semicolons, subqueries, DDL/DML, procedure
+calls, and multi-statements as a VIOLATION before any warehouse call. Print
+the compiled read-only query and target before execution; credentials never
+appear in the command or evidence.
+
 Verdict per contract: PASS / PASS (fixtures) / BLOCKED / VIOLATION (with the
 failing check and evidence). Any VIOLATION fails the loop iteration; the
 Builder fixes and re-verifies. BLOCKED does not pass the loop either — an

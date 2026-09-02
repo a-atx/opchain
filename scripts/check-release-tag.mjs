@@ -36,6 +36,7 @@
 //
 // Run:   node scripts/check-release-tag.mjs
 //        node scripts/check-release-tag.mjs --local   # signed pre-push gate
+//        node scripts/check-release-tag.mjs --json    # machine-readable gate result
 // Exit:  0 when the release tag and seal are valid, 1 when any release-ledger
 //        or signature invariant is unprovable.
 
@@ -476,6 +477,10 @@ export function remediation({ version, tag, reason, countDrift }) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const localOnly = process.argv.includes("--local");
   const result = checkReleaseTag({ verifyRemote: !localOnly });
+  if (process.argv.includes("--json")) {
+    console.log(JSON.stringify(result));
+    process.exit(result.ok ? 0 : 1);
+  }
   console.log("RELEASE TAG CHECK");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log(`  catalog version:  ${result.version ?? "(unreadable)"}`);

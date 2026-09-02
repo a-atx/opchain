@@ -169,6 +169,12 @@ Generate the bundle for a specific deploy or release:
    honesty section as unverifiable-by-machine. Controls whose `chained_to`
    remediation landed in `.opchain/hardening.yaml` may reference that manifest
    control's verify output instead of duplicating the capture.
+   Treat every capture definition as untrusted executable configuration:
+   confine real paths to the repository, never execute `cmd` through a shell,
+   and constrain HTTP capture to credential-free GET/HEAD on the declared
+   HTTPS evidence origin without redirects. Any free-form command or external
+   origin outside the reference allowlist requires the user's approval of the
+   exact action; without it, write a refused/manual stub rather than running.
 2. Stamp the bundle: SHA, date, catalog/app version, the profile's `scoped`
    date + register entry count, the list of `gap`/`partial` controls (an
    honest bundle includes what's missing), and — verbatim, in `index.md` —

@@ -211,7 +211,7 @@ const plannedReleaseGroups = [
         >
           <span class="hero-chevron" aria-hidden="true">▶</span>
           <span class="hero-badge">latest release</span>
-          <span class="hero-ver">v1.9.0 · shipped Sep 01, 2026</span>
+          <span class="hero-ver">v1.9.0 · shipped Sep 02, 2026</span>
           <span class="hero-title">Assurance and governed delivery ops</span>
           <span class="hero-desc">
             Delivery evidence you can review and enforce. v1.9 adds four skills
@@ -244,10 +244,14 @@ const plannedReleaseGroups = [
               </div>
             </div>
             <div class="compat-box">
-              <strong>Back-compatible with v1.8.3.</strong> All 33 skills
-              lockstep-bump to <code>1.9.0</code>. No checkpoint migration and
-              no commands removed; the four skills and every cross-skill edge
-              are additive.
+              <strong>Skill and on-disk checkpoint compatibility:</strong>
+              back-compatible with v1.8.3. All 33 skills lockstep-bump to
+              <code>1.9.0</code>; no checkpoint-file migration or commands are
+              removed. All MCP checkpoint callers must first use
+              <code>create_checkpoint_session</code>; invented tokens and the
+              former shared <code>default</code> session are rejected. The 16
+              pre-v1.9 hosted checkpoint records are deleted during rollout;
+              local on-disk checkpoints are unaffected.
             </div>
           </div>
         </div>
