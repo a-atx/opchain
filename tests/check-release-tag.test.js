@@ -437,6 +437,24 @@ describe("checkReleaseTag", () => {
 });
 
 describe("release seal integration", () => {
+  it("emits a machine-readable reason for release-sequence consumers", () => {
+    const result = spawnSync(process.execPath, ["scripts/check-release-tag.mjs", "--local", "--json"], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+    });
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed).toMatchObject({ ok: expect.any(Boolean), reason: expect.any(String) });
+    expect(result.status).toBe(parsed.ok ? 0 : 1);
+  });
+
+  it("has the pre-tag release sequence consume the JSON reason unconditionally", () => {
+    const source = readFileSync(join(REPO_ROOT, "scripts/release-sequence.mjs"), "utf8");
+    expect(source).toContain('sh("node scripts/check-release-tag.mjs --json")');
+    expect(source).toContain('result.reason === "missing-tag"');
+    expect(source).toContain("result.version !== requestedVersion");
+    expect(source).not.toContain('process.argv.includes("--json") ? " --json"');
+  });
+
   it("keeps the repository seal aligned with the real catalog and publisher workflow", () => {
     const seal = JSON.parse(readFileSync(join(REPO_ROOT, "release-seal.json"), "utf8"));
     const catalog = readCatalogVersion(join(REPO_ROOT, "skills"));
@@ -445,6 +463,17 @@ describe("release seal integration", () => {
     expect(seal).toMatchObject({ schemaVersion: 1, catalogVersion: catalog.version, generation: 1 });
     expect(seal.publisherWorkflowSha256).toBe(sha256(workflow));
     expect(seal.serverJsonSha256).toBe(sha256(serverJson));
+  });
+
+  it("validates without publishing and preserves the established registry identity", () => {
+    const workflow = readFileSync(join(REPO_ROOT, ".github/workflows/publish-mcp-registry.yml"), "utf8");
+    const server = JSON.parse(readFileSync(join(REPO_ROOT, "server.json"), "utf8"));
+    expect(workflow).toContain("run: ./mcp-publisher validate");
+    expect(workflow).not.toContain("mcp-publisher publish --dry-run");
+    expect(workflow).not.toContain("id-token: write");
+    expect(workflow).toContain("MCP_GITHUB_TOKEN: ${{ secrets.MIRROR_TOKEN }}");
+    expect(workflow).toContain("validate_only:");
+    expect(server.name).toBe("io.github.asfbay-bit/opchain-skills");
   });
 
   it("rejects a real pre-seal tag and accepts the sealed baseline under a content descendant", () => {
@@ -499,7 +528,7 @@ describe("release seal integration", () => {
     } finally {
       rmSync(repo, { recursive: true, force: true });
     }
-  });
+  }, 15_000);
 });
 
 describe("remediation", () => {

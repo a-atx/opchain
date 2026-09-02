@@ -25,7 +25,7 @@
 //   node scripts/release-sequence.mjs --stage post-deploy --env staging
 //   node scripts/release-sequence.mjs --list
 import { spawnSync, execSync } from "node:child_process";
-import { existsSync, lstatSync, readlinkSync, readdirSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readlinkSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -122,17 +122,24 @@ const LEDGER = [
   {
     id: "tag-gate-expects-missing", workflow: "release-ledger.yml (the gate it backstops)", stage: "pre-tag", cls: "fail",
     run: () => {
-      const r = sh(`node scripts/check-release-tag.mjs${process.argv.includes("--json") ? " --json" : ""}`);
+      const r = sh("node scripts/check-release-tag.mjs --json");
+      let result;
+      try { result = JSON.parse(r.out); } catch {
+        return { ok: false, out: `release tag gate did not return valid JSON:\n${r.out}` };
+      }
+      if (requestedVersion && result.version !== requestedVersion) {
+        return { ok: false, out: `catalog version ${result.version ?? "(missing)"} does not match requested ${requestedVersion}` };
+      }
       // Right before signing, the correct state is a clean refusal naming the
       // NEW version's missing tag. Anything else — catalog-split,
       // tag-version-mismatch, seal errors — means the bump is incomplete.
-      if (r.out.includes("missing-tag")) return { ok: true, out: "gate reports missing-tag for the new version — sign and push the tag next" };
-      if (r.ok) return { ok: true, out: "already tagged — post-tag re-run" };
-      return { ok: false, out: r.out };
+      if (result.reason === "missing-tag") return { ok: true, out: "gate reports missing-tag for the new version — sign and push the tag next" };
+      if (r.ok && result.ok && result.reason === "tagged") return { ok: true, out: "already tagged — post-tag re-run" };
+      return { ok: false, out: JSON.stringify(result, null, 2) };
     },
   },
   { id: "release-surfaces", workflow: "(site-half CI companion)", stage: "pre-tag", cls: "fail", run: () => sh("node scripts/check-release-surfaces.mjs") },
-  { id: "clean-tree", workflow: "(local hygiene)", stage: "pre-tag", cls: "warn", run: () => {
+  { id: "clean-tree", workflow: "(local hygiene)", stage: "pre-tag", cls: "fail", run: () => {
       const out = git("status --porcelain") ?? "";
       return { ok: out === "", out: out || "working tree clean" };
     },
@@ -169,11 +176,54 @@ const LEDGER = [
     },
   },
   {
-    id: "registry-publish", workflow: "publish-mcp-registry.yml", stage: "post-deploy", cls: "warn", prodOnly: true,
+    id: "registry-publish", workflow: "publish-mcp-registry.yml", stage: "post-deploy", cls: "fail", prodOnly: true,
     run: () => {
-      const r = sh("gh run list --workflow publish-mcp-registry.yml --limit 1 --json conclusion,displayTitle --jq '.[0] | .conclusion + \" \" + .displayTitle'");
-      if (!r.ok) return { ok: false, skip: true, out: "gh unavailable — check the Publish to MCP Registry run on GitHub by hand" };
-      return { ok: r.out.startsWith("success"), out: r.out };
+      let version = requestedVersion;
+      if (!version) {
+        try { version = JSON.parse(readFileSync(join(ROOT, "server.json"), "utf8")).version; } catch {}
+      }
+      if (!/^\d+\.\d+\.\d+$/.test(version ?? "")) {
+        return { ok: false, out: "cannot determine the release version; pass --version N.N.N" };
+      }
+      const tag = `v${version}`;
+      const releaseSha = git(`rev-parse ${tag}^{commit}`);
+      if (!releaseSha) return { ok: false, out: `${tag} does not resolve to a release commit` };
+
+      const listed = sh(
+        "gh run list --workflow publish-mcp-registry.yml --event push --limit 100 " +
+        "--json databaseId,headBranch,headSha,status,conclusion,url,event",
+      );
+      if (!listed.ok) return { ok: false, out: `could not list registry publisher runs:\n${listed.out}` };
+      let runs;
+      try { runs = JSON.parse(listed.out); } catch {
+        return { ok: false, out: `registry publisher list was not valid JSON:\n${listed.out}` };
+      }
+      const run = runs.find((candidate) =>
+        candidate.headBranch === tag &&
+        candidate.headSha === releaseSha &&
+        candidate.event === "push");
+      if (!run) return { ok: false, out: `no tag-push publisher run matches ${tag} at ${releaseSha}` };
+      if (run.status !== "completed" || run.conclusion !== "success") {
+        return { ok: false, out: `${run.url}: status=${run.status} conclusion=${run.conclusion}` };
+      }
+
+      const viewed = sh(`gh run view ${run.databaseId} --json jobs,url`);
+      if (!viewed.ok) return { ok: false, out: `could not inspect publisher steps:\n${viewed.out}` };
+      let detail;
+      try { detail = JSON.parse(viewed.out); } catch {
+        return { ok: false, out: `registry publisher detail was not valid JSON:\n${viewed.out}` };
+      }
+      const steps = (detail.jobs ?? []).flatMap((job) => job.steps ?? []);
+      const required = ["Validate", "Authenticate as registry namespace owner", "Publish"];
+      const verdicts = required.map((name) => ({ name, step: steps.find((candidate) => candidate.name === name) }));
+      const bad = verdicts.filter(({ step }) => step?.conclusion !== "success");
+      if (bad.length) {
+        return {
+          ok: false,
+          out: `${detail.url || run.url}: ${bad.map(({ name, step }) => `${name}=${step?.conclusion ?? "missing"}`).join(", ")}`,
+        };
+      }
+      return { ok: true, out: `${detail.url || run.url}: ${tag} ${releaseSha}; Validate/Authenticate/Publish=success` };
     },
   },
   {
@@ -212,8 +262,13 @@ if (args.includes("--list")) {
 }
 
 const stage = flag("--stage");
+const requestedVersion = flag("--version");
 if (!["pre-merge", "pre-tag", "post-deploy"].includes(stage ?? "")) {
-  console.error("usage: release-sequence.mjs --stage pre-merge|pre-tag|post-deploy [--env staging|prod] | --list");
+  console.error("usage: release-sequence.mjs --stage pre-merge|pre-tag|post-deploy [--env staging|prod] [--version N.N.N] | --list");
+  process.exit(1);
+}
+if (requestedVersion && !/^\d+\.\d+\.\d+$/.test(requestedVersion)) {
+  console.error(`invalid --version ${requestedVersion}; expected N.N.N`);
   process.exit(1);
 }
 const envName = flag("--env") ?? "staging";

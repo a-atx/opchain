@@ -56,14 +56,24 @@ invariants:                  # executed as queries by the Verifier
   **oc-migration-ops** work, not a quiet contract edit.
 - `freshness.max_staleness` and both `volume` bounds are the consumers'
   tolerance, agreed with them — not the pipeline's convenience.
-- `invariants[].check` must be executable in the estate's SQL dialect; the
-  Verifier runs them verbatim. Two or three that matter beat twenty that
-  don't.
+- `invariants[].check` is an **expression, never a query**. Permit column
+  references, literals, comparisons, boolean/arithmetic operators, and an
+  explicit dialect-specific allowlist of pure scalar functions. Reject `;`,
+  SQL comments, subqueries/`SELECT`, DDL/DML, procedure calls, file/network
+  functions, and multi-statements before opening a warehouse connection. The
+  Verifier compiles a valid expression into its own parameterized/read-only
+  `SELECT COUNT(*) ... WHERE NOT (<expression>)` wrapper; it never executes the
+  field verbatim. Two or three invariants that matter beat twenty that don't.
 
 ## Verifier semantics (`/oc-data-ops verify`)
 
 For each contract, in isolated context (contracts + built pipeline + data;
 never the Builder's reasoning):
+
+Use a read-only warehouse identity, an explicitly selected database/schema, a
+statement timeout, and a result-row cap. Display the compiled query and target
+before execution, with credentials omitted. Any environment that cannot prove
+those protections returns BLOCKED rather than running the check.
 
 | Check | PASS when |
 |---|---|

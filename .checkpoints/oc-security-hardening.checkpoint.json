@@ -1,0 +1,44 @@
+{
+  "protocol_version": "1.1",
+  "skill": "oc-security-hardening",
+  "project": "opchain.dev",
+  "project_dir": "/Users/aidanelsesser/repos/opchain",
+  "created_at": "2026-09-02T19:13:19.000Z",
+  "updated_at": "2026-09-02T19:13:19.000Z",
+  "phase": "gate",
+  "step": "pre-deploy-pass-live-replay-pending",
+  "status": "in_progress",
+  "progress_summary": "The v1.9 hardening manifest passes pre-deploy replay: 45 MCP tests, six retention tests, exact limiter configuration, and signing-key wiring are green. The reusable runner now fails closed on malformed schemas, unsafe commands, stale manual checks, invalid CSP chronology, and bad live response shapes. The deploy rail captures an active rollback version, constrains both environments to exact fetched origin/main, bounds verification time, and automatically rolls back post-activation failures. Independent adversarial review returned SHIP. Live HTTP replay remains deliberately pending staging and production deployment.",
+  "progress_table": [
+    { "id": "manifest", "label": "Hardening manifest and runner", "status": "complete" },
+    { "id": "mcp", "label": "Hosted MCP abuse and session controls", "status": "complete" },
+    { "id": "retention", "label": "Lead and checkpoint retention controls", "status": "complete" },
+    { "id": "deploy-rail", "label": "Exact-main deploy and automatic rollback rail", "status": "complete" },
+    { "id": "staging-live", "label": "Staging live hardening replay", "status": "not_started" },
+    { "id": "production-live", "label": "Production live hardening replay", "status": "not_started" }
+  ],
+  "context_primer": {
+    "key_decisions": [
+      "HTTP checks validate their schema pre-deploy, skip loudly because no new runtime is live yet, then block after activation.",
+      "Hosted session tokens are canonical UUIDv4 plus HMAC-SHA256 and use distinct production and staging signing secrets.",
+      "Checkpoint mutations fail closed when the Cloudflare edge limiter is absent or unhealthy.",
+      "The release intentionally does not change the 2026-03-01 Workers compatibility date immediately before production."
+    ],
+    "generated_files": [".opchain/hardening.yaml", "scripts/check-hardening.mjs"]
+  },
+  "blockers": [],
+  "next_actions": [
+    "Replay the hardening manifest against https://staging.opchain.dev after staging activation.",
+    "Replay it against https://opchain.dev after production activation and close this checkpoint only if both pass."
+  ],
+  "skill_state": {
+    "manifest": ".opchain/hardening.yaml",
+    "pre_deploy_verdict": "PASS",
+    "independent_review": "SHIP",
+    "controls": 2,
+    "failed": 0,
+    "live_skipped": 1,
+    "staging_live": "pending",
+    "production_live": "pending"
+  }
+}

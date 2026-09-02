@@ -90,13 +90,25 @@ controls:
   - id: api.rate-limit.mcp
     control: "POST /mcp per-IP rate limit + checkpoint TTL"
     applied_in: "src/index.js + KV binding"
-    verify: { method: test, cmd: "npx vitest run tests/mcp-route.test.js" }
+    verify: { method: test, cmd: "npx --no -- vitest run tests/mcp-route.test.js" }
 ```
 
 The manifest is the skill's spine: `fix`/`baseline`/`csp` append to it,
 `verify` replays it, `gate` enforces it. A control not in the manifest does not
 exist as far as the gate is concerned — which is the point: undocumented
 hardening rots silently.
+
+**Execution trust boundary.** The manifest is executable repository
+configuration, not passive data. Replay it only from a reviewed, trusted
+checkout. Never pass `verify.test.cmd` through a shell: tokenize it into argv,
+reject shell metacharacters/redirects/substitutions, forbid remote package
+downloads (`npx` must use `--no`), and allow only repository-local scripts or
+installed binaries. Resolve `config.path` inside the project root after
+symlinks. Resolve `http.url` only against the explicitly selected HTTPS deploy
+origin, without redirects or credentials; an absolute/cross-origin URL is a
+FAIL. An empty `verify` list is also a FAIL. If the project has no runner that
+enforces this envelope, use `manual` and show the exact command for human
+approval rather than executing free-form manifest text.
 
 ## `/oc-harden baseline`
 

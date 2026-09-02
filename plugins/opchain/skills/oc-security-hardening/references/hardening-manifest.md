@@ -39,7 +39,7 @@ controls:
     source_finding: "oss-readiness-audit PX-01"
     verify:
       method: test
-      cmd: "npx vitest run tests/mcp-route.test.js"
+      cmd: "npx --no -- vitest run tests/mcp-route.test.js"
   - id: headers.hsts-preload
     control: "HSTS preload directive"
     applied_in: "src/index.js (securityHeaders middleware)"
@@ -63,23 +63,33 @@ controls:
 
 | method | Semantics | Gate behavior on failure |
 |---|---|---|
-| `http` | Fetch `url` (relative to the deploy target), assert `header`/`expect` (or `status`) | FAIL — blocks |
+| `http` | Fetch `url` (relative to the deploy target), optionally with `request_method: POST` + a literal `json` mapping; assert `header`/`expect`, `status`, `body_contains`, and/or a runner-supported `response_shape` | FAIL — blocks |
 | `test` | Run `cmd`; exit 0 = pass | FAIL — blocks |
 | `config` | Assert a file contains/matches (`path`, `contains` or `pattern`) | FAIL — blocks |
 | `manual` | Cannot be machine-verified; carries `instructions` + `last_manual_check` | **Loud skip** — printed with age of last check; blocks only if `max_age_days` set and exceeded |
 
-**`http` timing soundness:** an `http` check verifies the *currently live*
-target, never the deploying SHA — run pre-deploy, it is a drift check on the
-LAST deployment (a diff that deletes the header middleware would still pass,
-ship, and only fail the next gate). The gate therefore requires every
-gate-blocking control to carry a `config` or `test` verify (or an
-`http`+`config` pair); `http`-only controls are replayed **post-staging-deploy**
-(between the staging smoke and the prod promote) against the staging URL, and
-again post-prod as drift watch. `url` resolves against the environment being
-verified.
+**`http` timing soundness:** an `http` check verifies a *currently live*
+target, never the deploying SHA. All HTTP checks are therefore loud skips in
+pre-deploy mode, including HTTP-only controls, and are mandatory when the gate
+is replayed **post-staging-deploy** (between staging smoke and prod promote)
+against the staging URL, then again post-prod as drift watch. Pair an HTTP check
+with a `config` or `test` check when the same control must also gate the
+deploying SHA. `url` resolves against the environment being verified.
 
 Rules:
 
+- **Treat this file as executable config.** Replay only a reviewed, trusted
+  checkout. A runner must use argv execution with no shell and an explicit
+  read-only allowlist (`npm test`, `npm run test*|check*|lint*|validate*`,
+  check/lint/validate/test Node scripts, and local `vitest run`); reject shell
+  metacharacters, redirects, substitutions, remote `npx` downloads, and
+  binaries/scripts outside the project. `config.path` must remain inside the
+  real project root after symlink resolution. `http.url` must be relative to
+  the explicitly selected HTTPS deploy origin, with redirects and credentials
+  disabled. HTTP methods are restricted to GET/POST; POST bodies must be
+  literal JSON mappings and receive only content-type plus the target Origin.
+  If that safety envelope is unavailable, mark the check `manual`
+  and require approval of the exact command rather than executing it.
 - Every control needs a `verify` block — a single method mapping, **or a list
   of method mappings (all must pass)**. The list form is how a gate-blocking
   control pairs a `config` check (verifiable at the deploying SHA) with an
@@ -106,6 +116,7 @@ Rules:
   missing/unknown `verify` method, is a **FAIL-class gate result** (fail
   closed) — the gate reports the schema error, never skips it. A `csp.stage`
   entry missing `stage_history` is treated as having no `reviewed` stamp.
+- An empty `verify: []` is missing verification and therefore FAIL-class.
 - `source_finding` traceability is required for `fix`-originated entries,
   recommended for baseline entries — it's what lets oc-security-auditor's
   `/oc-security compare` and oc-compliance-ops' register consume this file.

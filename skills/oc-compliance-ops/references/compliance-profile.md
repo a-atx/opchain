@@ -83,6 +83,16 @@ Captured excerpts land in `docs/compliance/evidence/` — a tracked path that
 outlives the deploy and may sit in a public repo. Before any excerpt or output
 is written to a bundle:
 
+- **Treat capture definitions as untrusted executable config.** Read them only
+  from a reviewed checkout. Resolve `file` paths inside the real project root
+  after symlinks and cap captured bytes. Run `cmd` as an explicit argv vector,
+  never through a shell; reject metacharacters/substitutions/redirections and
+  remote package downloads. Automatic commands must match a documented
+  read-only allowlist; otherwise show the exact argv and require user approval,
+  or emit a refused/manual stub. `http` is credential-free GET/HEAD only,
+  relative to the explicitly declared HTTPS evidence origin, with redirects
+  disabled; absolute, cross-origin, private/link-local, or metadata targets
+  require explicit approval and remain manual by default.
 - **Redact secret-class values.** Apply the same secret shapes oc-bug-check
   Check 5 scans for (API keys, tokens, passwords, credentials, high-entropy
   literals) *plus* unquoted `KEY=value` env-file lines, which Check 5's
