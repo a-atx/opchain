@@ -4,11 +4,11 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-09-02T19:13:19.000Z",
-  "updated_at": "2026-09-02T19:13:19.000Z",
+  "updated_at": "2026-09-02T21:49:57.000Z",
   "phase": "verify",
-  "step": "v1.9-release-candidate",
+  "step": "v1.9-live-acceptance-complete",
   "status": "complete",
-  "progress_summary": "The v1.9 candidate satisfies the repository QA strategy in .opchain/qa.yaml. The clean pre-merge ledger passed all 11 mapped workflow gates with no warning or skip: 43 Vitest files and 579 tests, Worker build, Astro check/build, Playwright e2e, and Lighthouse budgets. Focused security regressions passed 113 tests before the full run. One earlier Astro asset-move failure was isolated as transient; an immediate standalone build and the clean full ledger rerun both passed.",
+  "progress_summary": "The shipped v1.9 release satisfies the repository QA strategy in .opchain/qa.yaml. The clean pre-merge ledger passed all 11 mapped workflow gates with no warning or skip: 43 Vitest files and 579 tests, Worker build, Astro check/build, Playwright e2e, and Lighthouse budgets. Staging and production live acceptance then passed at exact runtime SHA 244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248, including MCP session security, limits, Origin policy, cross-environment isolation, health, content, and the 7/7 production post-deploy sequence.",
   "progress_table": [
     { "id": "unit", "label": "Unit and integration tests", "status": "complete" },
     { "id": "contracts", "label": "MCP, retention, release, and hardening contracts", "status": "complete" },
@@ -34,6 +34,8 @@
     "pre_merge_steps": 11,
     "warnings": 0,
     "failures": 0,
-    "live_acceptance_pending_release_ops": true
+    "live_acceptance_pending_release_ops": false,
+    "live_acceptance": "PASS",
+    "verified_runtime_sha": "244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248"
   }
 }

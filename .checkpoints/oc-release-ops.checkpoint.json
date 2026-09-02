@@ -3,22 +3,22 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-09-02T19:13:19.000Z",
+  "updated_at": "2026-09-02T21:49:57.000Z",
   "skill": "oc-release-ops",
-  "phase": "release",
-  "step": "candidate-verified-ready-for-pr",
-  "status": "in_progress",
-  "progress_summary": "v1.9.0, Assurance and governed delivery ops, is a verified release candidate on codex/v1.9-release-hardening. The 33-skill catalog, release surfaces, hosted MCP security and retention controls, publisher workflow, deployment rollback rail, and operator documentation are implemented. A clean rerun of the complete pre-merge ledger passed 11/11 gates: 43 test files with 579 tests, Worker and Astro builds, Astro checks, Playwright e2e, and Lighthouse budgets. An independent adversarial review returned SHIP. No tag, registry publication, staging deployment, production deployment, roadmap closure, or legacy checkpoint deletion has occurred yet.",
+  "phase": "shipped",
+  "step": "v1.9-release-signed-off",
+  "status": "complete",
+  "progress_summary": "v1.9.0, Assurance and governed delivery ops, is signed off and live. Release PR #477 merged at exact SHA 244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248; signed annotated tag v1.9.0 is verified locally and by GitHub; Registry run 33677209947 published the active/latest exact manifest. Staging and production serve health version 244bf13 at 100% traffic after hardening, smoke, MCP acceptance, visual, and 7/7 post-deploy gates. The sealed 16-record legacy checkpoint set was deleted without touching unrelated KV data, milestone #1 is closed, and monitoring baseline PR #478 plus authenticated Canary and Deploy lag dispatches are green. The next scheduled monitoring cycle remains tracked by oc-monitoring-ops and does not block the shipped release.",
   "progress_table": [
     { "id": "scope", "label": "v1.9 scope and compatibility", "status": "complete" },
     { "id": "assurance", "label": "QA, compliance, and hardening gates", "status": "complete" },
     { "id": "pre-merge", "label": "Complete local pre-merge workflow ledger", "status": "complete" },
-    { "id": "release-pr", "label": "Release PR merged to main", "status": "not_started" },
-    { "id": "signed-tag", "label": "Signed immutable v1.9.0 tag", "status": "not_started" },
-    { "id": "registry", "label": "MCP Registry v1.9.0 active and latest", "status": "not_started" },
-    { "id": "staging", "label": "Exact-main staging deploy and live review", "status": "not_started" },
-    { "id": "production", "label": "Exact-tag production deploy and verification", "status": "not_started" },
-    { "id": "closeout", "label": "Retention purge, roadmap, monitoring, and sign-off", "status": "not_started" }
+    { "id": "release-pr", "label": "Release PR merged to main", "status": "complete" },
+    { "id": "signed-tag", "label": "Signed immutable v1.9.0 tag", "status": "complete" },
+    { "id": "registry", "label": "MCP Registry v1.9.0 active and latest", "status": "complete" },
+    { "id": "staging", "label": "Exact-main staging deploy and live review", "status": "complete" },
+    { "id": "production", "label": "Exact-tag production deploy and verification", "status": "complete" },
+    { "id": "closeout", "label": "Retention purge, roadmap, monitoring baseline, and release sign-off", "status": "complete" }
   ],
   "context_primer": {
     "key_decisions": [
@@ -26,7 +26,7 @@
       "The publisher authenticates with the existing scoped MIRROR_TOKEN because GitHub OIDC cannot claim the legacy asfbay-bit registry namespace from the new repository owner.",
       "A validate-only publisher dispatch on exact main must prove validation and authentication before the immutable tag is created.",
       "Hosted checkpoint sessions are server-issued UUID plus canonical HMAC tokens; production and staging use distinct secrets, and rotation invalidates existing tokens.",
-      "The 16 legacy production checkpoint records are incompatible with signed sessions and will be irreversibly deleted only after the hardened production runtime is verified.",
+      "The 16 legacy production checkpoint records were incompatible with signed sessions and were irreversibly deleted only after the hardened production runtime was verified.",
       "Every deploy must use the exact fetched origin/main commit. Production has no branch escape hatch.",
       "Production post-activation verification failure automatically rolls back to the captured prior 100%-traffic version ID.",
       "Compliance is readiness and evidence only; no compliance framework is activated because .opchain/compliance.yaml is absent."
@@ -42,14 +42,7 @@
     ]
   },
   "blockers": [],
-  "next_actions": [
-    "Commit the verified candidate, open the release PR, require CI and Lighthouse, and merge it.",
-    "On exact origin/main, dispatch the publisher validate-only authentication preflight, then create and push signed tag v1.9.0.",
-    "Require the exact tag/SHA registry workflow to validate, authenticate, and publish successfully.",
-    "Regenerate roadmap data, deploy staging then production, and complete live MCP and visual verification.",
-    "After hardened production is live, delete exactly the pre-inventoried 16 legacy checkpoint keys and prove zero remain.",
-    "Close the v1.9 roadmap milestone, refresh monitoring baseline evidence, and record final sign-off."
-  ],
+  "next_actions": [],
   "pm_refs": [
     { "provider": "github", "id": "8", "role": "source" },
     { "provider": "github", "id": "9", "role": "source" },
@@ -60,9 +53,9 @@
     "current_release": {
       "semver": "1.9.0",
       "theme": "Assurance and governed delivery ops",
-      "phase": "candidate-verified-ready-for-pr",
+      "phase": "shipped",
       "started_at": "2026-08-28T00:00:00Z",
-      "shipped_at": null
+      "shipped_at": "2026-09-02T20:11:25.746861Z"
     },
     "prior_release": {
       "semver": "1.8.3",
@@ -84,16 +77,86 @@
       "schema_version": 1,
       "catalog_version": "1.9.0",
       "generation": 1,
-      "verified_for_sha": null
+      "verified_for_sha": "244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248"
     },
-    "tag": { "name": "v1.9.0", "local": false, "origin": false, "required_type": "annotated-and-signed" },
-    "publisher": { "preflight": "pending", "tag_run": "pending", "registry_status": "pending" },
-    "staging": { "status": "pending", "url": "https://staging.opchain.dev" },
-    "production": { "status": "pending", "url": "https://opchain.dev" },
+    "release_pr": {
+      "number": 477,
+      "url": "https://github.com/a-atx/opchain/pull/477",
+      "merge_sha": "244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248",
+      "merged_at": "2026-09-02T19:27:32Z",
+      "required_checks": "PASS"
+    },
+    "tag": {
+      "name": "v1.9.0",
+      "local": true,
+      "origin": true,
+      "required_type": "annotated-and-signed",
+      "tag_object": "fd05dd2c5d696661cb2cc5cb9dd57d2470f69c32",
+      "peeled_commit": "244bf13e9b4e0abbca5a3d8cb8dfdb811d0b1248",
+      "signing_fingerprint": "66ED0CF12E9C51822AA1629BB4A90085A810B266",
+      "local_verification": "PASS",
+      "github_verification": "verified"
+    },
+    "publisher": {
+      "preflight": "PASS",
+      "preflight_run_id": 33673476599,
+      "preflight_url": "https://github.com/a-atx/opchain/actions/runs/33673476599",
+      "tag_run": "PASS",
+      "tag_run_id": 33677209947,
+      "tag_run_url": "https://github.com/a-atx/opchain/actions/runs/33677209947",
+      "registry_status": "active-and-latest-exact",
+      "published_at": "2026-09-02T20:05:41.073493Z",
+      "server_name": "io.github.asfbay-bit/opchain-skills"
+    },
+    "staging": {
+      "status": "verified",
+      "url": "https://staging.opchain.dev",
+      "deployment_id": "791c1851-2b81-4408-b881-dac381fa6d07",
+      "version_id": "d07bb08a-9662-4e77-a2a1-673fc0c7a8a5",
+      "health_version": "244bf13",
+      "traffic_percent": 100,
+      "hardening_replay": "PASS",
+      "mcp_acceptance": "PASS",
+      "visual_review": "PASS"
+    },
+    "production": {
+      "status": "verified",
+      "url": "https://opchain.dev",
+      "deployment_id": "54ef8a21-0665-4a83-bc1a-5768c2bae0d5",
+      "version_id": "01bbe46b-3533-4faa-bc1a-d140cbcecbbe",
+      "health_version": "244bf13",
+      "traffic_percent": 100,
+      "hardening_replay": "PASS",
+      "mcp_acceptance": "PASS",
+      "post_deploy_ledger": "7/7 PASS",
+      "rollback_used": false
+    },
     "retention": {
       "legacy_checkpoint_count": 16,
       "inventory_digest": "0d4d150e0c09b65b27c2fc6e5d011f3664587efcecbf4d785f353a06b39e4e21",
-      "purge_status": "pending-production-verification"
+      "purge_status": "complete",
+      "deleted_legacy_records": 16,
+      "production_checkpoint_records_remaining": 0,
+      "staging_checkpoint_records_remaining": 0,
+      "unrelated_production_records_preserved": 4
+    },
+    "roadmap": {
+      "repository": "asfbay-bit/opchain-skills",
+      "milestone_number": 1,
+      "milestone_status": "closed",
+      "closed_at": "2026-09-02T20:06:33Z",
+      "shipped_open_issues": [8, 9, 10, 11],
+      "label": "roadmap:shipped"
+    },
+    "monitoring": {
+      "baseline_pr": 478,
+      "baseline_merge_sha": "c6d529631cfe49021efdcabcfcf02bc95a94700f",
+      "canary_run_id": 33686712301,
+      "canary_conclusion": "success",
+      "deploy_lag_run_id": 33686714194,
+      "deploy_lag_conclusion": "success",
+      "deploy_relevant_paths": 0,
+      "continuous_status": "v1.9 baseline verified; first scheduled cycle tracked separately"
     }
   }
 }
