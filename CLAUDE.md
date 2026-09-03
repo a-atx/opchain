@@ -3,6 +3,10 @@
 Marketing site + skill showcase for opchain — a set of interconnected Claude Code skills 
 that form a software development pipeline (concept → spec → design → build → deploy).
 
+**Repository identities:** the canonical source repository is `ainatx/opchain`.
+The public product mirror and MCP Registry identity remain
+`asfbay-bit/opchain-skills` and `io.github.asfbay-bit/opchain-skills`.
+
 ## Deployment
 
 Deploys are **manual**, run from a developer laptop with `wrangler login` already done. There is no automatic CI/CD path — `deploy.yml` and `promote.yml` were removed because the GitHub Actions Cloudflare token couldn't reliably manage routes/DNS in the `opchain.dev` zone, which left the bindings in a broken state. Deploying as a logged-in human in `wrangler` uses your full account session and avoids that whole class of token-scope issue.
@@ -296,7 +300,7 @@ Skill source (`skills/`) is mirrored to a public GitHub repo at `asfbay-bit/opch
 
 - **Workflow:** `.github/workflows/mirror-public.yml`. Triggers on every push to `main` that touches `skills/`, `mirror/`, `plugins/`, `.claude-plugin/`, `LICENSE`, or the workflow itself. Manual `workflow_dispatch` is also supported.
 - **What gets mirrored:** `skills/` + `LICENSE` + `plugins/` (with `cp -RL`, so the `plugins/opchain/skills` symlink becomes a real directory in the snapshot) + `.claude-plugin/` + `mirror/README.md` → `README.md` + `mirror/CONTRIBUTING.md` → `CONTRIBUTING.md` + `mirror/SECURITY.md` → `SECURITY.md` + `mirror/.github/ISSUE_TEMPLATE/` → `.github/ISSUE_TEMPLATE/`. Nothing else — no site source, no `.checkpoints/`, no scripts, no internal docs. The plugin + marketplace files are what make `/plugin marketplace add asfbay-bit/opchain-skills` → `/plugin install opchain` work; without them the public repo is skills-only.
-- **Mode:** force-push snapshot. The public repo's history is reset on every sync to a single commit (`Mirror from asfbay-bit/opchain@<sha>`). External PRs against the public repo can't merge directly; maintainers cherry-pick them here, and they propagate back on the next sync. Documented in `mirror/CONTRIBUTING.md`.
+- **Mode:** force-push snapshot. The public repo's history is reset on every sync to a single commit (`Mirror from ainatx/opchain@<sha>`). External PRs against the public repo can't merge directly; maintainers cherry-pick them here, and they propagate back on the next sync. Documented in `mirror/CONTRIBUTING.md`.
 - **Required secret:** `MIRROR_TOKEN` — a fine-grained GitHub PAT with `contents:write` on `asfbay-bit/opchain-skills`. Set via repo Settings → Secrets and variables → Actions. The workflow fails loud if it's missing.
 - **Editing the public face:** all public-facing copy (README, contributing guide, issue forms) lives under `mirror/` so it's easy to find. The `LICENSE` at repo root is shared between private and public.
 

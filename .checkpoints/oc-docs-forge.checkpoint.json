@@ -1,52 +1,62 @@
 {
   "protocol_version": "1.1",
   "project": "opchain.dev",
-  "project_dir": "/Users/aidanelsesser/.codex/worktrees/a418/opchain",
+  "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-09-01T05:10:22.000Z",
+  "updated_at": "2026-09-03T01:43:49.000Z",
   "skill": "oc-docs-forge",
   "phase": "pr-docs",
   "status": "complete",
-  "step": "codex/v1.8.3-scheduler-actor-refresh",
-  "progress_summary": "The PR documentation packet is current for the v1.8.3 scheduler-actor refresh. Canary and Deploy lag are intentionally reduced to one run on every fourth day-of-month, at 13:47 UTC and 14:17 UTC respectively, to minimize GitHub Actions usage and avoid top-of-hour load. The PR refreshes the cron definitions after the repository ownership transfer; it does not prove scheduled monitoring healthy. A human merge by a-atx and genuine event=schedule runs on main remain required before the final release closeout.",
+  "step": "codex/transfer-to-ainatx",
+  "progress_summary": "The PR documentation packet is current for the transfer of the canonical source repository to ainatx. Current source links, security-reporting routes, operational commands, CODEOWNERS, and mirror provenance now name ainatx/opchain. The public product mirror and immutable MCP Registry identity intentionally remain asfbay-bit/opchain-skills; dated evidence and the sealed publisher workflow remain unchanged.",
   "context_primer": {
     "key_decisions": [
-      "Canary and Deploy lag run on calendar days 1, 5, 9, 13, 17, 21, 25, and 29; native GitHub cron cannot express an exact rolling 96-hour interval without a daily workflow run.",
-      "Canary runs at 13:47 UTC and Deploy lag at 14:17 UTC to avoid top-of-hour scheduler load and preserve ordered evidence on monitoring days.",
-      "A cron-changing merge by a-atx is a scheduler-actor refresh attempt, not evidence of health; only successful event=schedule runs on main satisfy closeout.",
-      "No WAF exception exists; Cloudflare Bot Fight Mode stays enabled and public custom-domain machine traffic including /mcp may still be challenged.",
-      "The v1.8.3 runtime stays at exact SHA 395fc314c836d5d9d8a76b64d85b8380ece3a68b; this PR does not deploy, retag, move tags, or perform Phase C work.",
+      "The canonical source repository is ainatx/opchain, immutable repository ID 1208651570.",
+      "The public mirror and MCP Registry identity remain asfbay-bit/opchain-skills and io.github.asfbay-bit/opchain-skills.",
+      "Historical evidence links remain under the owner recorded at the time; only live commands and canonical links change.",
+      "The release-sealed publish-mcp-registry workflow is byte-for-byte unchanged.",
+      "This PR changes ownership metadata and links only; it does not deploy, retag, move tags, or migrate Cloudflare resources.",
       "The mandatory Documentation section is inline in the draft PR body; no separate documentation comment is required."
     ],
     "generated_files": [
       ".checkpoints/oc-docs-forge.checkpoint.json",
-      ".github/workflows/canary.yml",
-      ".github/workflows/deploy-lag.yml",
-      ".github/workflows/release-ledger.yml",
+      ".github/CODEOWNERS",
+      ".github/workflows/mirror-public.yml",
       "CLAUDE.md",
+      "SECURITY.md",
       "docs/governance/RELEASING.md",
-      "tests/cloudflare-monitor.test.js"
+      "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
+      "docs/runbooks/oss-split-execution-handoff.md",
+      "mirror/SECURITY.md",
+      "site/public/.well-known/security.txt",
+      "site/src/lib/repo.ts"
     ]
   },
   "skill_state": {
     "pr_comment_marker": null,
     "docs_changed": [
-      ".github/workflows/canary.yml",
-      ".github/workflows/deploy-lag.yml",
-      ".github/workflows/release-ledger.yml",
+      ".github/CODEOWNERS",
+      ".github/workflows/mirror-public.yml",
       "CLAUDE.md",
+      "SECURITY.md",
       "docs/governance/RELEASING.md",
-      "tests/cloudflare-monitor.test.js",
+      "docs/plans/2026-08-22-oss-split-licensing-compliance.md",
+      "docs/runbooks/oss-split-execution-handoff.md",
+      "mirror/SECURITY.md",
+      "reports/token-usage/report.py",
+      "site/public/.well-known/security.txt",
+      "site/src/lib/repo.ts",
+      "site/src/pages/architecture.astro",
+      "site/src/pages/changelog.astro",
+      "site/src/pages/uses.astro",
       ".checkpoints/oc-docs-forge.checkpoint.json",
       ".checkpoints/oc-repo-ops.checkpoint.json",
       ".checkpoints/oc-git-ops.checkpoint.json"
     ],
     "docs_not_changed_reason": null,
-    "follow_up_docs": [
-      "After human merge by a-atx, record successful default-branch scheduled Canary and Deploy lag run IDs in the final closure packet before calling continuous monitoring healthy."
-    ],
-    "verified_for_sha": "working-tree:codex/v1.8.3-scheduler-actor-refresh@bf896c2b4c306f2a27001be09b82189a49fe9d6e",
-    "pr_body_fragment": "## Documentation\n\n**Generated by:** oc-docs-forge\n**Docs changed:** monitoring workflow schedules, release-ledger schedule comment, deployment/release operator guidance, cadence regression test, and Git/Docs/Repo checkpoints\n**Reader impact:** Canary and Deploy lag now each run on every fourth day-of-month (days 1, 5, 9, 13, 17, 21, 25, and 29) at 13:47 UTC and 14:17 UTC. This reduces the pair to roughly 16 scheduled runs per month and refreshes their cron definitions after the repository transfer. It does not prove the scheduler is healthy.\n**Follow-up docs:** After a-atx merges this PR, capture successful event=schedule runs on main and record them in the final v1.8.3 closure PR."
+    "follow_up_docs": [],
+    "verified_for_sha": "working-tree:codex/transfer-to-ainatx@f3251c98d06bdb33b30b6a66df4c9acd7b4a83a9",
+    "pr_body_fragment": "## Documentation\n\n**Generated by:** oc-docs-forge\n**Docs changed:** repository identity guidance, CODEOWNERS, security-reporting links, release/runbook commands, source-site links, mirror provenance, and Git/Docs/Repo checkpoints\n**Reader impact:** The canonical source repository is now `ainatx/opchain`. The public mirror and MCP Registry identity intentionally remain `asfbay-bit/opchain-skills` and `io.github.asfbay-bit/opchain-skills`; historical evidence is preserved.\n**Follow-up docs:** None."
   },
   "next_actions": []
 }
