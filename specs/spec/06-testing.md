@@ -63,7 +63,8 @@ curl -I https://opchain.dev/opchain-skills.zip
 
 ### CI workflow
 
-`.github/workflows/ci.yml` runs on every PR and push to `main`:
+`.github/workflows/ci.yml` runs on every PR. The protected `main` branch does
+not repeat the same checks after merge:
 
 1. `npm ci`
 2. `npm run gen-catalog` (via `pretest`)
