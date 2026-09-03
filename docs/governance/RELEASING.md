@@ -3,7 +3,7 @@
 > **Status: reviewed draft, staged in the monorepo.** At the repo split
 > (handoff Phase C4) this file becomes the root `RELEASING.md` of
 > `asfbay-bit/opchain-skills`, adapted for the two-repo layout. Until then it is
-> the canonical release process for `asfbay-bit/opchain`, where both halves of a
+> the canonical release process for `ainatx/opchain`, where both halves of a
 > release live. Decision record: [docs/plans/2026-08-27-release-surface-governance.md](../plans/2026-08-27-release-surface-governance.md).
 > Decision-making rules (who decides what ships): [GOVERNANCE.md](GOVERNANCE.md).
 >
@@ -248,7 +248,7 @@ complete contribution. You do **not** update site surfaces, version stamps, or
 manifests — those move in lockstep at cut time, and a site that still shows
 the previous version after your merge is *expected and owned*, not a bug to
 PR against. (Post-split: skill PRs go to `asfbay-bit/opchain-skills`; the site
-lives in `asfbay-bit/opchain` and is maintainer territory.)
+lives in `ainatx/opchain` and is maintainer territory.)
 
 **Maintainers / release agents:** you own §3–§6 end to end. The release-cut
 PRs are the only PRs that touch live-claim surfaces, and the audit prompt run

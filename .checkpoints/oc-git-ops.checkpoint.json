@@ -138,7 +138,7 @@
   ],
   "context_primer": {
     "key_decisions": [
-      "Canonical repository is a-atx/opchain; immutable repository ID 1208651570 and main/tag history survived the ownership transfer.",
+      "Canonical repository is ainatx/opchain; immutable repository ID 1208651570 and main/tag history survived the ownership transfer.",
       "The signed v1.9.0 tag and deployed runtime remain pinned to 244bf13 even though non-deploying baseline and checkpoint commits advance main.",
       "PR #478 records the exact deployed Cloudflare baseline; its .github-only change is explicitly non-deploying.",
       "Authenticated workflow_dispatch runs validate the v1.9 baseline immediately, while oc-monitoring-ops separately tracks the first event=schedule cycle.",
