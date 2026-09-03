@@ -3,19 +3,20 @@
   "project": "opchain.dev",
   "project_dir": "/Users/aidanelsesser/repos/opchain",
   "created_at": "2026-07-10T17:52:21Z",
-  "updated_at": "2026-09-03T01:44:30.000Z",
+  "updated_at": "2026-09-03T04:25:48.282Z",
   "skill": "oc-repo-ops",
   "phase": "pr-verify",
   "status": "complete",
-  "step": "codex/transfer-to-ainatx",
-  "progress_summary": "Pre-PR readiness PASS for the source-repository transfer to ainatx. The current Docs Forge packet contains the mandatory Documentation section and accurately separates the new canonical source owner from the retained public mirror and MCP Registry identity. Checkpoint schema, whitespace, 579 tests, Astro checks, Worker/site builds, catalogs, bundled references, plugin copies, internal identifiers, staged secret scanning, production dependency audits, release-seal integrity, and GitHub repository resolution all pass. No related untracked file is pending.",
+  "step": "codex/reduce-actions-churn",
+  "progress_summary": "Pre-PR readiness PASS for the Actions-churn reduction. The Docs Forge packet contains the mandatory Documentation section and matches the current workflow behavior. YAML parsing, exact required-check names, pull-request triggers, Monday schedules, manual-dispatch fallbacks, checkpoint schema, whitespace, 579 tests, Astro checks, Worker/site builds, catalogs, bundled references, plugin copies, internal references, staged secret scanning, and production dependency audits pass. No related untracked file or generated drift is pending.",
   "context_primer": {
     "key_decisions": [
-      "Repo Ops evaluated all ownership-link, CODEOWNERS, security-reporting, runbook, mirror-provenance, site, and checkpoint changes plus the current Docs Forge packet.",
-      "The canonical source repository is ainatx/opchain; the public mirror and MCP Registry identity remain asfbay-bit/opchain-skills.",
-      "Historical evidence and the release-sealed publisher workflow remain unchanged.",
-      "The pending ainatx invitation to the mirror and new-owner admin inspection are external follow-ups, not blockers to this source PR.",
-      "No catalog content, skill bundle, plugin payload, release runtime, deployment, tag, or Registry identity changes."
+      "Repo Ops evaluated the four workflow changes, four current documentation surfaces, and the Docs Forge packet.",
+      "All four ruleset-required check names remain unchanged and unfiltered on pull_request.",
+      "Production Lighthouse and the release ledger retain manual dispatch and move to weekly Monday schedules.",
+      "Historical plans and changelogs remain point-in-time records; current operator docs and specs were updated.",
+      "No catalog, skill bundle, plugin payload, release seal, deployment, or runtime code changes are in scope.",
+      "The implementation commit and DCO signoff are attributed to ainatx so scheduled workflow ownership can follow the new repository owner."
     ],
     "generated_files": [
       ".checkpoints/oc-repo-ops.checkpoint.json"
@@ -25,19 +26,18 @@
     "verdict": "PASS",
     "blocking_findings": [],
     "warnings": [
-      "ainatx must accept the pending write invitation to asfbay-bit/opchain-skills.",
-      "Admin-only GitHub settings and any out-of-repo OIDC trust must be checked while authenticated as ainatx.",
-      "The site development audit still reports seven high-severity findings in the existing LHCI toolchain; production dependency audits are clean."
+      "The site development audit reports seven high-severity findings in the existing LHCI toolchain; root and site production dependency audits have zero vulnerabilities and no critical finding exists."
     ],
     "docs_packet_verified": true,
     "catalog_verified": true,
     "generated_artifacts_verified": true,
     "internal_links_verified": true,
     "related_untracked_files_staged": true,
-    "verified_for_sha": "working-tree:codex/transfer-to-ainatx@f3251c98d06bdb33b30b6a66df4c9acd7b4a83a9",
+    "verified_for_sha": "77c3aae934ee9267e3410cd290d33ea96977d024",
     "last_verify": {
-      "at": "2026-09-03T01:44:30.000Z",
-      "branch": "codex/transfer-to-ainatx",
+      "at": "2026-09-03T04:25:38.000Z",
+      "branch": "codex/reduce-actions-churn",
+      "base": "origin/main@61a916946173efbb2864b895d5cb413a1d8d0eed",
       "verdict": "PASS",
       "blocking_findings": []
     }
