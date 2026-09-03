@@ -16,7 +16,7 @@ Deploys are **manual**, run from a developer laptop with `wrangler login` alread
 - **Both** use `custom_domain: true` — Cloudflare manages DNS automatically on `wrangler deploy`. Do not pre-create CNAMEs manually (Cloudflare refuses to take over externally-managed records: `error 100117`).
 - **Version stamp:** `build.mjs` injects `__OPCHAIN_VERSION__` via esbuild `define`, sourced from `OPCHAIN_VERSION` env var or `git rev-parse --short HEAD`. Surfaced in `GET /api/health` (`version` JSON field + `X-Opchain-Version` response header on that route).
 - **Deploys use the exact fetched `origin/main`.** `npm run deploy:staging` and `npm run deploy` must run from the current reviewed main commit. This keeps staging a faithful production preview and prevents unmerged production bytes. The staging-only branch-preview escape hatch is `OPCHAIN_ALLOW_OFF_MAIN_STAGING=1`; production has no branch bypass.
-- **Releases must be tagged before they ship.** `npm run deploy` (production only) refuses when the lockstep catalog version in `skills/*/SKILL.md` has moved somewhere no git tag follows. This closes the release→git-ops edge: `oc-release-ops` always *said* it handed the tag to `oc-git-ops`, but oc-git-ops had no tag verb until v1.8.3, and a 2026-08-26 audit found 13 shipped releases against 3 tags — v1.0–v1.7 all shipped untagged, so `publish-mcp-registry.yml` (which fires on `v*` tags) never republished for any of them. Run `/oc-git-release <semver>` after the release PR merges, or `git tag -s v<semver> -m "release: v<semver>" && git push origin v<semver>` by hand (the check requires a *signed* tag — `-a` alone is refused as `invalid-tag-signature`). The check is `npm run check-release-tag`; `/oc-release verify` calls the same script. Staging is exempt (you review before you tag). Loud escape hatch: `OPCHAIN_ALLOW_UNTAGGED_RELEASE=1`. A daily `release-ledger.yml` backstop tracks any shipped release still missing a tag. Full rationale: `docs/plans/2026-08-26-git-ops-per-release.md`.
+- **Releases must be tagged before they ship.** `npm run deploy` (production only) refuses when the lockstep catalog version in `skills/*/SKILL.md` has moved somewhere no git tag follows. This closes the release→git-ops edge: `oc-release-ops` always *said* it handed the tag to `oc-git-ops`, but oc-git-ops had no tag verb until v1.8.3, and a 2026-08-26 audit found 13 shipped releases against 3 tags — v1.0–v1.7 all shipped untagged, so `publish-mcp-registry.yml` (which fires on `v*` tags) never republished for any of them. Run `/oc-git-release <semver>` after the release PR merges, or `git tag -s v<semver> -m "release: v<semver>" && git push origin v<semver>` by hand (the check requires a *signed* tag — `-a` alone is refused as `invalid-tag-signature`). The check is `npm run check-release-tag`; `/oc-release verify` calls the same script. Staging is exempt (you review before you tag). Loud escape hatch: `OPCHAIN_ALLOW_UNTAGGED_RELEASE=1`. A weekly `release-ledger.yml` backstop tracks any shipped release still missing a tag. Full rationale: `docs/plans/2026-08-26-git-ops-per-release.md`.
 - **Monitoring + deploy-lag guardrail:** GitHub-hosted `/api/health` probes are selectively challenged by Free-plan Bot Fight Mode, which cannot be bypassed with a WAF Skip rule. `.github/workflows/canary.yml` therefore verifies the approved production/staging deployments, versions, 100% traffic, script fingerprints/bindings, domains, and observability through Cloudflare's authenticated control plane. Canary and `.github/workflows/deploy-lag.yml` run on every fourth day-of-month; Deploy lag compares against `.github/monitoring/release-baseline.json` and opens one issue only when paths after the approved runtime SHA are deploy-relevant. Docs/checkpoint/workflow-only descendants do not create false lag. A green run does not prove public `/api/health` or `/mcp` reachability. See `docs/runbooks/cloudflare-challenge.md` for the assurance boundary and baseline-refresh procedure.
 
 ### Deploy flow
@@ -47,7 +47,7 @@ feature branch ─► PR ─► CI green (tests only) ─► merge to main
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every PR and push to main: Vitest, `astro check`, site build, Playwright e2e. CI does not deploy anything — it only verifies the build is green before you decide to ship.
+`.github/workflows/ci.yml` runs on every PR: Vitest, `astro check`, site build, Playwright e2e. The protected `main` branch receives only PR-gated changes that passed those checks, so CI does not repeat them after merge. CI does not deploy anything — it only verifies the build is green before you decide to ship.
 
 `.github/workflows/lighthouse.yml` runs Lighthouse/Axe budgets on PR builds (not against deployed environments).
 
@@ -116,10 +116,10 @@ opchain/
 ├── mirror/                 # Source for the public skills mirror — see "Public skill
 │   │                       # mirror" below.
 ├── .checkpoints/           # Session-state checkpoints — see "Session resume" below.
-├── .github/workflows/      # 7 workflows, no deploy workflows (manual): ci.yml, lighthouse.yml,
-│   │                       # canary.yml (10-min prod+staging Cloudflare control-plane baseline check),
-│   │                       # lighthouse-prod.yml (daily LHCI vs the live site), deploy-lag.yml,
-│   │                       # mirror-public.yml, publish-mcp-registry.yml
+├── .github/workflows/      # 8 workflows, no deploy workflows (manual): ci.yml, lighthouse.yml,
+│   │                       # canary.yml (prod+staging control-plane check every fourth day),
+│   │                       # lighthouse-prod.yml (weekly LHCI vs the live site), deploy-lag.yml,
+│   │                       # release-ledger.yml, mirror-public.yml, publish-mcp-registry.yml
 ├── wrangler.jsonc           # Worker config (prod + env.staging)
 ├── build.mjs               # esbuild: src/index.js → dist/index.js, injects __OPCHAIN_VERSION__
 ├── vitest.config.js        # test runner config (defines __OPCHAIN_VERSION__ = "test")

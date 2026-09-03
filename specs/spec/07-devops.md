@@ -123,7 +123,8 @@ Stored in `.dev.vars` locally; in the Cloudflare Workers dashboard or via
 
 ### CI/CD
 
-`.github/workflows/ci.yml` runs on every PR and push to `main`:
+`.github/workflows/ci.yml` runs on every PR. The protected `main` branch does
+not repeat the same checks after merge:
 
 1. `actions/checkout@v6`, `actions/setup-node@v6`
 2. `npm ci`
